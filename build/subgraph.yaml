@@ -1,0 +1,53 @@
+specVersion: 0.0.2
+description: Gravatar for Ethereum
+repository: https://github.com/graphprotocol/example-subgraph
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: PendleRouter
+    network: kovan
+    source:
+      address: "0x9E148bBC7DE42167C2982d8cdEc5cEC4362D3E4A"
+      abi: PendleRouter
+      startBlock: 23657751
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Forge
+      abis:
+        - name: PendleRouter
+          file: PendleRouter\abis\PendleRouter.json
+      eventHandlers:
+        - event: NewForge(indexed bytes32,indexed address)
+          handler: handleNewForge
+      file: PendleRouter\PendleRouter.wasm
+templates:
+  - kind: ethereum/contract
+    name: IPendleForge
+    network: kovan
+    source:
+      abi: IPendleForge
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: PendleRouter\PendleRouter.wasm
+      entities:
+        - Token
+        - MintYieldToken
+        - YieldContract
+      abis:
+        - name: IPendleForge
+          file: IPendleForge\abis\IPendleForge.json
+        - name: ERC20
+          file: IPendleForge\abis\ERC20.json
+        - name: ERC20SymbolBytes
+          file: IPendleForge\abis\ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: IPendleForge\abis\ERC20NameBytes.json
+      eventHandlers:
+        - event: NewYieldContracts(bytes32,indexed address,indexed uint256,address,address)
+          handler: handleNewYieldContracts
