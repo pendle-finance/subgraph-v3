@@ -58,3 +58,18 @@ type Token @entity {
   # liquidity across all pairs
   totalLiquidity: BigDecimal!
 }
+
+type MintYieldToken @entity {
+  # transaction hash
+  id: ID!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+
+  forgeId: String!
+  amountMinted: BigDecimal!
+  expiry: BigInt!
+  from: Bytes! # the EOA that initiated the txn
+  # Underlying Asset Token
+  underlyingAsset: Token!
+  yieldContract: YieldContract!
+}

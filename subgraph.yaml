@@ -51,7 +51,7 @@ templates:
         eventHandlers:
           - event: NewYieldContracts(bytes32,indexed address,indexed uint256,address,address)
             handler: handleNewYieldContracts
-          # - event: MintYieldToken(bytes32,indexed address,indexed uint256,uint256)
-          #   handler: handleMintYieldToken
+          - event: MintYieldToken(bytes32,indexed address,indexed uint256,uint256)
+            handler: handleMintYieldToken
           # - event: RedeemYieldToken(bytes32,indexed address,indexed uint256,uint256)
           #   handler: handleRedeemYieldContracts
