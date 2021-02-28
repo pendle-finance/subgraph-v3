@@ -8,9 +8,9 @@ dataSources:
     name: PendleRouter
     network: kovan
     source:
-      address: "0x9E148bBC7DE42167C2982d8cdEc5cEC4362D3E4A"
+      address: "0x75c176C7a21D88c9bD240c3Cb4263Cdd3dCF7940"
       abi: PendleRouter
-      startBlock: 23657751
+      startBlock: 23687712
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -24,6 +24,33 @@ dataSources:
         - event: NewForge(indexed bytes32,indexed address)
           handler: handleNewForge
       file: PendleRouter\PendleRouter.wasm
+  - kind: ethereum/contract
+    name: PendleMarketFactory
+    network: kovan
+    source:
+      address: "0x85Eb31Dd2ddF092672eE819cb1F401EFe63fe2c0"
+      abi: PendleMarketFactory
+      startBlock: 23381088
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: PendleRouter\PendleRouter.wasm
+      entities:
+        - Pair
+        - Token
+      abis:
+        - name: PendleMarketFactory
+          file: PendleMarketFactory\abis\PendleMarketFactory.json
+        - name: ERC20
+          file: PendleMarketFactory\abis\ERC20.json
+        - name: ERC20SymbolBytes
+          file: PendleMarketFactory\abis\ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: PendleMarketFactory\abis\ERC20NameBytes.json
+      eventHandlers:
+        - event: MarketCreated(bytes32,indexed address,indexed address,indexed address)
+          handler: handleMarketCreated
 templates:
   - kind: ethereum/contract
     name: IPendleForge
@@ -55,3 +82,26 @@ templates:
           handler: handleMintYieldToken
         - event: RedeemYieldToken(bytes32,indexed address,indexed uint256,uint256)
           handler: handleRedeemYieldContracts
+  - kind: ethereum/contract
+    name: PendleMarket
+    network: kovan
+    source:
+      abi: PendleMarket
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: PendleRouter\PendleRouter.wasm
+      entities:
+        - Swap
+        - PendleData
+      abis:
+        - name: PendleMarket
+          file: PendleMarket\abis\PendleMarket.json
+        - name: ERC20
+          file: PendleMarket\abis\ERC20.json
+        - name: PendleData
+          file: PendleMarket\abis\PendleData.json
+      eventHandlers:
+        - event: Sync(uint256,uint256,uint256,uint256)
+          handler: handleSync
