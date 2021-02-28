@@ -40,6 +40,8 @@ export function handleNewForge(event: NewForgeEvent): void {
   PendleForgeTemplate.create(event.params.forgeAddress);
 }
 
+export function handleNewMarketFactory(event): void {}
+
 /* ** PENDLE FORGE EVENTS */
 export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   let xytToken = generateNewToken(event.params.xyt);
