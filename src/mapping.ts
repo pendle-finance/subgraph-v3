@@ -8,9 +8,10 @@ import {
 import { IPendleForge as PendleForgeTemplate } from "../generated/templates";
 import {
   Forge,
-  YieldContract,
   Token,
+  YieldContract,
   MintYieldToken,
+  RedeemYieldToken,
 } from "../generated/schema";
 import {
   convertTokenToDecimal,
@@ -114,6 +115,65 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
 
   mintYieldToken.forgeId = forgeId;
   mintYieldToken.amountMinted = convertTokenToDecimal(
+    event.params.amount,
+    BigInt.fromI32(6)
+  );
+  mintYieldToken.expiry = event.params.expiry;
+  mintYieldToken.from = event.transaction.from;
+  mintYieldToken.underlyingAsset = underlyingToken.id;
+  mintYieldToken.yieldContract = yieldContract.id;
+  mintYieldToken.save();
+}
+
+export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
+  let underlyingToken = Token.load(event.params.underlyingAsset.toHexString());
+  let yieldContractid =
+    event.params.forgeId.toString() +
+    "-" +
+    underlyingToken.id +
+    "-" +
+    event.params.expiry.toString();
+  let yieldContract = YieldContract.load(yieldContractid);
+
+  // Getting the mint volume
+  let newRedeenVolume = convertTokenToDecimal(
+    event.params.amount,
+    underlyingToken.decimals
+  );
+
+  yieldContract.redeemVolume = yieldContract.mintVolume.plus(newRedeenVolume);
+  underlyingToken.redeemVolume = underlyingToken.mintVolume.plus(
+    newRedeenVolume
+  );
+
+  underlyingToken.txCount = underlyingToken.txCount.plus(ONE_BI);
+  yieldContract.redeemTxCount = yieldContract.redeemTxCount.plus(ONE_BI);
+  underlyingToken.save();
+  yieldContract.save();
+
+  //Updating OT and XYT total supply
+  let xytToken = Token.load(yieldContract.xyt);
+  let otToken = Token.load(yieldContract.ot);
+
+  xytToken.totalSupply = fetchTokenTotalSupply(
+    ByteArray.fromHexString(yieldContract.xyt) as Address
+  );
+  otToken.totalSupply = fetchTokenTotalSupply(
+    ByteArray.fromHexString(yieldContract.ot) as Address
+  );
+
+  xytToken.save();
+  otToken.save();
+
+  // Creating new MintYieldToken entity
+  let mintYieldToken = new RedeemYieldToken(
+    event.transaction.hash.toHexString()
+  );
+  mintYieldToken.blockNumber = event.block.number;
+  mintYieldToken.timestamp = event.block.timestamp;
+
+  mintYieldToken.forgeId = event.params.forgeId;
+  mintYieldToken.amountRedeemed = convertTokenToDecimal(
     event.params.amount,
     BigInt.fromI32(6)
   );

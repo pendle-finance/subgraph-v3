@@ -73,3 +73,18 @@ type MintYieldToken @entity {
   underlyingAsset: Token!
   yieldContract: YieldContract!
 }
+
+type RedeemYieldToken @entity {
+  # transaction hash
+  id: ID!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+
+  forgeId: Bytes!
+  amountRedeemed: BigDecimal!
+  expiry: BigInt!
+  from: Bytes! # the EOA that initiated the txn
+  # Underlying Asset Token
+  underlyingAsset: Token!
+  yieldContract: YieldContract!
+}

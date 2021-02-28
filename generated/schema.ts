@@ -423,3 +423,106 @@ export class MintYieldToken extends Entity {
     this.set("yieldContract", Value.fromString(value));
   }
 }
+
+export class RedeemYieldToken extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save RedeemYieldToken entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save RedeemYieldToken entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("RedeemYieldToken", id.toString(), this);
+  }
+
+  static load(id: string): RedeemYieldToken | null {
+    return store.get("RedeemYieldToken", id) as RedeemYieldToken | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get blockNumber(): BigInt {
+    let value = this.get("blockNumber");
+    return value.toBigInt();
+  }
+
+  set blockNumber(value: BigInt) {
+    this.set("blockNumber", Value.fromBigInt(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get forgeId(): Bytes {
+    let value = this.get("forgeId");
+    return value.toBytes();
+  }
+
+  set forgeId(value: Bytes) {
+    this.set("forgeId", Value.fromBytes(value));
+  }
+
+  get amountRedeemed(): BigDecimal {
+    let value = this.get("amountRedeemed");
+    return value.toBigDecimal();
+  }
+
+  set amountRedeemed(value: BigDecimal) {
+    this.set("amountRedeemed", Value.fromBigDecimal(value));
+  }
+
+  get expiry(): BigInt {
+    let value = this.get("expiry");
+    return value.toBigInt();
+  }
+
+  set expiry(value: BigInt) {
+    this.set("expiry", Value.fromBigInt(value));
+  }
+
+  get from(): Bytes {
+    let value = this.get("from");
+    return value.toBytes();
+  }
+
+  set from(value: Bytes) {
+    this.set("from", Value.fromBytes(value));
+  }
+
+  get underlyingAsset(): string {
+    let value = this.get("underlyingAsset");
+    return value.toString();
+  }
+
+  set underlyingAsset(value: string) {
+    this.set("underlyingAsset", Value.fromString(value));
+  }
+
+  get yieldContract(): string {
+    let value = this.get("yieldContract");
+    return value.toString();
+  }
+
+  set yieldContract(value: string) {
+    this.set("yieldContract", Value.fromString(value));
+  }
+}
