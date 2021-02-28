@@ -129,3 +129,131 @@ type Pair @entity {
   # burns: [Burn!]! @derivedFrom(field: "pair")
   # swaps: [Swap!]! @derivedFrom(field: "pair")
 }
+
+type Swap @entity {
+  # transaction hash
+  id: ID!
+  # transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token or pair
+  pair: Pair!
+
+  # populated from the Swap event
+  sender: Bytes!
+  from: Bytes! # the EOA that initiated the txn
+  inToken: Token!
+  outToken: Token!
+  inAmount: BigDecimal!
+  outAmount: BigDecimal!
+  to: Bytes!
+  logIndex: BigInt
+  feesCollected: BigDecimal!
+  feesCollectedUSD: BigDecimal!
+
+  # derived info
+  amountUSD: BigDecimal!
+}
+
+type User @entity {
+  id: ID!
+  liquidityPositions: [LiquidityPosition!] @derivedFrom(field: "user")
+  usdSwapped: BigDecimal!
+}
+
+type LiquidityPosition @entity {
+  id: ID!
+  user: User!
+  pair: Pair!
+  liquidityTokenBalance: BigDecimal!
+  supplyOfPoolOwnedPercentage: BigDecimal! # the total of LP tokens owned/ LP token supply in percentage
+}
+
+# saved over time for return calculations
+type LiquidityPositionSnapshot @entity {
+  id: ID!
+  liquidityPosition: LiquidityPosition!
+  timestamp: Int! # saved for fast historical lookups
+  block: Int! # saved for fast historical lookups
+  user: User! # reference to user
+  pair: Pair! # reference to pair
+  token0Amount: BigDecimal! #the amount of token0 gained/removed
+  token1Amount: BigDecimal! #the amount of token1 gained/removed
+  token0PriceUSD: BigDecimal! # snapshot of token0 price
+  token1PriceUSD: BigDecimal! # snapshot of token1 price
+  reserve0: BigDecimal! # snapshot of pair token0 reserves
+  reserve1: BigDecimal! # snapshot of pair token1 reserves
+  reserveUSD: BigDecimal! # snapshot of pair reserves in USD
+  liquidityTokenTotalSupply: BigDecimal! # snapshot of pool token supply
+  liquidityTokenBalance: BigDecimal! # snapshot of users pool token balance
+  liquidityTokenMoved: BigDecimal! # the amount of LP tokens gained/removed
+  type: String! # either 'add' or 'remove' to specify if adding or removing liquidity
+}
+
+type Transaction @entity {
+  id: ID! # txn hash
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  # This is not the reverse of Mint.transaction; it is only used to
+  # track incomplete mints (similar for burns and swaps)
+  lpMints: [MintLPToken]!
+  lpBurns: [BurnLPToken]!
+  swaps: [Swap]!
+  mintYieldTokens: [MintYieldToken]!
+  redeemYieldTokens: [RedeemYieldToken]!
+}
+
+type MintLPToken @entity {
+  # transaction hash + "-" + index in mints Transaction array
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token or pair
+  pair: Pair!
+
+  # populated from the primary Transfer event
+  to: Bytes!
+  liquidity: BigDecimal!
+
+  # populated from the Mint event
+  sender: Bytes
+  amount0: BigDecimal
+  amount1: BigDecimal
+  logIndex: BigInt
+  # derived amount based on available prices of tokens
+  amountUSD: BigDecimal
+
+  # optional fee fields, if a Transfer event is fired in _mintFee
+  feeTo: Bytes
+  feeLiquidity: BigDecimal
+}
+
+type BurnLPToken @entity {
+  # transaction hash + "-" + index in mints Transaction array
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token or pair
+  pair: Pair!
+
+  # populated from the primary Transfer event
+  liquidity: BigDecimal!
+
+  # populated from the Burn event
+  sender: Bytes
+  amount0: BigDecimal
+  amount1: BigDecimal
+  to: Bytes
+  logIndex: BigInt
+  # derived amount based on available prices of tokens
+  amountUSD: BigDecimal
+
+  # mark uncomplete in ETH case
+  needsComplete: Boolean!
+
+  # optional fee fields, if a Transfer event is fired in _mintFee
+  feeTo: Bytes
+  feeLiquidity: BigDecimal
+}
+
+type PendleData @entity {
+  id: ID!
+  swapFee: BigDecimal!
+  exitFee: BigDecimal!
+}

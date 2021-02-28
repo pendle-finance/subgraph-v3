@@ -10,10 +10,10 @@ import { ERC20SymbolBytes } from "../generated/templates/IPendleForge/ERC20Symbo
 import { ERC20NameBytes } from "../generated/templates/IPendleForge/ERC20NameBytes";
 import {
   Token,
-  // User,
-  // LiquidityPosition,
-  // LiquidityPositionSnapshot,
-  // Pair,
+  User,
+  LiquidityPosition,
+  LiquidityPositionSnapshot,
+  Pair,
 } from "../generated/schema";
 
 export let ZERO_BI = BigInt.fromI32(0);
@@ -176,84 +176,84 @@ export function generateNewToken(tokenAddress: Address): Token | null {
   return token;
 }
 
-// /**
-//  * @dev Loads user, if user doesn't exist automatically create
-//  * @param address EOA address
-//  * @returns User Object
-//  */
-// export function loadUser(address: Address): User {
-//   let user = User.load(address.toHexString());
-//   if (user === null) {
-//     user = new User(address.toHexString());
-//     user.usdSwapped = ZERO_BD;
-//     user.save();
-//   }
+/**
+ * @dev Loads user, if user doesn't exist automatically create
+ * @param address EOA address
+ * @returns User Object
+ */
+export function loadUser(address: Address): User {
+  let user = User.load(address.toHexString());
+  if (user === null) {
+    user = new User(address.toHexString());
+    user.usdSwapped = ZERO_BD;
+    user.save();
+  }
 
-//   return user as User;
-// }
+  return user as User;
+}
 
-// export function createLiquidityPosition(
-//   exchange: Address,
-//   user: Address
-// ): LiquidityPosition {
-//   let id = exchange
-//     .toHexString()
-//     .concat("-")
-//     .concat(user.toHexString());
-//   let liquidityPosition = LiquidityPosition.load(id);
-//   if (liquidityPosition === null) {
-//     let pair = Pair.load(exchange.toHexString());
-//     pair.liquidityProviderCount = pair.liquidityProviderCount.plus(ONE_BI);
-//     liquidityPosition = new LiquidityPosition(id);
-//     liquidityPosition.user = user.toHexString();
-//     liquidityPosition.pair = exchange.toHexString();
-//     liquidityPosition.liquidityTokenBalance = ZERO_BD;
-//     liquidityPosition.supplyOfPoolOwnedPercentage = ZERO_BD;
-//     liquidityPosition.save();
-//     pair.save();
-//   }
-//   if (liquidityPosition === null)
-//     log.error("LiquidityTokenBalance is null", [id]);
-//   return liquidityPosition as LiquidityPosition;
-// }
+export function createLiquidityPosition(
+  exchange: Address,
+  user: Address
+): LiquidityPosition {
+  let id = exchange
+    .toHexString()
+    .concat("-")
+    .concat(user.toHexString());
+  let liquidityPosition = LiquidityPosition.load(id);
+  if (liquidityPosition === null) {
+    let pair = Pair.load(exchange.toHexString());
+    pair.liquidityProviderCount = pair.liquidityProviderCount.plus(ONE_BI);
+    liquidityPosition = new LiquidityPosition(id);
+    liquidityPosition.user = user.toHexString();
+    liquidityPosition.pair = exchange.toHexString();
+    liquidityPosition.liquidityTokenBalance = ZERO_BD;
+    liquidityPosition.supplyOfPoolOwnedPercentage = ZERO_BD;
+    liquidityPosition.save();
+    pair.save();
+  }
+  if (liquidityPosition === null)
+    log.error("LiquidityTokenBalance is null", [id]);
+  return liquidityPosition as LiquidityPosition;
+}
 
-// export function createLiquiditySnapshot(
-//   position: LiquidityPosition,
-//   event: ethereum.Event,
-//   type: String,
-//   amount: BigDecimal
-// ): void {
-//   let timestamp = event.block.timestamp.toI32();
-//   // let bundle = Bundle.load("1");
-//   let pair = Pair.load(position.pair);
-//   let token0 = Token.load(pair.token0);
-//   let token1 = Token.load(pair.token1);
+export function createLiquiditySnapshot(
+  position: LiquidityPosition,
+  event: ethereum.Event,
+  type: String,
+  amount: BigDecimal
+): void {
+  let timestamp = event.block.timestamp.toI32();
+  // let bundle = Bundle.load("1");
+  let pair = Pair.load(position.pair);
+  let token0 = Token.load(pair.token0);
+  let token1 = Token.load(pair.token1);
 
-//   // create new snapshot
-//   let snapshot = new LiquidityPositionSnapshot(
-//     position.id.concat(timestamp.toString())
-//   );
-//   snapshot.liquidityPosition = position.id;
-//   snapshot.timestamp = timestamp;
-//   snapshot.block = event.block.number.toI32();
-//   snapshot.user = position.user;
-//   snapshot.pair = position.pair;
-//   snapshot.token0Amount = ZERO_BD;
-//   snapshot.token1Amount = ZERO_BD;
-//   snapshot.token0PriceUSD = ZERO_BD; //token0.derivedETH.times(bundle.ethPrice);
-//   snapshot.token1PriceUSD = ZERO_BD; //token1.derivedETH.times(bundle.ethPrice);
-//   snapshot.reserve0 = pair.reserve0;
-//   snapshot.reserve1 = pair.reserve1;
-//   snapshot.reserveUSD = pair.reserveUSD;
-//   snapshot.liquidityTokenTotalSupply = pair.totalSupply;
-//   snapshot.liquidityTokenBalance = position.liquidityTokenBalance
-//   snapshot.liquidityTokenMoved = amount;
-//   position.supplyOfPoolOwnedPercentage = position.liquidityTokenBalance
-//     .div(pair.totalSupply)
-//     .times(BigDecimal.fromString("100"));
+  // create new snapshot
+  let snapshot = new LiquidityPositionSnapshot(
+    position.id.concat(timestamp.toString())
+  );
+  snapshot.liquidityPosition = position.id;
+  snapshot.timestamp = timestamp;
+  snapshot.block = event.block.number.toI32();
+  snapshot.user = position.user;
+  snapshot.pair = position.pair;
+  snapshot.token0Amount = ZERO_BD;
+  snapshot.token1Amount = ZERO_BD;
+  snapshot.token0PriceUSD = ZERO_BD; //token0.derivedETH.times(bundle.ethPrice);
+  snapshot.token1PriceUSD = ZERO_BD; //token1.derivedETH.times(bundle.ethPrice);
+  snapshot.reserve0 = pair.reserve0;
+  snapshot.reserve1 = pair.reserve1;
+  snapshot.reserveUSD = pair.reserveUSD;
+  snapshot.liquidityTokenTotalSupply = pair.totalSupply;
+  snapshot.liquidityTokenBalance = position.liquidityTokenBalance;
+  snapshot.liquidityTokenMoved = amount;
+  position.supplyOfPoolOwnedPercentage = position.liquidityTokenBalance
+    .div(pair.totalSupply)
+    .times(BigDecimal.fromString("100"));
 
-//   snapshot.liquidityPosition = position.id;
-//   snapshot.type = type.toString();
-//   snapshot.save();
-//   position.save();
-// }
+  snapshot.liquidityPosition = position.id;
+  snapshot.type = type.toString();
+  snapshot.save();
+  position.save();
+}
