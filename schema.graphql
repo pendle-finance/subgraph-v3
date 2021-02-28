@@ -88,3 +88,44 @@ type RedeemYieldToken @entity {
   underlyingAsset: Token!
   yieldContract: YieldContract!
 }
+
+type Pair @entity {
+  # pair address
+  id: ID!
+
+  # mirrored from the smart contract
+  token0: Token! #xyt Token
+  token1: Token!
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  totalSupply: BigDecimal!
+
+  # derived liquidity
+  reserveUSD: BigDecimal!
+  # Price in terms of the asset pair
+  token0Price: BigDecimal!
+  token1Price: BigDecimal!
+
+  # lifetime volume stats
+  volumeToken0: BigDecimal!
+  volumeToken1: BigDecimal!
+  volumeUSD: BigDecimal!
+  txCount: BigInt!
+  feesToken0: BigDecimal!
+  feesToken1: BigDecimal!
+  feesUSD: BigDecimal
+
+  # creation stats
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+
+  # Fields used to help derived relationship
+  liquidityProviderCount: BigInt! # used to detect new exchanges
+  # derived fields
+  # pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
+  # liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "pair")
+  # liquidityPositionSnapshots: [LiquidityPositionSnapshot!]! @derivedFrom(field: "pair")
+  # mints: [Mint!]! @derivedFrom(field: "pair")
+  # burns: [Burn!]! @derivedFrom(field: "pair")
+  # swaps: [Swap!]! @derivedFrom(field: "pair")
+}

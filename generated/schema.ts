@@ -526,3 +526,204 @@ export class RedeemYieldToken extends Entity {
     this.set("yieldContract", Value.fromString(value));
   }
 }
+
+export class Pair extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Pair entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Pair entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Pair", id.toString(), this);
+  }
+
+  static load(id: string): Pair | null {
+    return store.get("Pair", id) as Pair | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get token0(): string {
+    let value = this.get("token0");
+    return value.toString();
+  }
+
+  set token0(value: string) {
+    this.set("token0", Value.fromString(value));
+  }
+
+  get token1(): string {
+    let value = this.get("token1");
+    return value.toString();
+  }
+
+  set token1(value: string) {
+    this.set("token1", Value.fromString(value));
+  }
+
+  get reserve0(): BigDecimal {
+    let value = this.get("reserve0");
+    return value.toBigDecimal();
+  }
+
+  set reserve0(value: BigDecimal) {
+    this.set("reserve0", Value.fromBigDecimal(value));
+  }
+
+  get reserve1(): BigDecimal {
+    let value = this.get("reserve1");
+    return value.toBigDecimal();
+  }
+
+  set reserve1(value: BigDecimal) {
+    this.set("reserve1", Value.fromBigDecimal(value));
+  }
+
+  get totalSupply(): BigDecimal {
+    let value = this.get("totalSupply");
+    return value.toBigDecimal();
+  }
+
+  set totalSupply(value: BigDecimal) {
+    this.set("totalSupply", Value.fromBigDecimal(value));
+  }
+
+  get reserveUSD(): BigDecimal {
+    let value = this.get("reserveUSD");
+    return value.toBigDecimal();
+  }
+
+  set reserveUSD(value: BigDecimal) {
+    this.set("reserveUSD", Value.fromBigDecimal(value));
+  }
+
+  get token0Price(): BigDecimal {
+    let value = this.get("token0Price");
+    return value.toBigDecimal();
+  }
+
+  set token0Price(value: BigDecimal) {
+    this.set("token0Price", Value.fromBigDecimal(value));
+  }
+
+  get token1Price(): BigDecimal {
+    let value = this.get("token1Price");
+    return value.toBigDecimal();
+  }
+
+  set token1Price(value: BigDecimal) {
+    this.set("token1Price", Value.fromBigDecimal(value));
+  }
+
+  get volumeToken0(): BigDecimal {
+    let value = this.get("volumeToken0");
+    return value.toBigDecimal();
+  }
+
+  set volumeToken0(value: BigDecimal) {
+    this.set("volumeToken0", Value.fromBigDecimal(value));
+  }
+
+  get volumeToken1(): BigDecimal {
+    let value = this.get("volumeToken1");
+    return value.toBigDecimal();
+  }
+
+  set volumeToken1(value: BigDecimal) {
+    this.set("volumeToken1", Value.fromBigDecimal(value));
+  }
+
+  get volumeUSD(): BigDecimal {
+    let value = this.get("volumeUSD");
+    return value.toBigDecimal();
+  }
+
+  set volumeUSD(value: BigDecimal) {
+    this.set("volumeUSD", Value.fromBigDecimal(value));
+  }
+
+  get txCount(): BigInt {
+    let value = this.get("txCount");
+    return value.toBigInt();
+  }
+
+  set txCount(value: BigInt) {
+    this.set("txCount", Value.fromBigInt(value));
+  }
+
+  get feesToken0(): BigDecimal {
+    let value = this.get("feesToken0");
+    return value.toBigDecimal();
+  }
+
+  set feesToken0(value: BigDecimal) {
+    this.set("feesToken0", Value.fromBigDecimal(value));
+  }
+
+  get feesToken1(): BigDecimal {
+    let value = this.get("feesToken1");
+    return value.toBigDecimal();
+  }
+
+  set feesToken1(value: BigDecimal) {
+    this.set("feesToken1", Value.fromBigDecimal(value));
+  }
+
+  get feesUSD(): BigDecimal | null {
+    let value = this.get("feesUSD");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set feesUSD(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("feesUSD");
+    } else {
+      this.set("feesUSD", Value.fromBigDecimal(value as BigDecimal));
+    }
+  }
+
+  get createdAtTimestamp(): BigInt {
+    let value = this.get("createdAtTimestamp");
+    return value.toBigInt();
+  }
+
+  set createdAtTimestamp(value: BigInt) {
+    this.set("createdAtTimestamp", Value.fromBigInt(value));
+  }
+
+  get createdAtBlockNumber(): BigInt {
+    let value = this.get("createdAtBlockNumber");
+    return value.toBigInt();
+  }
+
+  set createdAtBlockNumber(value: BigInt) {
+    this.set("createdAtBlockNumber", Value.fromBigInt(value));
+  }
+
+  get liquidityProviderCount(): BigInt {
+    let value = this.get("liquidityProviderCount");
+    return value.toBigInt();
+  }
+
+  set liquidityProviderCount(value: BigInt) {
+    this.set("liquidityProviderCount", Value.fromBigInt(value));
+  }
+}

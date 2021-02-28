@@ -19,3 +19,17 @@ export class IPendleForge extends DataSourceTemplate {
     );
   }
 }
+
+export class PendleMarket extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("PendleMarket", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "PendleMarket",
+      [address.toHex()],
+      context
+    );
+  }
+}
