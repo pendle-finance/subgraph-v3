@@ -9,6 +9,7 @@ import {
   NewForge as NewForgeEvent,
   SwapEvent,
   Join as JoinLiquidityPoolEvent,
+  Exit as ExitLiquidityPoolEvent,
 } from "../generated/PendleRouter/PendleRouter";
 import {
   MintYieldToken as MintYieldTokenEvent,
@@ -214,6 +215,51 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   liquidityPool.timestamp = event.block.timestamp;
   liquidityPool.pair = pair.id;
   liquidityPool.type = "Join";
+
+  liquidityPool.from = event.params.sender;
+  liquidityPool.inToken0 = inToken0.id;
+  liquidityPool.inToken1 = inToken1.id;
+  liquidityPool.inAmount0 = inAmount0;
+  liquidityPool.inAmount1 = inAmount1;
+  liquidityPool.feesCollected = tokenFee;
+  liquidityPool.feesCollectedUSD = usdFee;
+  // use the tracked amount if we have it
+  liquidityPool.amountUSD = derivedAmountUSD;
+
+  liquidityPool.save();
+}
+
+export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
+  let pair = Pair.load(event.params.market.toHexString());
+  let inToken0 = Token.load(pair.token0);
+  let inToken1 = Token.load(pair.token1);
+  let inAmount0 = convertTokenToDecimal(
+    event.params.token0Amount,
+    inToken0.decimals
+  );
+  let inAmount1 = convertTokenToDecimal(
+    event.params.token1Amount,
+    inToken1.decimals
+  );
+
+  // @TODO Find a way to calculate USD amount
+  let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
+
+  if (inToken1.symbol == "USDT" || inToken1.symbol == "USDC") {
+    derivedAmountUSD = inAmount1.times(BigDecimal.fromString("2"));
+  }
+
+  // Calculate and update collected fees
+  let tokenFee = ZERO_BD;
+  let usdFee = ZERO_BD;
+
+  // update pair volume data, use tracked amount if we have it as its probably more accurate
+
+  // Create LiquidityPool Entity
+  let liquidityPool = new LiquidityPool(event.transaction.hash.toHexString());
+  liquidityPool.timestamp = event.block.timestamp;
+  liquidityPool.pair = pair.id;
+  liquidityPool.type = "Exit";
 
   liquidityPool.from = event.params.sender;
   liquidityPool.inToken0 = inToken0.id;

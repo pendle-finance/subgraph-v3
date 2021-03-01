@@ -29,6 +29,8 @@ dataSources:
           handler: handleSwap
         - event: Join(indexed address,uint256,uint256,address)
           handler: handleJoinLiquidityPool
+        - event: Exit(indexed address,uint256,uint256,address)
+          handler: handleExitLiquidityPool
       file: PendleRouter\PendleRouter.wasm
   - kind: ethereum/contract
     name: PendleMarketFactory
