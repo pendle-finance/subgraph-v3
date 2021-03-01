@@ -5,7 +5,10 @@ import {
   Address,
   ethereum,
 } from "@graphprotocol/graph-ts";
-import { ERC20 } from "../generated/templates/IPendleForge/ERC20";
+import {
+  ERC20,
+  Transfer as TransferEvent,
+} from "../generated/templates/PendleMarket/ERC20";
 import { ERC20SymbolBytes } from "../generated/templates/IPendleForge/ERC20SymbolBytes";
 import { ERC20NameBytes } from "../generated/templates/IPendleForge/ERC20NameBytes";
 import {
@@ -219,7 +222,7 @@ export function createLiquidityPosition(
 
 export function createLiquiditySnapshot(
   position: LiquidityPosition,
-  event: ethereum.Event,
+  event: TransferEvent,
   type: String,
   amount: BigDecimal
 ): void {
@@ -248,6 +251,14 @@ export function createLiquiditySnapshot(
   snapshot.liquidityTokenTotalSupply = pair.totalSupply;
   snapshot.liquidityTokenBalance = position.liquidityTokenBalance;
   snapshot.liquidityTokenMoved = amount;
+  log.debug(
+    "position.liquidityTokenBalance: {}, pair.totalSupply: {}, pair.id: {}",
+    [
+      position.liquidityTokenBalance.toString(),
+      pair.totalSupply.toString(),
+      pair.id,
+    ]
+  );
   position.supplyOfPoolOwnedPercentage = position.liquidityTokenBalance
     .div(pair.totalSupply)
     .times(BigDecimal.fromString("100"));

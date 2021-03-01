@@ -8,9 +8,9 @@ dataSources:
     name: PendleRouter
     network: kovan
     source:
-      address: "0x75c176C7a21D88c9bD240c3Cb4263Cdd3dCF7940"
+      address: "0x224e763d404bF0C9DDAA8398aC2fcC1F4ABA8897"
       abi: PendleRouter
-      startBlock: 23687712
+      startBlock: 23701009
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -20,9 +20,13 @@ dataSources:
       abis:
         - name: PendleRouter
           file: ./abis/PendleRouter.json
+        - name: PendleData
+          file: ./abis/PendleData.json
       eventHandlers:
         - event: NewForge(indexed bytes32,indexed address)
           handler: handleNewForge
+        - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
+          handler: handleSwap
         # - event: NewMarketFactory(indexed bytes32,indexed address)
         #   handler: handleNewMarketFactory
       file: ./src/mapping.ts
@@ -30,9 +34,9 @@ dataSources:
     name: PendleMarketFactory
     network: kovan
     source:
-      address: "0x85Eb31Dd2ddF092672eE819cb1F401EFe63fe2c0"
+      address: "0x25b7C951ac8Ad0747e86Fb36E2DA5abBddD339dE"
       abi: PendleMarketFactory
-      startBlock: 23381088
+      startBlock: 23701009
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -41,6 +45,7 @@ dataSources:
       entities:
         - Pair
         - Token
+        - Swap
       abis:
         - name: PendleMarketFactory
           file: ./abis/PendleMarketFactory.json
@@ -95,7 +100,6 @@ templates:
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
-        - Swap
         - PendleData
       abis:
         - name: PendleMarket
@@ -105,8 +109,6 @@ templates:
         - name: PendleData
           file: ./abis/PendleData.json
       eventHandlers:
-        # - event: Swap(indexed address,address,address,uint256,uint256,indexed address)
-        #   handler: handleSwap
         - event: Sync(uint256,uint256,uint256,uint256)
           handler: handleSync
         - event: Transfer(indexed address,indexed address,uint256)

@@ -1,5 +1,14 @@
-import { BigInt, Address, ByteArray } from "@graphprotocol/graph-ts";
-import { NewForge as NewForgeEvent } from "../generated/PendleRouter/PendleRouter";
+import {
+  BigInt,
+  Address,
+  ByteArray,
+  BigDecimal,
+  log,
+} from "@graphprotocol/graph-ts";
+import {
+  NewForge as NewForgeEvent,
+  SwapEvent,
+} from "../generated/PendleRouter/PendleRouter";
 import {
   MintYieldToken as MintYieldTokenEvent,
   NewYieldContracts as NewYieldContractsEvent,
@@ -12,7 +21,6 @@ import {
 } from "../generated/templates";
 import {
   Sync as SyncEvent,
-  // Swap as SwapEvent,
   PendleMarket as PendleMarketContract,
   // Mint as MintLPTokenEvent,
 } from "../generated/templates/PendleMarket/PendleMarket";
@@ -20,6 +28,8 @@ import {
   ERC20,
   Transfer as TransferEvent,
 } from "../generated/templates/PendleMarket/ERC20";
+import { PendleData as PendleDataContract } from "../generated/templates/PendleMarket/PendleData";
+
 import {
   Forge,
   Token,
@@ -28,7 +38,9 @@ import {
   RedeemYieldToken,
   Pair,
   Transaction,
-  MintLPToken
+  MintLPToken,
+  Swap,
+  PendleData,
 } from "../generated/schema";
 import {
   convertTokenToDecimal,
@@ -47,6 +59,37 @@ import {
   createLiquiditySnapshot,
 } from "./helpers";
 
+/* ** MISC Functions */
+/**
+ * @dev Loads pendle data, if none exists automatically creates new one.
+ * When loading Pendle Data it will always fetch the latest swap and exit fee
+ * directly from the contract to get latest results.
+ *
+ */
+function loadPendleData(): PendleData {
+  let pendleData = PendleData.load("1");
+  let pendleContract = PendleDataContract.bind(
+    Address.fromHexString(
+      "0x6B827d177BDe594f224FFd13F2d4D09D5b8Eb56D"
+    ) as Address
+  );
+  if (pendleData === null) {
+    pendleData = new PendleData("1");
+  }
+
+  pendleData.swapFee = pendleContract
+    .swapFee()
+    .toBigDecimal()
+    .div(BigDecimal.fromString("100"));
+  pendleData.exitFee = pendleContract
+    .exitFee()
+    .toBigDecimal()
+    .div(BigDecimal.fromString("100"));
+
+  pendleData.save();
+  return pendleData as PendleData;
+}
+
 /** PENDLE ROUTER EVENTS */
 export function handleNewForge(event: NewForgeEvent): void {
   let forge = new Forge(event.params.forgeAddress.toHexString());
@@ -55,6 +98,87 @@ export function handleNewForge(event: NewForgeEvent): void {
   forge.save();
 
   PendleForgeTemplate.create(event.params.forgeAddress);
+}
+
+export function handleSwap(event: SwapEvent): void {
+  let pair = Pair.load(event.params.market.toHexString());
+  let inToken = Token.load(event.params.inToken.toHexString());
+  let outToken = Token.load(event.params.outToken.toHexString());
+  let amountIn = convertTokenToDecimal(event.params.exactIn, inToken.decimals);
+  let amountOut = convertTokenToDecimal(
+    event.params.exactOut,
+    outToken.decimals
+  );
+  let pendleData = loadPendleData();
+
+  // @TODO Find a way to calculate USD amount
+  let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
+
+  if (inToken.symbol == "USDT") {
+    derivedAmountUSD = amountIn;
+  } else if (outToken.symbol == "USDT") {
+    derivedAmountUSD = amountOut;
+  }
+
+  // only accounts for volume through white listed tokens
+  let trackedAmountUSD = ZERO_BD; // getTrackedVolumeUSD(amount0Total, token0 as Token, amount1Total, token1 as Token, pair as Pair)
+
+  // update inToken global volume and token liquidity stats
+  inToken.tradeVolume = inToken.tradeVolume.plus(amountIn);
+  inToken.tradeVolumeUSD = inToken.tradeVolumeUSD.plus(derivedAmountUSD);
+
+  // update outToken global volume and token liquidity stats
+  outToken.tradeVolume = outToken.tradeVolume.plus(amountOut);
+  outToken.tradeVolumeUSD = outToken.tradeVolumeUSD.plus(derivedAmountUSD);
+  // update txn counts
+  inToken.txCount = inToken.txCount.plus(ONE_BI);
+
+  outToken.txCount = outToken.txCount.plus(ONE_BI);  
+  pair.txCount = pair.txCount.plus(ONE_BI);
+
+  // Calculate and update collected fees
+  let tokenFee = amountIn.times(pendleData.swapFee);
+  let usdFee = derivedAmountUSD.times(pendleData.swapFee);
+
+  // update pair volume data, use tracked amount if we have it as its probably more accurate
+  pair.volumeUSD = pair.volumeUSD.plus(derivedAmountUSD);
+
+  if (inToken.id == pair.token0) {
+    pair.volumeToken0 = pair.volumeToken0.plus(amountIn);
+    pair.volumeToken1 = pair.volumeToken1.plus(amountOut);
+    pair.feesToken0 = pair.feesToken0.plus(tokenFee);
+  } else if (inToken.id == pair.token1) {
+    pair.volumeToken1 = pair.volumeToken1.plus(amountIn);
+    pair.volumeToken0 = pair.volumeToken0.plus(amountOut);
+    pair.feesToken1 = pair.feesToken1.plus(tokenFee);
+  }
+
+  pair.feesUSD = pair.feesUSD.plus(usdFee);
+
+  // save entities
+  pair.save();
+  inToken.save();
+  outToken.save();
+
+  // Create Swap Entity
+  let swap = new Swap(event.transaction.hash.toHexString());
+  swap.timestamp = event.block.timestamp;
+  swap.pair = pair.id;
+
+  swap.sender = event.params.trader;
+  swap.from = event.transaction.from;
+  swap.inToken = inToken.id;
+  swap.outToken = outToken.id;
+  swap.inAmount = amountIn;
+  swap.outAmount = amountOut;
+  swap.to = event.params.trader;
+  swap.logIndex = event.logIndex;
+  swap.feesCollected = tokenFee;
+  swap.feesCollectedUSD = usdFee;
+  // use the tracked amount if we have it
+  swap.amountUSD = derivedAmountUSD;
+
+  swap.save();
 }
 
 // export function handleNewMarketFactory(event): void {}
@@ -391,12 +515,12 @@ export function handleTransfer(event: TransferEvent): void {
       BI_18
     );
     fromUserLiquidityPosition.save();
-    createLiquiditySnapshot(
-      fromUserLiquidityPosition,
-      event,
-      "remove",
-      value.neg()
-    );
+    // createLiquiditySnapshot(
+    //   fromUserLiquidityPosition,
+    //   event,
+    //   "remove",
+    //   value.neg()
+    // );
   }
 
   /**
@@ -416,6 +540,6 @@ export function handleTransfer(event: TransferEvent): void {
       BI_18
     );
     toUserLiquidityPosition.save();
-    createLiquiditySnapshot(toUserLiquidityPosition, event, "add", value);
+    // createLiquiditySnapshot(toUserLiquidityPosition, event, "add", value);
   }
 }
