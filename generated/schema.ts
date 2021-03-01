@@ -1741,3 +1741,133 @@ export class PendleData extends Entity {
     this.set("exitFee", Value.fromBigDecimal(value));
   }
 }
+
+export class LiquidityPool extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save LiquidityPool entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save LiquidityPool entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("LiquidityPool", id.toString(), this);
+  }
+
+  static load(id: string): LiquidityPool | null {
+    return store.get("LiquidityPool", id) as LiquidityPool | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get pair(): string {
+    let value = this.get("pair");
+    return value.toString();
+  }
+
+  set pair(value: string) {
+    this.set("pair", Value.fromString(value));
+  }
+
+  get type(): string {
+    let value = this.get("type");
+    return value.toString();
+  }
+
+  set type(value: string) {
+    this.set("type", Value.fromString(value));
+  }
+
+  get from(): Bytes {
+    let value = this.get("from");
+    return value.toBytes();
+  }
+
+  set from(value: Bytes) {
+    this.set("from", Value.fromBytes(value));
+  }
+
+  get inToken0(): string {
+    let value = this.get("inToken0");
+    return value.toString();
+  }
+
+  set inToken0(value: string) {
+    this.set("inToken0", Value.fromString(value));
+  }
+
+  get inToken1(): string {
+    let value = this.get("inToken1");
+    return value.toString();
+  }
+
+  set inToken1(value: string) {
+    this.set("inToken1", Value.fromString(value));
+  }
+
+  get inAmount0(): BigDecimal {
+    let value = this.get("inAmount0");
+    return value.toBigDecimal();
+  }
+
+  set inAmount0(value: BigDecimal) {
+    this.set("inAmount0", Value.fromBigDecimal(value));
+  }
+
+  get inAmount1(): BigDecimal {
+    let value = this.get("inAmount1");
+    return value.toBigDecimal();
+  }
+
+  set inAmount1(value: BigDecimal) {
+    this.set("inAmount1", Value.fromBigDecimal(value));
+  }
+
+  get feesCollected(): BigDecimal {
+    let value = this.get("feesCollected");
+    return value.toBigDecimal();
+  }
+
+  set feesCollected(value: BigDecimal) {
+    this.set("feesCollected", Value.fromBigDecimal(value));
+  }
+
+  get feesCollectedUSD(): BigDecimal {
+    let value = this.get("feesCollectedUSD");
+    return value.toBigDecimal();
+  }
+
+  set feesCollectedUSD(value: BigDecimal) {
+    this.set("feesCollectedUSD", Value.fromBigDecimal(value));
+  }
+
+  get amountUSD(): BigDecimal {
+    let value = this.get("amountUSD");
+    return value.toBigDecimal();
+  }
+
+  set amountUSD(value: BigDecimal) {
+    this.set("amountUSD", Value.fromBigDecimal(value));
+  }
+}

@@ -257,3 +257,24 @@ type PendleData @entity {
   swapFee: BigDecimal!
   exitFee: BigDecimal!
 }
+
+type LiquidityPool @entity {
+  # transaction hash
+  id: ID!
+  # transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token or pair
+  pair: Pair!
+  type: String! # Join or Exit only
+
+  # populated from the LiquidityPool event
+  from: Bytes! # the EOA that initiated the txn
+  inToken0: Token!
+  inToken1: Token!
+  inAmount0: BigDecimal!
+  inAmount1: BigDecimal!
+  feesCollected: BigDecimal!
+  feesCollectedUSD: BigDecimal!
+
+  # derived info
+  amountUSD: BigDecimal!
+}

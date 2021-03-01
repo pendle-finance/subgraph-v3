@@ -25,10 +25,13 @@ dataSources:
       eventHandlers:
         - event: NewForge(indexed bytes32,indexed address)
           handler: handleNewForge
-        - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
-          handler: handleSwap
         # - event: NewMarketFactory(indexed bytes32,indexed address)
         #   handler: handleNewMarketFactory
+        - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
+          handler: handleSwap
+        - event: Join(indexed address,uint256,uint256,address)
+          handler: handleJoinLiquidityPool
+
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: PendleMarketFactory
