@@ -10,6 +10,28 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
+export class NewMarketFactory extends ethereum.Event {
+  get params(): NewMarketFactory__Params {
+    return new NewMarketFactory__Params(this);
+  }
+}
+
+export class NewMarketFactory__Params {
+  _event: NewMarketFactory;
+
+  constructor(event: NewMarketFactory) {
+    this._event = event;
+  }
+
+  get marketFactoryId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get marketFactoryAddress(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
 export class EtherWithdraw extends ethereum.Event {
   get params(): EtherWithdraw__Params {
     return new EtherWithdraw__Params(this);

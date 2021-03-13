@@ -20,6 +20,20 @@ export class IPendleForge extends DataSourceTemplate {
   }
 }
 
+export class PendleMarketFactory extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("PendleMarketFactory", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "PendleMarketFactory",
+      [address.toHex()],
+      context
+    );
+  }
+}
+
 export class PendleMarket extends DataSourceTemplate {
   static create(address: Address): void {
     DataSourceTemplate.create("PendleMarket", [address.toHex()]);

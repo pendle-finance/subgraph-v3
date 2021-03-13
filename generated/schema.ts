@@ -52,6 +52,46 @@ export class Forge extends Entity {
   }
 }
 
+export class MarketFactory extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save MarketFactory entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save MarketFactory entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("MarketFactory", id.toString(), this);
+  }
+
+  static load(id: string): MarketFactory | null {
+    return store.get("MarketFactory", id) as MarketFactory | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get address(): string {
+    let value = this.get("address");
+    return value.toString();
+  }
+
+  set address(value: string) {
+    this.set("address", Value.fromString(value));
+  }
+}
+
 export class YieldContract extends Entity {
   constructor(id: string) {
     super();

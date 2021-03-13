@@ -10,6 +10,7 @@ import {
   SwapEvent,
   Join as JoinLiquidityPoolEvent,
   Exit as ExitLiquidityPoolEvent,
+  NewMarketFactory as NewMarketFactoryEvent,
 } from "../generated/PendleRouter/PendleRouter";
 import {
   MintYieldToken as MintYieldTokenEvent,
@@ -20,6 +21,7 @@ import { MarketCreated as MarketCreatedEvent } from "../generated/PendleMarketFa
 import {
   IPendleForge as PendleForgeTemplate,
   PendleMarket as PendleMarketTemplate,
+  PendleMarketFactory as PendleMarketFactoryTemplate,
 } from "../generated/templates";
 import {
   Sync as SyncEvent,
@@ -44,6 +46,7 @@ import {
   Swap,
   PendleData,
   LiquidityPool,
+  MarketFactory,
 } from "../generated/schema";
 import {
   convertTokenToDecimal,
@@ -186,6 +189,10 @@ export function handleSwap(event: SwapEvent): void {
 
 export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   let pair = Pair.load(event.params.market.toHexString());
+  log.debug("pairID: {}", [pair.id]);
+  log.debug("pair token0: {}", [pair.token0]);
+  log.debug("pair token1: {}", [pair.token1]);
+
   let inToken0 = Token.load(pair.token0);
   let inToken1 = Token.load(pair.token1);
   let inAmount0 = convertTokenToDecimal(
@@ -274,7 +281,15 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   liquidityPool.save();
 }
 
-// export function handleNewMarketFactory(event): void {}
+export function handleNewMarketFactory(event: NewMarketFactoryEvent): void {
+  let newMarketFactory = new MarketFactory(
+    event.params.marketFactoryId.toString()
+  );
+  newMarketFactory.address = event.params.marketFactoryAddress.toHexString();
+  newMarketFactory.save();
+
+  PendleMarketFactoryTemplate.create(event.params.marketFactoryAddress);
+}
 
 /* ** PENDLE FORGE EVENTS */
 export function handleNewYieldContracts(event: NewYieldContractsEvent): void {

@@ -3,6 +3,11 @@ type Forge @entity {
   forgeId: String! #Human Readable ID
 }
 
+type MarketFactory @entity {
+  id: ID! #ForgeId
+  address: String! #Market Factory ID
+}
+
 type YieldContract @entity {
   #Forge ID + underlying asset + expiry
   id: ID!

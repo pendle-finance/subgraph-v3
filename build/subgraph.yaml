@@ -8,9 +8,9 @@ dataSources:
     name: PendleRouter
     network: kovan
     source:
-      address: "0x224e763d404bF0C9DDAA8398aC2fcC1F4ABA8897"
+      address: "0x919aa9bf16A3BA278ecDA227D599D31304606711"
       abi: PendleRouter
-      startBlock: 23701009
+      startBlock: 23897097
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -25,6 +25,8 @@ dataSources:
       eventHandlers:
         - event: NewForge(indexed bytes32,indexed address)
           handler: handleNewForge
+        - event: NewMarketFactory(indexed bytes32,indexed address)
+          handler: handleNewMarketFactory
         - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
           handler: handleSwap
         - event: Join(indexed address,uint256,uint256,address)
@@ -32,34 +34,6 @@ dataSources:
         - event: Exit(indexed address,uint256,uint256,address)
           handler: handleExitLiquidityPool
       file: PendleRouter\PendleRouter.wasm
-  - kind: ethereum/contract
-    name: PendleMarketFactory
-    network: kovan
-    source:
-      address: "0x25b7C951ac8Ad0747e86Fb36E2DA5abBddD339dE"
-      abi: PendleMarketFactory
-      startBlock: 23701009
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: PendleRouter\PendleRouter.wasm
-      entities:
-        - Pair
-        - Token
-        - Swap
-      abis:
-        - name: PendleMarketFactory
-          file: PendleMarketFactory\abis\PendleMarketFactory.json
-        - name: ERC20
-          file: PendleMarketFactory\abis\ERC20.json
-        - name: ERC20SymbolBytes
-          file: PendleMarketFactory\abis\ERC20SymbolBytes.json
-        - name: ERC20NameBytes
-          file: PendleMarketFactory\abis\ERC20NameBytes.json
-      eventHandlers:
-        - event: MarketCreated(bytes32,indexed address,indexed address,indexed address)
-          handler: handleMarketCreated
 templates:
   - kind: ethereum/contract
     name: IPendleForge
@@ -91,6 +65,32 @@ templates:
           handler: handleMintYieldToken
         - event: RedeemYieldToken(bytes32,indexed address,indexed uint256,uint256)
           handler: handleRedeemYieldContracts
+  - kind: ethereum/contract
+    name: PendleMarketFactory
+    network: kovan
+    source:
+      abi: PendleMarketFactory
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: PendleRouter\PendleRouter.wasm
+      entities:
+        - Pair
+        - Token
+        - Swap
+      abis:
+        - name: PendleMarketFactory
+          file: PendleMarketFactory\abis\PendleMarketFactory.json
+        - name: ERC20
+          file: PendleMarketFactory\abis\ERC20.json
+        - name: ERC20SymbolBytes
+          file: PendleMarketFactory\abis\ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: PendleMarketFactory\abis\ERC20NameBytes.json
+      eventHandlers:
+        - event: MarketCreated(bytes32,indexed address,indexed address,indexed address)
+          handler: handleMarketCreated
   - kind: ethereum/contract
     name: PendleMarket
     network: kovan
