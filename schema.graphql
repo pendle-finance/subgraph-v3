@@ -85,7 +85,7 @@ type RedeemYieldToken @entity {
   blockNumber: BigInt!
   timestamp: BigInt!
 
-  forgeId: Bytes!
+  forgeId: String!
   amountRedeemed: BigDecimal!
   expiry: BigInt!
   from: Bytes! # the EOA that initiated the txn

@@ -512,13 +512,13 @@ export class RedeemYieldToken extends Entity {
     this.set("timestamp", Value.fromBigInt(value));
   }
 
-  get forgeId(): Bytes {
+  get forgeId(): string {
     let value = this.get("forgeId");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set forgeId(value: Bytes) {
-    this.set("forgeId", Value.fromBytes(value));
+  set forgeId(value: string) {
+    this.set("forgeId", Value.fromString(value));
   }
 
   get amountRedeemed(): BigDecimal {

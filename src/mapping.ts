@@ -377,13 +377,10 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
 }
 
 export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
+  let forgeId = event.params.forgeId.toString();
   let underlyingToken = Token.load(event.params.underlyingAsset.toHexString());
   let yieldContractid =
-    event.params.forgeId.toString() +
-    "-" +
-    underlyingToken.id +
-    "-" +
-    event.params.expiry.toString();
+    forgeId + "-" + underlyingToken.id + "-" + event.params.expiry.toString();
   let yieldContract = YieldContract.load(yieldContractid);
 
   // Getting the mint volume
@@ -423,7 +420,7 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
   mintYieldToken.blockNumber = event.block.number;
   mintYieldToken.timestamp = event.block.timestamp;
 
-  mintYieldToken.forgeId = event.params.forgeId;
+  mintYieldToken.forgeId = forgeId;
   mintYieldToken.amountRedeemed = convertTokenToDecimal(
     event.params.amount,
     BigInt.fromI32(6)
