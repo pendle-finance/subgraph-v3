@@ -1,31 +1,5 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_forge",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_xyt",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_expiry",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -54,19 +28,19 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
         "indexed": false,
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "sendTo",
+        "type": "address"
       }
     ],
-    "name": "Exit",
+    "name": "EtherWithdraw",
     "type": "event"
   },
   {
@@ -81,19 +55,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "tokenWeightOld",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
         "name": "xytWeightNew",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokenWeightNew",
         "type": "uint256"
       }
     ],
@@ -120,15 +82,34 @@
         "internalType": "uint256",
         "name": "reserve1",
         "type": "uint256"
+      }
+    ],
+    "name": "Sync",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "weight1",
+        "name": "amount",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "sendTo",
+        "type": "address"
       }
     ],
-    "name": "Sync",
+    "name": "TokenWithdraw",
     "type": "event"
   },
   {
@@ -158,12 +139,25 @@
   },
   {
     "inputs": [],
-    "name": "MIN_LIQUIDITY",
+    "name": "DOMAIN_SEPARATOR",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bytes32",
         "name": "",
-        "type": "uint256"
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PERMIT_TYPEHASH",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -172,31 +166,53 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
-        "name": "_exactOutLp",
+        "name": "_desiredXytAmount",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_maxInXyt",
+        "name": "_desiredTokenAmount",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_maxInToken",
+        "name": "_xytMinAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tokenMinAmount",
         "type": "uint256"
       }
     ],
-    "name": "addMarketLiquidityAll",
+    "name": "addMarketLiquidityDual",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "amountXytUsed",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isOut",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IPendleStructs.PendingTransfer[2]",
+        "name": "transfers",
+        "type": "tuple[2]"
       },
       {
         "internalType": "uint256",
-        "name": "amountTokenUsed",
+        "name": "lpOut",
         "type": "uint256"
       }
     ],
@@ -205,6 +221,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_inToken",
@@ -224,9 +245,21 @@
     "name": "addMarketLiquiditySingle",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "exactOutLp",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isOut",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IPendleStructs.PendingTransfer[2]",
+        "name": "transfers",
+        "type": "tuple[2]"
       }
     ],
     "stateMutability": "nonpayable",
@@ -236,12 +269,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "owner",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "",
+        "name": "spender",
         "type": "address"
       }
     ],
@@ -284,7 +317,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "account",
         "type": "address"
       }
     ],
@@ -302,6 +335,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "initialXytLiquidity",
         "type": "uint256"
@@ -315,9 +353,21 @@
     "name": "bootstrap",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isOut",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IPendleStructs.PendingTransfer[2]",
+        "name": "transfers",
+        "type": "tuple[2]"
       }
     ],
     "stateMutability": "nonpayable",
@@ -334,141 +384,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "weight",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "balance",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPendleMarket.TokenReserve",
-        "name": "inTokenReserve",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "weight",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "balance",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPendleMarket.TokenReserve",
-        "name": "outTokenReserve",
-        "type": "tuple"
-      },
-      {
-        "internalType": "uint256",
-        "name": "exactOut",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "swapFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "calcExactIn",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "exactIn",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "weight",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "balance",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPendleMarket.TokenReserve",
-        "name": "inTokenReserve",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "weight",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "balance",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPendleMarket.TokenReserve",
-        "name": "outTokenReserve",
-        "type": "tuple"
-      },
-      {
-        "internalType": "uint256",
-        "name": "exactIn",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "swapFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "calcExactOut",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "exactOut",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "claimLpInterests",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "interests",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -523,44 +438,12 @@
   },
   {
     "inputs": [],
-    "name": "factory",
+    "name": "factoryId",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "forge",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "asset",
-        "type": "address"
-      }
-    ],
-    "name": "getBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -572,36 +455,27 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "xytReserves",
+        "name": "xytBalance",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "tokenReserves",
+        "name": "xytWeight",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "lastBlockTimestamp",
+        "name": "tokenBalance",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "asset",
-        "type": "address"
-      }
-    ],
-    "name": "getWeight",
-    "outputs": [
+      },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "tokenWeight",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentBlock",
         "type": "uint256"
       }
     ],
@@ -610,12 +484,12 @@
   },
   {
     "inputs": [],
-    "name": "globalIncomeIndex",
+    "name": "governanceManager",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "contract PendleGovernanceManager",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -643,51 +517,6 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "lastGlobalIncomeIndex",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lastInterestUpdate",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lastUnderlyingYieldTokenBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -719,6 +548,92 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "nonces",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "v",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "r",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "s",
+        "type": "bytes32"
+      }
+    ],
+    "name": "permit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "redeemLpInterests",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "interests",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_inLp",
         "type": "uint256"
@@ -734,17 +649,24 @@
         "type": "uint256"
       }
     ],
-    "name": "removeMarketLiquidityAll",
+    "name": "removeMarketLiquidityDual",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "xytOut",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokenOut",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isOut",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IPendleStructs.PendingTransfer[2]",
+        "name": "transfers",
+        "type": "tuple[2]"
       }
     ],
     "stateMutability": "nonpayable",
@@ -752,6 +674,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_outToken",
@@ -771,36 +698,55 @@
     "name": "removeMarketLiquiditySingle",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "outAmountToken",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isOut",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IPendleStructs.PendingTransfer[2]",
+        "name": "transfers",
+        "type": "tuple[2]"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "inToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "outToken",
-        "type": "address"
-      }
-    ],
-    "name": "spotPrice",
+    "inputs": [],
+    "name": "router",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "spot",
-        "type": "uint256"
+        "internalType": "contract IPendleRouter",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "tokens",
+        "type": "address[]"
+      },
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      }
+    ],
+    "name": "setUpEmergencyMode",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -837,11 +783,6 @@
         "internalType": "uint256",
         "name": "minOutAmount",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "maxPrice",
-        "type": "uint256"
       }
     ],
     "name": "swapExactIn",
@@ -852,9 +793,21 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "spotPriceAfter",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isOut",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IPendleStructs.PendingTransfer[2]",
+        "name": "transfers",
+        "type": "tuple[2]"
       }
     ],
     "stateMutability": "nonpayable",
@@ -881,11 +834,6 @@
         "internalType": "uint256",
         "name": "outAmount",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "maxPrice",
-        "type": "uint256"
       }
     ],
     "name": "swapExactOut",
@@ -896,9 +844,21 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "spotPriceAfter",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isOut",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IPendleStructs.PendingTransfer[2]",
+        "name": "transfers",
+        "type": "tuple[2]"
       }
     ],
     "stateMutability": "nonpayable",
@@ -993,6 +953,47 @@
         "type": "bool"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address payable",
+        "name": "sendTo",
+        "type": "address"
+      }
+    ],
+    "name": "withdrawEther",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "sendTo",
+        "type": "address"
+      }
+    ],
+    "name": "withdrawToken",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
