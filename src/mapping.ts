@@ -372,7 +372,7 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   mintYieldToken.forgeId = forgeId;
   mintYieldToken.amountMinted = convertTokenToDecimal(
     event.params.amount,
-    BigInt.fromI32(6)
+    underlyingToken.decimals
   );
   mintYieldToken.expiry = event.params.expiry;
   mintYieldToken.from = event.transaction.from;
