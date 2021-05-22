@@ -36,25 +36,25 @@ export class Approval__Params {
   }
 }
 
-export class Exit extends ethereum.Event {
-  get params(): Exit__Params {
-    return new Exit__Params(this);
+export class EtherWithdraw extends ethereum.Event {
+  get params(): EtherWithdraw__Params {
+    return new EtherWithdraw__Params(this);
   }
 }
 
-export class Exit__Params {
-  _event: Exit;
+export class EtherWithdraw__Params {
+  _event: EtherWithdraw;
 
-  constructor(event: Exit) {
+  constructor(event: EtherWithdraw) {
     this._event = event;
   }
 
-  get token(): Address {
-    return this._event.parameters[0].value.toAddress();
+  get amount(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 
-  get amount(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
+  get sendTo(): Address {
+    return this._event.parameters[1].value.toAddress();
   }
 }
 
@@ -75,16 +75,8 @@ export class Shift__Params {
     return this._event.parameters[0].value.toBigInt();
   }
 
-  get tokenWeightOld(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
-  }
-
   get xytWeightNew(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
-  }
-
-  get tokenWeightNew(): BigInt {
-    return this._event.parameters[3].value.toBigInt();
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -112,9 +104,31 @@ export class Sync__Params {
   get reserve1(): BigInt {
     return this._event.parameters[2].value.toBigInt();
   }
+}
 
-  get weight1(): BigInt {
-    return this._event.parameters[3].value.toBigInt();
+export class TokenWithdraw extends ethereum.Event {
+  get params(): TokenWithdraw__Params {
+    return new TokenWithdraw__Params(this);
+  }
+}
+
+export class TokenWithdraw__Params {
+  _event: TokenWithdraw;
+
+  constructor(event: TokenWithdraw) {
+    this._event = event;
+  }
+
+  get token(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get sendTo(): Address {
+    return this._event.parameters[2].value.toAddress();
   }
 }
 
@@ -144,60 +158,53 @@ export class Transfer__Params {
   }
 }
 
-export class PendleMarket__addMarketLiquidityAllResult {
-  value0: BigInt;
+export class PendleMarket__addMarketLiquidityDualResultTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get isOut(): boolean {
+    return this[1].toBoolean();
+  }
+}
+
+export class PendleMarket__addMarketLiquidityDualResult {
+  value0: Array<PendleMarket__addMarketLiquidityDualResultTransfersStruct>;
   value1: BigInt;
 
-  constructor(value0: BigInt, value1: BigInt) {
+  constructor(
+    value0: Array<PendleMarket__addMarketLiquidityDualResultTransfersStruct>,
+    value1: BigInt
+  ) {
     this.value0 = value0;
     this.value1 = value1;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value0", ethereum.Value.fromTupleArray(this.value0));
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
   }
 }
 
-export class PendleMarket__calcExactInInputInTokenReserveStruct extends ethereum.Tuple {
-  get weight(): BigInt {
+export class PendleMarket__addMarketLiquiditySingleResultTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
     return this[0].toBigInt();
   }
 
-  get balance(): BigInt {
-    return this[1].toBigInt();
+  get isOut(): boolean {
+    return this[1].toBoolean();
   }
 }
 
-export class PendleMarket__calcExactInInputOutTokenReserveStruct extends ethereum.Tuple {
-  get weight(): BigInt {
+export class PendleMarket__bootstrapResultTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
     return this[0].toBigInt();
   }
 
-  get balance(): BigInt {
-    return this[1].toBigInt();
-  }
-}
-
-export class PendleMarket__calcExactOutInputInTokenReserveStruct extends ethereum.Tuple {
-  get weight(): BigInt {
-    return this[0].toBigInt();
-  }
-
-  get balance(): BigInt {
-    return this[1].toBigInt();
-  }
-}
-
-export class PendleMarket__calcExactOutInputOutTokenReserveStruct extends ethereum.Tuple {
-  get weight(): BigInt {
-    return this[0].toBigInt();
-  }
-
-  get balance(): BigInt {
-    return this[1].toBigInt();
+  get isOut(): boolean {
+    return this[1].toBoolean();
   }
 }
 
@@ -205,11 +212,21 @@ export class PendleMarket__getReservesResult {
   value0: BigInt;
   value1: BigInt;
   value2: BigInt;
+  value3: BigInt;
+  value4: BigInt;
 
-  constructor(value0: BigInt, value1: BigInt, value2: BigInt) {
+  constructor(
+    value0: BigInt,
+    value1: BigInt,
+    value2: BigInt,
+    value3: BigInt,
+    value4: BigInt
+  ) {
     this.value0 = value0;
     this.value1 = value1;
     this.value2 = value2;
+    this.value3 = value3;
+    this.value4 = value4;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
@@ -217,32 +234,50 @@ export class PendleMarket__getReservesResult {
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
+    map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
     return map;
   }
 }
 
-export class PendleMarket__removeMarketLiquidityAllResult {
-  value0: BigInt;
-  value1: BigInt;
-
-  constructor(value0: BigInt, value1: BigInt) {
-    this.value0 = value0;
-    this.value1 = value1;
+export class PendleMarket__removeMarketLiquidityDualResultTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
   }
 
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
-    return map;
+  get isOut(): boolean {
+    return this[1].toBoolean();
+  }
+}
+
+export class PendleMarket__removeMarketLiquiditySingleResultTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get isOut(): boolean {
+    return this[1].toBoolean();
+  }
+}
+
+export class PendleMarket__swapExactInResultTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get isOut(): boolean {
+    return this[1].toBoolean();
   }
 }
 
 export class PendleMarket__swapExactInResult {
   value0: BigInt;
-  value1: BigInt;
+  value1: Array<PendleMarket__swapExactInResultTransfersStruct>;
 
-  constructor(value0: BigInt, value1: BigInt) {
+  constructor(
+    value0: BigInt,
+    value1: Array<PendleMarket__swapExactInResultTransfersStruct>
+  ) {
     this.value0 = value0;
     this.value1 = value1;
   }
@@ -250,16 +285,29 @@ export class PendleMarket__swapExactInResult {
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value1", ethereum.Value.fromTupleArray(this.value1));
     return map;
+  }
+}
+
+export class PendleMarket__swapExactOutResultTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get isOut(): boolean {
+    return this[1].toBoolean();
   }
 }
 
 export class PendleMarket__swapExactOutResult {
   value0: BigInt;
-  value1: BigInt;
+  value1: Array<PendleMarket__swapExactOutResultTransfersStruct>;
 
-  constructor(value0: BigInt, value1: BigInt) {
+  constructor(
+    value0: BigInt,
+    value1: Array<PendleMarket__swapExactOutResultTransfersStruct>
+  ) {
     this.value0 = value0;
     this.value1 = value1;
   }
@@ -267,7 +315,7 @@ export class PendleMarket__swapExactOutResult {
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value1", ethereum.Value.fromTupleArray(this.value1));
     return map;
   }
 }
@@ -277,58 +325,95 @@ export class PendleMarket extends ethereum.SmartContract {
     return new PendleMarket("PendleMarket", address);
   }
 
-  MIN_LIQUIDITY(): BigInt {
-    let result = super.call("MIN_LIQUIDITY", "MIN_LIQUIDITY():(uint256)", []);
+  DOMAIN_SEPARATOR(): Bytes {
+    let result = super.call(
+      "DOMAIN_SEPARATOR",
+      "DOMAIN_SEPARATOR():(bytes32)",
+      []
+    );
 
-    return result[0].toBigInt();
+    return result[0].toBytes();
   }
 
-  try_MIN_LIQUIDITY(): ethereum.CallResult<BigInt> {
+  try_DOMAIN_SEPARATOR(): ethereum.CallResult<Bytes> {
     let result = super.tryCall(
-      "MIN_LIQUIDITY",
-      "MIN_LIQUIDITY():(uint256)",
+      "DOMAIN_SEPARATOR",
+      "DOMAIN_SEPARATOR():(bytes32)",
       []
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
-  addMarketLiquidityAll(
-    _exactOutLp: BigInt,
-    _maxInXyt: BigInt,
-    _maxInToken: BigInt
-  ): PendleMarket__addMarketLiquidityAllResult {
+  PERMIT_TYPEHASH(): Bytes {
     let result = super.call(
-      "addMarketLiquidityAll",
-      "addMarketLiquidityAll(uint256,uint256,uint256):(uint256,uint256)",
+      "PERMIT_TYPEHASH",
+      "PERMIT_TYPEHASH():(bytes32)",
+      []
+    );
+
+    return result[0].toBytes();
+  }
+
+  try_PERMIT_TYPEHASH(): ethereum.CallResult<Bytes> {
+    let result = super.tryCall(
+      "PERMIT_TYPEHASH",
+      "PERMIT_TYPEHASH():(bytes32)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBytes());
+  }
+
+  addMarketLiquidityDual(
+    user: Address,
+    _desiredXytAmount: BigInt,
+    _desiredTokenAmount: BigInt,
+    _xytMinAmount: BigInt,
+    _tokenMinAmount: BigInt
+  ): PendleMarket__addMarketLiquidityDualResult {
+    let result = super.call(
+      "addMarketLiquidityDual",
+      "addMarketLiquidityDual(address,uint256,uint256,uint256,uint256):((uint256,bool)[2],uint256)",
       [
-        ethereum.Value.fromUnsignedBigInt(_exactOutLp),
-        ethereum.Value.fromUnsignedBigInt(_maxInXyt),
-        ethereum.Value.fromUnsignedBigInt(_maxInToken)
+        ethereum.Value.fromAddress(user),
+        ethereum.Value.fromUnsignedBigInt(_desiredXytAmount),
+        ethereum.Value.fromUnsignedBigInt(_desiredTokenAmount),
+        ethereum.Value.fromUnsignedBigInt(_xytMinAmount),
+        ethereum.Value.fromUnsignedBigInt(_tokenMinAmount)
       ]
     );
 
-    return new PendleMarket__addMarketLiquidityAllResult(
-      result[0].toBigInt(),
+    return new PendleMarket__addMarketLiquidityDualResult(
+      result[0].toTupleArray<
+        PendleMarket__addMarketLiquidityDualResultTransfersStruct
+      >(),
       result[1].toBigInt()
     );
   }
 
-  try_addMarketLiquidityAll(
-    _exactOutLp: BigInt,
-    _maxInXyt: BigInt,
-    _maxInToken: BigInt
-  ): ethereum.CallResult<PendleMarket__addMarketLiquidityAllResult> {
+  try_addMarketLiquidityDual(
+    user: Address,
+    _desiredXytAmount: BigInt,
+    _desiredTokenAmount: BigInt,
+    _xytMinAmount: BigInt,
+    _tokenMinAmount: BigInt
+  ): ethereum.CallResult<PendleMarket__addMarketLiquidityDualResult> {
     let result = super.tryCall(
-      "addMarketLiquidityAll",
-      "addMarketLiquidityAll(uint256,uint256,uint256):(uint256,uint256)",
+      "addMarketLiquidityDual",
+      "addMarketLiquidityDual(address,uint256,uint256,uint256,uint256):((uint256,bool)[2],uint256)",
       [
-        ethereum.Value.fromUnsignedBigInt(_exactOutLp),
-        ethereum.Value.fromUnsignedBigInt(_maxInXyt),
-        ethereum.Value.fromUnsignedBigInt(_maxInToken)
+        ethereum.Value.fromAddress(user),
+        ethereum.Value.fromUnsignedBigInt(_desiredXytAmount),
+        ethereum.Value.fromUnsignedBigInt(_desiredTokenAmount),
+        ethereum.Value.fromUnsignedBigInt(_xytMinAmount),
+        ethereum.Value.fromUnsignedBigInt(_tokenMinAmount)
       ]
     );
     if (result.reverted) {
@@ -336,40 +421,50 @@ export class PendleMarket extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      new PendleMarket__addMarketLiquidityAllResult(
-        value[0].toBigInt(),
+      new PendleMarket__addMarketLiquidityDualResult(
+        value[0].toTupleArray<
+          PendleMarket__addMarketLiquidityDualResultTransfersStruct
+        >(),
         value[1].toBigInt()
       )
     );
   }
 
   addMarketLiquiditySingle(
+    user: Address,
     _inToken: Address,
     _exactIn: BigInt,
     _minOutLp: BigInt
-  ): BigInt {
+  ): Array<PendleMarket__addMarketLiquiditySingleResultTransfersStruct> {
     let result = super.call(
       "addMarketLiquiditySingle",
-      "addMarketLiquiditySingle(address,uint256,uint256):(uint256)",
+      "addMarketLiquiditySingle(address,address,uint256,uint256):((uint256,bool)[2])",
       [
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromAddress(_inToken),
         ethereum.Value.fromUnsignedBigInt(_exactIn),
         ethereum.Value.fromUnsignedBigInt(_minOutLp)
       ]
     );
 
-    return result[0].toBigInt();
+    return result[0].toTupleArray<
+      PendleMarket__addMarketLiquiditySingleResultTransfersStruct
+    >();
   }
 
   try_addMarketLiquiditySingle(
+    user: Address,
     _inToken: Address,
     _exactIn: BigInt,
     _minOutLp: BigInt
-  ): ethereum.CallResult<BigInt> {
+  ): ethereum.CallResult<
+    Array<PendleMarket__addMarketLiquiditySingleResultTransfersStruct>
+  > {
     let result = super.tryCall(
       "addMarketLiquiditySingle",
-      "addMarketLiquiditySingle(address,uint256,uint256):(uint256)",
+      "addMarketLiquiditySingle(address,address,uint256,uint256):((uint256,bool)[2])",
       [
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromAddress(_inToken),
         ethereum.Value.fromUnsignedBigInt(_exactIn),
         ethereum.Value.fromUnsignedBigInt(_minOutLp)
@@ -379,24 +474,28 @@ export class PendleMarket extends ethereum.SmartContract {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(
+      value[0].toTupleArray<
+        PendleMarket__addMarketLiquiditySingleResultTransfersStruct
+      >()
+    );
   }
 
-  allowance(param0: Address, param1: Address): BigInt {
+  allowance(owner: Address, spender: Address): BigInt {
     let result = super.call(
       "allowance",
       "allowance(address,address):(uint256)",
-      [ethereum.Value.fromAddress(param0), ethereum.Value.fromAddress(param1)]
+      [ethereum.Value.fromAddress(owner), ethereum.Value.fromAddress(spender)]
     );
 
     return result[0].toBigInt();
   }
 
-  try_allowance(param0: Address, param1: Address): ethereum.CallResult<BigInt> {
+  try_allowance(owner: Address, spender: Address): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "allowance",
       "allowance(address,address):(uint256)",
-      [ethereum.Value.fromAddress(param0), ethereum.Value.fromAddress(param1)]
+      [ethereum.Value.fromAddress(owner), ethereum.Value.fromAddress(spender)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -426,17 +525,17 @@ export class PendleMarket extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
-  balanceOf(param0: Address): BigInt {
+  balanceOf(account: Address): BigInt {
     let result = super.call("balanceOf", "balanceOf(address):(uint256)", [
-      ethereum.Value.fromAddress(param0)
+      ethereum.Value.fromAddress(account)
     ]);
 
     return result[0].toBigInt();
   }
 
-  try_balanceOf(param0: Address): ethereum.CallResult<BigInt> {
+  try_balanceOf(account: Address): ethereum.CallResult<BigInt> {
     let result = super.tryCall("balanceOf", "balanceOf(address):(uint256)", [
-      ethereum.Value.fromAddress(param0)
+      ethereum.Value.fromAddress(account)
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -446,29 +545,35 @@ export class PendleMarket extends ethereum.SmartContract {
   }
 
   bootstrap(
+    user: Address,
     initialXytLiquidity: BigInt,
     initialTokenLiquidity: BigInt
-  ): BigInt {
+  ): Array<PendleMarket__bootstrapResultTransfersStruct> {
     let result = super.call(
       "bootstrap",
-      "bootstrap(uint256,uint256):(uint256)",
+      "bootstrap(address,uint256,uint256):((uint256,bool)[2])",
       [
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromUnsignedBigInt(initialXytLiquidity),
         ethereum.Value.fromUnsignedBigInt(initialTokenLiquidity)
       ]
     );
 
-    return result[0].toBigInt();
+    return result[0].toTupleArray<
+      PendleMarket__bootstrapResultTransfersStruct
+    >();
   }
 
   try_bootstrap(
+    user: Address,
     initialXytLiquidity: BigInt,
     initialTokenLiquidity: BigInt
-  ): ethereum.CallResult<BigInt> {
+  ): ethereum.CallResult<Array<PendleMarket__bootstrapResultTransfersStruct>> {
     let result = super.tryCall(
       "bootstrap",
-      "bootstrap(uint256,uint256):(uint256)",
+      "bootstrap(address,uint256,uint256):((uint256,bool)[2])",
       [
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromUnsignedBigInt(initialXytLiquidity),
         ethereum.Value.fromUnsignedBigInt(initialTokenLiquidity)
       ]
@@ -477,7 +582,9 @@ export class PendleMarket extends ethereum.SmartContract {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(
+      value[0].toTupleArray<PendleMarket__bootstrapResultTransfersStruct>()
+    );
   }
 
   bootstrapped(): boolean {
@@ -493,115 +600,6 @@ export class PendleMarket extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  calcExactIn(
-    inTokenReserve: PendleMarket__calcExactInInputInTokenReserveStruct,
-    outTokenReserve: PendleMarket__calcExactInInputOutTokenReserveStruct,
-    exactOut: BigInt,
-    swapFee: BigInt
-  ): BigInt {
-    let result = super.call(
-      "calcExactIn",
-      "calcExactIn((uint256,uint256),(uint256,uint256),uint256,uint256):(uint256)",
-      [
-        ethereum.Value.fromTuple(inTokenReserve),
-        ethereum.Value.fromTuple(outTokenReserve),
-        ethereum.Value.fromUnsignedBigInt(exactOut),
-        ethereum.Value.fromUnsignedBigInt(swapFee)
-      ]
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_calcExactIn(
-    inTokenReserve: PendleMarket__calcExactInInputInTokenReserveStruct,
-    outTokenReserve: PendleMarket__calcExactInInputOutTokenReserveStruct,
-    exactOut: BigInt,
-    swapFee: BigInt
-  ): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "calcExactIn",
-      "calcExactIn((uint256,uint256),(uint256,uint256),uint256,uint256):(uint256)",
-      [
-        ethereum.Value.fromTuple(inTokenReserve),
-        ethereum.Value.fromTuple(outTokenReserve),
-        ethereum.Value.fromUnsignedBigInt(exactOut),
-        ethereum.Value.fromUnsignedBigInt(swapFee)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  calcExactOut(
-    inTokenReserve: PendleMarket__calcExactOutInputInTokenReserveStruct,
-    outTokenReserve: PendleMarket__calcExactOutInputOutTokenReserveStruct,
-    exactIn: BigInt,
-    swapFee: BigInt
-  ): BigInt {
-    let result = super.call(
-      "calcExactOut",
-      "calcExactOut((uint256,uint256),(uint256,uint256),uint256,uint256):(uint256)",
-      [
-        ethereum.Value.fromTuple(inTokenReserve),
-        ethereum.Value.fromTuple(outTokenReserve),
-        ethereum.Value.fromUnsignedBigInt(exactIn),
-        ethereum.Value.fromUnsignedBigInt(swapFee)
-      ]
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_calcExactOut(
-    inTokenReserve: PendleMarket__calcExactOutInputInTokenReserveStruct,
-    outTokenReserve: PendleMarket__calcExactOutInputOutTokenReserveStruct,
-    exactIn: BigInt,
-    swapFee: BigInt
-  ): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "calcExactOut",
-      "calcExactOut((uint256,uint256),(uint256,uint256),uint256,uint256):(uint256)",
-      [
-        ethereum.Value.fromTuple(inTokenReserve),
-        ethereum.Value.fromTuple(outTokenReserve),
-        ethereum.Value.fromUnsignedBigInt(exactIn),
-        ethereum.Value.fromUnsignedBigInt(swapFee)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  claimLpInterests(account: Address): BigInt {
-    let result = super.call(
-      "claimLpInterests",
-      "claimLpInterests(address):(uint256)",
-      [ethereum.Value.fromAddress(account)]
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_claimLpInterests(account: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "claimLpInterests",
-      "claimLpInterests(address):(uint256)",
-      [ethereum.Value.fromAddress(account)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   decimals(): i32 {
@@ -666,73 +664,41 @@ export class PendleMarket extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  factory(): Address {
-    let result = super.call("factory", "factory():(address)", []);
+  factoryId(): Bytes {
+    let result = super.call("factoryId", "factoryId():(bytes32)", []);
 
-    return result[0].toAddress();
+    return result[0].toBytes();
   }
 
-  try_factory(): ethereum.CallResult<Address> {
-    let result = super.tryCall("factory", "factory():(address)", []);
+  try_factoryId(): ethereum.CallResult<Bytes> {
+    let result = super.tryCall("factoryId", "factoryId():(bytes32)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  forge(): Address {
-    let result = super.call("forge", "forge():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_forge(): ethereum.CallResult<Address> {
-    let result = super.tryCall("forge", "forge():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  getBalance(asset: Address): BigInt {
-    let result = super.call("getBalance", "getBalance(address):(uint256)", [
-      ethereum.Value.fromAddress(asset)
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_getBalance(asset: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("getBalance", "getBalance(address):(uint256)", [
-      ethereum.Value.fromAddress(asset)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
   getReserves(): PendleMarket__getReservesResult {
     let result = super.call(
       "getReserves",
-      "getReserves():(uint256,uint256,uint256)",
+      "getReserves():(uint256,uint256,uint256,uint256,uint256)",
       []
     );
 
     return new PendleMarket__getReservesResult(
       result[0].toBigInt(),
       result[1].toBigInt(),
-      result[2].toBigInt()
+      result[2].toBigInt(),
+      result[3].toBigInt(),
+      result[4].toBigInt()
     );
   }
 
   try_getReserves(): ethereum.CallResult<PendleMarket__getReservesResult> {
     let result = super.tryCall(
       "getReserves",
-      "getReserves():(uint256,uint256,uint256)",
+      "getReserves():(uint256,uint256,uint256,uint256,uint256)",
       []
     );
     if (result.reverted) {
@@ -743,51 +709,34 @@ export class PendleMarket extends ethereum.SmartContract {
       new PendleMarket__getReservesResult(
         value[0].toBigInt(),
         value[1].toBigInt(),
-        value[2].toBigInt()
+        value[2].toBigInt(),
+        value[3].toBigInt(),
+        value[4].toBigInt()
       )
     );
   }
 
-  getWeight(asset: Address): BigInt {
-    let result = super.call("getWeight", "getWeight(address):(uint256)", [
-      ethereum.Value.fromAddress(asset)
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_getWeight(asset: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("getWeight", "getWeight(address):(uint256)", [
-      ethereum.Value.fromAddress(asset)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  globalIncomeIndex(): BigInt {
+  governanceManager(): Address {
     let result = super.call(
-      "globalIncomeIndex",
-      "globalIncomeIndex():(uint256)",
+      "governanceManager",
+      "governanceManager():(address)",
       []
     );
 
-    return result[0].toBigInt();
+    return result[0].toAddress();
   }
 
-  try_globalIncomeIndex(): ethereum.CallResult<BigInt> {
+  try_governanceManager(): ethereum.CallResult<Address> {
     let result = super.tryCall(
-      "globalIncomeIndex",
-      "globalIncomeIndex():(uint256)",
+      "governanceManager",
+      "governanceManager():(address)",
       []
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   increaseAllowance(spender: Address, addedValue: BigInt): boolean {
@@ -820,75 +769,6 @@ export class PendleMarket extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  lastGlobalIncomeIndex(param0: Address): BigInt {
-    let result = super.call(
-      "lastGlobalIncomeIndex",
-      "lastGlobalIncomeIndex(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)]
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_lastGlobalIncomeIndex(param0: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "lastGlobalIncomeIndex",
-      "lastGlobalIncomeIndex(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  lastInterestUpdate(): BigInt {
-    let result = super.call(
-      "lastInterestUpdate",
-      "lastInterestUpdate():(uint256)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_lastInterestUpdate(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "lastInterestUpdate",
-      "lastInterestUpdate():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  lastUnderlyingYieldTokenBalance(): BigInt {
-    let result = super.call(
-      "lastUnderlyingYieldTokenBalance",
-      "lastUnderlyingYieldTokenBalance():(uint256)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_lastUnderlyingYieldTokenBalance(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "lastUnderlyingYieldTokenBalance",
-      "lastUnderlyingYieldTokenBalance():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   lockStartTime(): BigInt {
@@ -925,36 +805,83 @@ export class PendleMarket extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toString());
   }
 
-  removeMarketLiquidityAll(
+  nonces(param0: Address): BigInt {
+    let result = super.call("nonces", "nonces(address):(uint256)", [
+      ethereum.Value.fromAddress(param0)
+    ]);
+
+    return result[0].toBigInt();
+  }
+
+  try_nonces(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("nonces", "nonces(address):(uint256)", [
+      ethereum.Value.fromAddress(param0)
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  redeemLpInterests(user: Address): BigInt {
+    let result = super.call(
+      "redeemLpInterests",
+      "redeemLpInterests(address):(uint256)",
+      [ethereum.Value.fromAddress(user)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_redeemLpInterests(user: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "redeemLpInterests",
+      "redeemLpInterests(address):(uint256)",
+      [ethereum.Value.fromAddress(user)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  removeMarketLiquidityDual(
+    user: Address,
     _inLp: BigInt,
     _minOutXyt: BigInt,
     _minOutToken: BigInt
-  ): PendleMarket__removeMarketLiquidityAllResult {
+  ): Array<PendleMarket__removeMarketLiquidityDualResultTransfersStruct> {
     let result = super.call(
-      "removeMarketLiquidityAll",
-      "removeMarketLiquidityAll(uint256,uint256,uint256):(uint256,uint256)",
+      "removeMarketLiquidityDual",
+      "removeMarketLiquidityDual(address,uint256,uint256,uint256):((uint256,bool)[2])",
       [
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromUnsignedBigInt(_inLp),
         ethereum.Value.fromUnsignedBigInt(_minOutXyt),
         ethereum.Value.fromUnsignedBigInt(_minOutToken)
       ]
     );
 
-    return new PendleMarket__removeMarketLiquidityAllResult(
-      result[0].toBigInt(),
-      result[1].toBigInt()
-    );
+    return result[0].toTupleArray<
+      PendleMarket__removeMarketLiquidityDualResultTransfersStruct
+    >();
   }
 
-  try_removeMarketLiquidityAll(
+  try_removeMarketLiquidityDual(
+    user: Address,
     _inLp: BigInt,
     _minOutXyt: BigInt,
     _minOutToken: BigInt
-  ): ethereum.CallResult<PendleMarket__removeMarketLiquidityAllResult> {
+  ): ethereum.CallResult<
+    Array<PendleMarket__removeMarketLiquidityDualResultTransfersStruct>
+  > {
     let result = super.tryCall(
-      "removeMarketLiquidityAll",
-      "removeMarketLiquidityAll(uint256,uint256,uint256):(uint256,uint256)",
+      "removeMarketLiquidityDual",
+      "removeMarketLiquidityDual(address,uint256,uint256,uint256):((uint256,bool)[2])",
       [
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromUnsignedBigInt(_inLp),
         ethereum.Value.fromUnsignedBigInt(_minOutXyt),
         ethereum.Value.fromUnsignedBigInt(_minOutToken)
@@ -965,40 +892,47 @@ export class PendleMarket extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      new PendleMarket__removeMarketLiquidityAllResult(
-        value[0].toBigInt(),
-        value[1].toBigInt()
-      )
+      value[0].toTupleArray<
+        PendleMarket__removeMarketLiquidityDualResultTransfersStruct
+      >()
     );
   }
 
   removeMarketLiquiditySingle(
+    user: Address,
     _outToken: Address,
     _inLp: BigInt,
     _minOutAmountToken: BigInt
-  ): BigInt {
+  ): Array<PendleMarket__removeMarketLiquiditySingleResultTransfersStruct> {
     let result = super.call(
       "removeMarketLiquiditySingle",
-      "removeMarketLiquiditySingle(address,uint256,uint256):(uint256)",
+      "removeMarketLiquiditySingle(address,address,uint256,uint256):((uint256,bool)[2])",
       [
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromAddress(_outToken),
         ethereum.Value.fromUnsignedBigInt(_inLp),
         ethereum.Value.fromUnsignedBigInt(_minOutAmountToken)
       ]
     );
 
-    return result[0].toBigInt();
+    return result[0].toTupleArray<
+      PendleMarket__removeMarketLiquiditySingleResultTransfersStruct
+    >();
   }
 
   try_removeMarketLiquiditySingle(
+    user: Address,
     _outToken: Address,
     _inLp: BigInt,
     _minOutAmountToken: BigInt
-  ): ethereum.CallResult<BigInt> {
+  ): ethereum.CallResult<
+    Array<PendleMarket__removeMarketLiquiditySingleResultTransfersStruct>
+  > {
     let result = super.tryCall(
       "removeMarketLiquiditySingle",
-      "removeMarketLiquiditySingle(address,uint256,uint256):(uint256)",
+      "removeMarketLiquiditySingle(address,address,uint256,uint256):((uint256,bool)[2])",
       [
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromAddress(_outToken),
         ethereum.Value.fromUnsignedBigInt(_inLp),
         ethereum.Value.fromUnsignedBigInt(_minOutAmountToken)
@@ -1008,39 +942,26 @@ export class PendleMarket extends ethereum.SmartContract {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(
+      value[0].toTupleArray<
+        PendleMarket__removeMarketLiquiditySingleResultTransfersStruct
+      >()
+    );
   }
 
-  spotPrice(inToken: Address, outToken: Address): BigInt {
-    let result = super.call(
-      "spotPrice",
-      "spotPrice(address,address):(uint256)",
-      [
-        ethereum.Value.fromAddress(inToken),
-        ethereum.Value.fromAddress(outToken)
-      ]
-    );
+  router(): Address {
+    let result = super.call("router", "router():(address)", []);
 
-    return result[0].toBigInt();
+    return result[0].toAddress();
   }
 
-  try_spotPrice(
-    inToken: Address,
-    outToken: Address
-  ): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "spotPrice",
-      "spotPrice(address,address):(uint256)",
-      [
-        ethereum.Value.fromAddress(inToken),
-        ethereum.Value.fromAddress(outToken)
-      ]
-    );
+  try_router(): ethereum.CallResult<Address> {
+    let result = super.tryCall("router", "router():(address)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   start(): BigInt {
@@ -1062,24 +983,22 @@ export class PendleMarket extends ethereum.SmartContract {
     inToken: Address,
     inAmount: BigInt,
     outToken: Address,
-    minOutAmount: BigInt,
-    maxPrice: BigInt
+    minOutAmount: BigInt
   ): PendleMarket__swapExactInResult {
     let result = super.call(
       "swapExactIn",
-      "swapExactIn(address,uint256,address,uint256,uint256):(uint256,uint256)",
+      "swapExactIn(address,uint256,address,uint256):(uint256,(uint256,bool)[2])",
       [
         ethereum.Value.fromAddress(inToken),
         ethereum.Value.fromUnsignedBigInt(inAmount),
         ethereum.Value.fromAddress(outToken),
-        ethereum.Value.fromUnsignedBigInt(minOutAmount),
-        ethereum.Value.fromUnsignedBigInt(maxPrice)
+        ethereum.Value.fromUnsignedBigInt(minOutAmount)
       ]
     );
 
     return new PendleMarket__swapExactInResult(
       result[0].toBigInt(),
-      result[1].toBigInt()
+      result[1].toTupleArray<PendleMarket__swapExactInResultTransfersStruct>()
     );
   }
 
@@ -1087,18 +1006,16 @@ export class PendleMarket extends ethereum.SmartContract {
     inToken: Address,
     inAmount: BigInt,
     outToken: Address,
-    minOutAmount: BigInt,
-    maxPrice: BigInt
+    minOutAmount: BigInt
   ): ethereum.CallResult<PendleMarket__swapExactInResult> {
     let result = super.tryCall(
       "swapExactIn",
-      "swapExactIn(address,uint256,address,uint256,uint256):(uint256,uint256)",
+      "swapExactIn(address,uint256,address,uint256):(uint256,(uint256,bool)[2])",
       [
         ethereum.Value.fromAddress(inToken),
         ethereum.Value.fromUnsignedBigInt(inAmount),
         ethereum.Value.fromAddress(outToken),
-        ethereum.Value.fromUnsignedBigInt(minOutAmount),
-        ethereum.Value.fromUnsignedBigInt(maxPrice)
+        ethereum.Value.fromUnsignedBigInt(minOutAmount)
       ]
     );
     if (result.reverted) {
@@ -1108,7 +1025,7 @@ export class PendleMarket extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       new PendleMarket__swapExactInResult(
         value[0].toBigInt(),
-        value[1].toBigInt()
+        value[1].toTupleArray<PendleMarket__swapExactInResultTransfersStruct>()
       )
     );
   }
@@ -1117,24 +1034,22 @@ export class PendleMarket extends ethereum.SmartContract {
     inToken: Address,
     maxInAmount: BigInt,
     outToken: Address,
-    outAmount: BigInt,
-    maxPrice: BigInt
+    outAmount: BigInt
   ): PendleMarket__swapExactOutResult {
     let result = super.call(
       "swapExactOut",
-      "swapExactOut(address,uint256,address,uint256,uint256):(uint256,uint256)",
+      "swapExactOut(address,uint256,address,uint256):(uint256,(uint256,bool)[2])",
       [
         ethereum.Value.fromAddress(inToken),
         ethereum.Value.fromUnsignedBigInt(maxInAmount),
         ethereum.Value.fromAddress(outToken),
-        ethereum.Value.fromUnsignedBigInt(outAmount),
-        ethereum.Value.fromUnsignedBigInt(maxPrice)
+        ethereum.Value.fromUnsignedBigInt(outAmount)
       ]
     );
 
     return new PendleMarket__swapExactOutResult(
       result[0].toBigInt(),
-      result[1].toBigInt()
+      result[1].toTupleArray<PendleMarket__swapExactOutResultTransfersStruct>()
     );
   }
 
@@ -1142,18 +1057,16 @@ export class PendleMarket extends ethereum.SmartContract {
     inToken: Address,
     maxInAmount: BigInt,
     outToken: Address,
-    outAmount: BigInt,
-    maxPrice: BigInt
+    outAmount: BigInt
   ): ethereum.CallResult<PendleMarket__swapExactOutResult> {
     let result = super.tryCall(
       "swapExactOut",
-      "swapExactOut(address,uint256,address,uint256,uint256):(uint256,uint256)",
+      "swapExactOut(address,uint256,address,uint256):(uint256,(uint256,bool)[2])",
       [
         ethereum.Value.fromAddress(inToken),
         ethereum.Value.fromUnsignedBigInt(maxInAmount),
         ethereum.Value.fromAddress(outToken),
-        ethereum.Value.fromUnsignedBigInt(outAmount),
-        ethereum.Value.fromUnsignedBigInt(maxPrice)
+        ethereum.Value.fromUnsignedBigInt(outAmount)
       ]
     );
     if (result.reverted) {
@@ -1163,7 +1076,7 @@ export class PendleMarket extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       new PendleMarket__swapExactOutResult(
         value[0].toBigInt(),
-        value[1].toBigInt()
+        value[1].toTupleArray<PendleMarket__swapExactOutResultTransfersStruct>()
       )
     );
   }
@@ -1288,91 +1201,69 @@ export class PendleMarket extends ethereum.SmartContract {
   }
 }
 
-export class ConstructorCall extends ethereum.Call {
-  get inputs(): ConstructorCall__Inputs {
-    return new ConstructorCall__Inputs(this);
+export class AddMarketLiquidityDualCall extends ethereum.Call {
+  get inputs(): AddMarketLiquidityDualCall__Inputs {
+    return new AddMarketLiquidityDualCall__Inputs(this);
   }
 
-  get outputs(): ConstructorCall__Outputs {
-    return new ConstructorCall__Outputs(this);
+  get outputs(): AddMarketLiquidityDualCall__Outputs {
+    return new AddMarketLiquidityDualCall__Outputs(this);
   }
 }
 
-export class ConstructorCall__Inputs {
-  _call: ConstructorCall;
+export class AddMarketLiquidityDualCall__Inputs {
+  _call: AddMarketLiquidityDualCall;
 
-  constructor(call: ConstructorCall) {
+  constructor(call: AddMarketLiquidityDualCall) {
     this._call = call;
   }
 
-  get _forge(): Address {
+  get user(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get _xyt(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _token(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
-
-  get _expiry(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
-  }
-}
-
-export class ConstructorCall__Outputs {
-  _call: ConstructorCall;
-
-  constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-}
-
-export class AddMarketLiquidityAllCall extends ethereum.Call {
-  get inputs(): AddMarketLiquidityAllCall__Inputs {
-    return new AddMarketLiquidityAllCall__Inputs(this);
-  }
-
-  get outputs(): AddMarketLiquidityAllCall__Outputs {
-    return new AddMarketLiquidityAllCall__Outputs(this);
-  }
-}
-
-export class AddMarketLiquidityAllCall__Inputs {
-  _call: AddMarketLiquidityAllCall;
-
-  constructor(call: AddMarketLiquidityAllCall) {
-    this._call = call;
-  }
-
-  get _exactOutLp(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get _maxInXyt(): BigInt {
+  get _desiredXytAmount(): BigInt {
     return this._call.inputValues[1].value.toBigInt();
   }
 
-  get _maxInToken(): BigInt {
+  get _desiredTokenAmount(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get _xytMinAmount(): BigInt {
+    return this._call.inputValues[3].value.toBigInt();
+  }
+
+  get _tokenMinAmount(): BigInt {
+    return this._call.inputValues[4].value.toBigInt();
   }
 }
 
-export class AddMarketLiquidityAllCall__Outputs {
-  _call: AddMarketLiquidityAllCall;
+export class AddMarketLiquidityDualCall__Outputs {
+  _call: AddMarketLiquidityDualCall;
 
-  constructor(call: AddMarketLiquidityAllCall) {
+  constructor(call: AddMarketLiquidityDualCall) {
     this._call = call;
   }
 
-  get amountXytUsed(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
+  get transfers(): Array<AddMarketLiquidityDualCallTransfersStruct> {
+    return this._call.outputValues[0].value.toTupleArray<
+      AddMarketLiquidityDualCallTransfersStruct
+    >();
   }
 
-  get amountTokenUsed(): BigInt {
+  get lpOut(): BigInt {
     return this._call.outputValues[1].value.toBigInt();
+  }
+}
+
+export class AddMarketLiquidityDualCallTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get isOut(): boolean {
+    return this[1].toBoolean();
   }
 }
 
@@ -1393,16 +1284,20 @@ export class AddMarketLiquiditySingleCall__Inputs {
     this._call = call;
   }
 
-  get _inToken(): Address {
+  get user(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
+  get _inToken(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
   get _exactIn(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
+    return this._call.inputValues[2].value.toBigInt();
   }
 
   get _minOutLp(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
+    return this._call.inputValues[3].value.toBigInt();
   }
 }
 
@@ -1413,8 +1308,20 @@ export class AddMarketLiquiditySingleCall__Outputs {
     this._call = call;
   }
 
-  get exactOutLp(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
+  get transfers(): Array<AddMarketLiquiditySingleCallTransfersStruct> {
+    return this._call.outputValues[0].value.toTupleArray<
+      AddMarketLiquiditySingleCallTransfersStruct
+    >();
+  }
+}
+
+export class AddMarketLiquiditySingleCallTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get isOut(): boolean {
+    return this[1].toBoolean();
   }
 }
 
@@ -1473,12 +1380,16 @@ export class BootstrapCall__Inputs {
     this._call = call;
   }
 
+  get user(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
   get initialXytLiquidity(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
+    return this._call.inputValues[1].value.toBigInt();
   }
 
   get initialTokenLiquidity(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
+    return this._call.inputValues[2].value.toBigInt();
   }
 }
 
@@ -1489,42 +1400,20 @@ export class BootstrapCall__Outputs {
     this._call = call;
   }
 
-  get value0(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
+  get transfers(): Array<BootstrapCallTransfersStruct> {
+    return this._call.outputValues[0].value.toTupleArray<
+      BootstrapCallTransfersStruct
+    >();
   }
 }
 
-export class ClaimLpInterestsCall extends ethereum.Call {
-  get inputs(): ClaimLpInterestsCall__Inputs {
-    return new ClaimLpInterestsCall__Inputs(this);
+export class BootstrapCallTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
   }
 
-  get outputs(): ClaimLpInterestsCall__Outputs {
-    return new ClaimLpInterestsCall__Outputs(this);
-  }
-}
-
-export class ClaimLpInterestsCall__Inputs {
-  _call: ClaimLpInterestsCall;
-
-  constructor(call: ClaimLpInterestsCall) {
-    this._call = call;
-  }
-
-  get account(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class ClaimLpInterestsCall__Outputs {
-  _call: ClaimLpInterestsCall;
-
-  constructor(call: ClaimLpInterestsCall) {
-    this._call = call;
-  }
-
-  get interests(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
+  get isOut(): boolean {
+    return this[1].toBoolean();
   }
 }
 
@@ -1604,49 +1493,149 @@ export class IncreaseAllowanceCall__Outputs {
   }
 }
 
-export class RemoveMarketLiquidityAllCall extends ethereum.Call {
-  get inputs(): RemoveMarketLiquidityAllCall__Inputs {
-    return new RemoveMarketLiquidityAllCall__Inputs(this);
+export class PermitCall extends ethereum.Call {
+  get inputs(): PermitCall__Inputs {
+    return new PermitCall__Inputs(this);
   }
 
-  get outputs(): RemoveMarketLiquidityAllCall__Outputs {
-    return new RemoveMarketLiquidityAllCall__Outputs(this);
+  get outputs(): PermitCall__Outputs {
+    return new PermitCall__Outputs(this);
   }
 }
 
-export class RemoveMarketLiquidityAllCall__Inputs {
-  _call: RemoveMarketLiquidityAllCall;
+export class PermitCall__Inputs {
+  _call: PermitCall;
 
-  constructor(call: RemoveMarketLiquidityAllCall) {
+  constructor(call: PermitCall) {
     this._call = call;
+  }
+
+  get owner(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get spender(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get value(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get deadline(): BigInt {
+    return this._call.inputValues[3].value.toBigInt();
+  }
+
+  get v(): i32 {
+    return this._call.inputValues[4].value.toI32();
+  }
+
+  get r(): Bytes {
+    return this._call.inputValues[5].value.toBytes();
+  }
+
+  get s(): Bytes {
+    return this._call.inputValues[6].value.toBytes();
+  }
+}
+
+export class PermitCall__Outputs {
+  _call: PermitCall;
+
+  constructor(call: PermitCall) {
+    this._call = call;
+  }
+}
+
+export class RedeemLpInterestsCall extends ethereum.Call {
+  get inputs(): RedeemLpInterestsCall__Inputs {
+    return new RedeemLpInterestsCall__Inputs(this);
+  }
+
+  get outputs(): RedeemLpInterestsCall__Outputs {
+    return new RedeemLpInterestsCall__Outputs(this);
+  }
+}
+
+export class RedeemLpInterestsCall__Inputs {
+  _call: RedeemLpInterestsCall;
+
+  constructor(call: RedeemLpInterestsCall) {
+    this._call = call;
+  }
+
+  get user(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class RedeemLpInterestsCall__Outputs {
+  _call: RedeemLpInterestsCall;
+
+  constructor(call: RedeemLpInterestsCall) {
+    this._call = call;
+  }
+
+  get interests(): BigInt {
+    return this._call.outputValues[0].value.toBigInt();
+  }
+}
+
+export class RemoveMarketLiquidityDualCall extends ethereum.Call {
+  get inputs(): RemoveMarketLiquidityDualCall__Inputs {
+    return new RemoveMarketLiquidityDualCall__Inputs(this);
+  }
+
+  get outputs(): RemoveMarketLiquidityDualCall__Outputs {
+    return new RemoveMarketLiquidityDualCall__Outputs(this);
+  }
+}
+
+export class RemoveMarketLiquidityDualCall__Inputs {
+  _call: RemoveMarketLiquidityDualCall;
+
+  constructor(call: RemoveMarketLiquidityDualCall) {
+    this._call = call;
+  }
+
+  get user(): Address {
+    return this._call.inputValues[0].value.toAddress();
   }
 
   get _inLp(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get _minOutXyt(): BigInt {
     return this._call.inputValues[1].value.toBigInt();
   }
 
-  get _minOutToken(): BigInt {
+  get _minOutXyt(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get _minOutToken(): BigInt {
+    return this._call.inputValues[3].value.toBigInt();
   }
 }
 
-export class RemoveMarketLiquidityAllCall__Outputs {
-  _call: RemoveMarketLiquidityAllCall;
+export class RemoveMarketLiquidityDualCall__Outputs {
+  _call: RemoveMarketLiquidityDualCall;
 
-  constructor(call: RemoveMarketLiquidityAllCall) {
+  constructor(call: RemoveMarketLiquidityDualCall) {
     this._call = call;
   }
 
-  get xytOut(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
+  get transfers(): Array<RemoveMarketLiquidityDualCallTransfersStruct> {
+    return this._call.outputValues[0].value.toTupleArray<
+      RemoveMarketLiquidityDualCallTransfersStruct
+    >();
+  }
+}
+
+export class RemoveMarketLiquidityDualCallTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
   }
 
-  get tokenOut(): BigInt {
-    return this._call.outputValues[1].value.toBigInt();
+  get isOut(): boolean {
+    return this[1].toBoolean();
   }
 }
 
@@ -1667,16 +1656,20 @@ export class RemoveMarketLiquiditySingleCall__Inputs {
     this._call = call;
   }
 
-  get _outToken(): Address {
+  get user(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
+  get _outToken(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
   get _inLp(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
+    return this._call.inputValues[2].value.toBigInt();
   }
 
   get _minOutAmountToken(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
+    return this._call.inputValues[3].value.toBigInt();
   }
 }
 
@@ -1687,8 +1680,54 @@ export class RemoveMarketLiquiditySingleCall__Outputs {
     this._call = call;
   }
 
-  get outAmountToken(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
+  get transfers(): Array<RemoveMarketLiquiditySingleCallTransfersStruct> {
+    return this._call.outputValues[0].value.toTupleArray<
+      RemoveMarketLiquiditySingleCallTransfersStruct
+    >();
+  }
+}
+
+export class RemoveMarketLiquiditySingleCallTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get isOut(): boolean {
+    return this[1].toBoolean();
+  }
+}
+
+export class SetUpEmergencyModeCall extends ethereum.Call {
+  get inputs(): SetUpEmergencyModeCall__Inputs {
+    return new SetUpEmergencyModeCall__Inputs(this);
+  }
+
+  get outputs(): SetUpEmergencyModeCall__Outputs {
+    return new SetUpEmergencyModeCall__Outputs(this);
+  }
+}
+
+export class SetUpEmergencyModeCall__Inputs {
+  _call: SetUpEmergencyModeCall;
+
+  constructor(call: SetUpEmergencyModeCall) {
+    this._call = call;
+  }
+
+  get tokens(): Array<Address> {
+    return this._call.inputValues[0].value.toAddressArray();
+  }
+
+  get spender(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+}
+
+export class SetUpEmergencyModeCall__Outputs {
+  _call: SetUpEmergencyModeCall;
+
+  constructor(call: SetUpEmergencyModeCall) {
+    this._call = call;
   }
 }
 
@@ -1724,10 +1763,6 @@ export class SwapExactInCall__Inputs {
   get minOutAmount(): BigInt {
     return this._call.inputValues[3].value.toBigInt();
   }
-
-  get maxPrice(): BigInt {
-    return this._call.inputValues[4].value.toBigInt();
-  }
 }
 
 export class SwapExactInCall__Outputs {
@@ -1741,8 +1776,20 @@ export class SwapExactInCall__Outputs {
     return this._call.outputValues[0].value.toBigInt();
   }
 
-  get spotPriceAfter(): BigInt {
-    return this._call.outputValues[1].value.toBigInt();
+  get transfers(): Array<SwapExactInCallTransfersStruct> {
+    return this._call.outputValues[1].value.toTupleArray<
+      SwapExactInCallTransfersStruct
+    >();
+  }
+}
+
+export class SwapExactInCallTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get isOut(): boolean {
+    return this[1].toBoolean();
   }
 }
 
@@ -1778,10 +1825,6 @@ export class SwapExactOutCall__Inputs {
   get outAmount(): BigInt {
     return this._call.inputValues[3].value.toBigInt();
   }
-
-  get maxPrice(): BigInt {
-    return this._call.inputValues[4].value.toBigInt();
-  }
 }
 
 export class SwapExactOutCall__Outputs {
@@ -1795,8 +1838,20 @@ export class SwapExactOutCall__Outputs {
     return this._call.outputValues[0].value.toBigInt();
   }
 
-  get spotPriceAfter(): BigInt {
-    return this._call.outputValues[1].value.toBigInt();
+  get transfers(): Array<SwapExactOutCallTransfersStruct> {
+    return this._call.outputValues[1].value.toTupleArray<
+      SwapExactOutCallTransfersStruct
+    >();
+  }
+}
+
+export class SwapExactOutCallTransfersStruct extends ethereum.Tuple {
+  get amount(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get isOut(): boolean {
+    return this[1].toBoolean();
   }
 }
 
@@ -1877,5 +1932,77 @@ export class TransferFromCall__Outputs {
 
   get value0(): boolean {
     return this._call.outputValues[0].value.toBoolean();
+  }
+}
+
+export class WithdrawEtherCall extends ethereum.Call {
+  get inputs(): WithdrawEtherCall__Inputs {
+    return new WithdrawEtherCall__Inputs(this);
+  }
+
+  get outputs(): WithdrawEtherCall__Outputs {
+    return new WithdrawEtherCall__Outputs(this);
+  }
+}
+
+export class WithdrawEtherCall__Inputs {
+  _call: WithdrawEtherCall;
+
+  constructor(call: WithdrawEtherCall) {
+    this._call = call;
+  }
+
+  get amount(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get sendTo(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+}
+
+export class WithdrawEtherCall__Outputs {
+  _call: WithdrawEtherCall;
+
+  constructor(call: WithdrawEtherCall) {
+    this._call = call;
+  }
+}
+
+export class WithdrawTokenCall extends ethereum.Call {
+  get inputs(): WithdrawTokenCall__Inputs {
+    return new WithdrawTokenCall__Inputs(this);
+  }
+
+  get outputs(): WithdrawTokenCall__Outputs {
+    return new WithdrawTokenCall__Outputs(this);
+  }
+}
+
+export class WithdrawTokenCall__Inputs {
+  _call: WithdrawTokenCall;
+
+  constructor(call: WithdrawTokenCall) {
+    this._call = call;
+  }
+
+  get token(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get sendTo(): Address {
+    return this._call.inputValues[2].value.toAddress();
+  }
+}
+
+export class WithdrawTokenCall__Outputs {
+  _call: WithdrawTokenCall;
+
+  constructor(call: WithdrawTokenCall) {
+    this._call = call;
   }
 }

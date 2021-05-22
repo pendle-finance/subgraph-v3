@@ -8,9 +8,9 @@ dataSources:
     name: PendleRouter
     network: kovan
     source:
-      address: "0xBfCF6cedF403Ef33f2F67Fe9Ea11915815E0788e"
+      address: "0x2015aC1e1A70C20B1130683A596311aE0EdCe686"
       abi: PendleRouter
-      startBlock: 23993830
+      startBlock: 24959203
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

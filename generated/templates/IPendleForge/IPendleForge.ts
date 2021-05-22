@@ -23,20 +23,24 @@ export class DueInterestSettled__Params {
     this._event = event;
   }
 
+  get forgeId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
   get underlyingAsset(): Address {
-    return this._event.parameters[0].value.toAddress();
+    return this._event.parameters[1].value.toAddress();
   }
 
   get expiry(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
-  }
-
-  get amount(): BigInt {
     return this._event.parameters[2].value.toBigInt();
   }
 
+  get amount(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
   get receiver(): Address {
-    return this._event.parameters[3].value.toAddress();
+    return this._event.parameters[4].value.toAddress();
   }
 }
 
@@ -129,8 +133,32 @@ export class RedeemYieldToken__Params {
     return this._event.parameters[2].value.toBigInt();
   }
 
-  get amount(): BigInt {
+  get amountToRedeem(): BigInt {
     return this._event.parameters[3].value.toBigInt();
+  }
+
+  get redeemedAmount(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
+  }
+}
+
+export class IPendleForge__mintOtAndXytResult {
+  value0: Address;
+  value1: Address;
+  value2: BigInt;
+
+  constructor(value0: Address, value1: Address, value2: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromAddress(this.value0));
+    map.set("value1", ethereum.Value.fromAddress(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    return map;
   }
 }
 
@@ -151,26 +179,63 @@ export class IPendleForge__newYieldContractsResult {
   }
 }
 
-export class IPendleForge__tokenizeYieldResult {
-  value0: Address;
-  value1: Address;
-
-  constructor(value0: Address, value1: Address) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromAddress(this.value0));
-    map.set("value1", ethereum.Value.fromAddress(this.value1));
-    return map;
-  }
-}
-
 export class IPendleForge extends ethereum.SmartContract {
   static bind(address: Address): IPendleForge {
     return new IPendleForge("IPendleForge", address);
+  }
+
+  data(): Address {
+    let result = super.call("data", "data():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_data(): ethereum.CallResult<Address> {
+    let result = super.tryCall("data", "data():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  dueInterests(
+    _underlyingAsset: Address,
+    expiry: BigInt,
+    _user: Address
+  ): BigInt {
+    let result = super.call(
+      "dueInterests",
+      "dueInterests(address,uint256,address):(uint256)",
+      [
+        ethereum.Value.fromAddress(_underlyingAsset),
+        ethereum.Value.fromUnsignedBigInt(expiry),
+        ethereum.Value.fromAddress(_user)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_dueInterests(
+    _underlyingAsset: Address,
+    expiry: BigInt,
+    _user: Address
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "dueInterests",
+      "dueInterests(address,uint256,address):(uint256)",
+      [
+        ethereum.Value.fromAddress(_underlyingAsset),
+        ethereum.Value.fromUnsignedBigInt(expiry),
+        ethereum.Value.fromAddress(_user)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   forgeId(): Bytes {
@@ -211,6 +276,59 @@ export class IPendleForge extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  mintOtAndXyt(
+    underlyingAsset: Address,
+    expiry: BigInt,
+    amountToTokenize: BigInt,
+    to: Address
+  ): IPendleForge__mintOtAndXytResult {
+    let result = super.call(
+      "mintOtAndXyt",
+      "mintOtAndXyt(address,uint256,uint256,address):(address,address,uint256)",
+      [
+        ethereum.Value.fromAddress(underlyingAsset),
+        ethereum.Value.fromUnsignedBigInt(expiry),
+        ethereum.Value.fromUnsignedBigInt(amountToTokenize),
+        ethereum.Value.fromAddress(to)
+      ]
+    );
+
+    return new IPendleForge__mintOtAndXytResult(
+      result[0].toAddress(),
+      result[1].toAddress(),
+      result[2].toBigInt()
+    );
+  }
+
+  try_mintOtAndXyt(
+    underlyingAsset: Address,
+    expiry: BigInt,
+    amountToTokenize: BigInt,
+    to: Address
+  ): ethereum.CallResult<IPendleForge__mintOtAndXytResult> {
+    let result = super.tryCall(
+      "mintOtAndXyt",
+      "mintOtAndXyt(address,uint256,uint256,address):(address,address,uint256)",
+      [
+        ethereum.Value.fromAddress(underlyingAsset),
+        ethereum.Value.fromUnsignedBigInt(expiry),
+        ethereum.Value.fromUnsignedBigInt(amountToTokenize),
+        ethereum.Value.fromAddress(to)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new IPendleForge__mintOtAndXytResult(
+        value[0].toAddress(),
+        value[1].toAddress(),
+        value[2].toBigInt()
+      )
+    );
   }
 
   newYieldContracts(
@@ -257,19 +375,17 @@ export class IPendleForge extends ethereum.SmartContract {
   }
 
   redeemAfterExpiry(
-    account: Address,
+    user: Address,
     underlyingAsset: Address,
-    expiry: BigInt,
-    to: Address
+    expiry: BigInt
   ): BigInt {
     let result = super.call(
       "redeemAfterExpiry",
-      "redeemAfterExpiry(address,address,uint256,address):(uint256)",
+      "redeemAfterExpiry(address,address,uint256):(uint256)",
       [
-        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromAddress(underlyingAsset),
-        ethereum.Value.fromUnsignedBigInt(expiry),
-        ethereum.Value.fromAddress(to)
+        ethereum.Value.fromUnsignedBigInt(expiry)
       ]
     );
 
@@ -277,19 +393,17 @@ export class IPendleForge extends ethereum.SmartContract {
   }
 
   try_redeemAfterExpiry(
-    account: Address,
+    user: Address,
     underlyingAsset: Address,
-    expiry: BigInt,
-    to: Address
+    expiry: BigInt
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "redeemAfterExpiry",
-      "redeemAfterExpiry(address,address,uint256,address):(uint256)",
+      "redeemAfterExpiry(address,address,uint256):(uint256)",
       [
-        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromAddress(underlyingAsset),
-        ethereum.Value.fromUnsignedBigInt(expiry),
-        ethereum.Value.fromAddress(to)
+        ethereum.Value.fromUnsignedBigInt(expiry)
       ]
     );
     if (result.reverted) {
@@ -300,7 +414,7 @@ export class IPendleForge extends ethereum.SmartContract {
   }
 
   redeemDueInterests(
-    account: Address,
+    user: Address,
     underlyingAsset: Address,
     expiry: BigInt
   ): BigInt {
@@ -308,7 +422,7 @@ export class IPendleForge extends ethereum.SmartContract {
       "redeemDueInterests",
       "redeemDueInterests(address,address,uint256):(uint256)",
       [
-        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromAddress(underlyingAsset),
         ethereum.Value.fromUnsignedBigInt(expiry)
       ]
@@ -318,7 +432,7 @@ export class IPendleForge extends ethereum.SmartContract {
   }
 
   try_redeemDueInterests(
-    account: Address,
+    user: Address,
     underlyingAsset: Address,
     expiry: BigInt
   ): ethereum.CallResult<BigInt> {
@@ -326,48 +440,9 @@ export class IPendleForge extends ethereum.SmartContract {
       "redeemDueInterests",
       "redeemDueInterests(address,address,uint256):(uint256)",
       [
-        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromAddress(underlyingAsset),
         ethereum.Value.fromUnsignedBigInt(expiry)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  redeemDueInterestsBeforeTransfer(
-    underlyingAsset: Address,
-    expiry: BigInt,
-    account: Address
-  ): BigInt {
-    let result = super.call(
-      "redeemDueInterestsBeforeTransfer",
-      "redeemDueInterestsBeforeTransfer(address,uint256,address):(uint256)",
-      [
-        ethereum.Value.fromAddress(underlyingAsset),
-        ethereum.Value.fromUnsignedBigInt(expiry),
-        ethereum.Value.fromAddress(account)
-      ]
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_redeemDueInterestsBeforeTransfer(
-    underlyingAsset: Address,
-    expiry: BigInt,
-    account: Address
-  ): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "redeemDueInterestsBeforeTransfer",
-      "redeemDueInterestsBeforeTransfer(address,uint256,address):(uint256)",
-      [
-        ethereum.Value.fromAddress(underlyingAsset),
-        ethereum.Value.fromUnsignedBigInt(expiry),
-        ethereum.Value.fromAddress(account)
       ]
     );
     if (result.reverted) {
@@ -378,21 +453,19 @@ export class IPendleForge extends ethereum.SmartContract {
   }
 
   redeemUnderlying(
-    account: Address,
+    user: Address,
     underlyingAsset: Address,
     expiry: BigInt,
-    amountToRedeem: BigInt,
-    to: Address
+    amountToRedeem: BigInt
   ): BigInt {
     let result = super.call(
       "redeemUnderlying",
-      "redeemUnderlying(address,address,uint256,uint256,address):(uint256)",
+      "redeemUnderlying(address,address,uint256,uint256):(uint256)",
       [
-        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromAddress(underlyingAsset),
         ethereum.Value.fromUnsignedBigInt(expiry),
-        ethereum.Value.fromUnsignedBigInt(amountToRedeem),
-        ethereum.Value.fromAddress(to)
+        ethereum.Value.fromUnsignedBigInt(amountToRedeem)
       ]
     );
 
@@ -400,21 +473,19 @@ export class IPendleForge extends ethereum.SmartContract {
   }
 
   try_redeemUnderlying(
-    account: Address,
+    user: Address,
     underlyingAsset: Address,
     expiry: BigInt,
-    amountToRedeem: BigInt,
-    to: Address
+    amountToRedeem: BigInt
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "redeemUnderlying",
-      "redeemUnderlying(address,address,uint256,uint256,address):(uint256)",
+      "redeemUnderlying(address,address,uint256,uint256):(uint256)",
       [
-        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromAddress(user),
         ethereum.Value.fromAddress(underlyingAsset),
         ethereum.Value.fromUnsignedBigInt(expiry),
-        ethereum.Value.fromUnsignedBigInt(amountToRedeem),
-        ethereum.Value.fromAddress(to)
+        ethereum.Value.fromUnsignedBigInt(amountToRedeem)
       ]
     );
     if (result.reverted) {
@@ -422,6 +493,40 @@ export class IPendleForge extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  rewardManager(): Address {
+    let result = super.call("rewardManager", "rewardManager():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_rewardManager(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "rewardManager",
+      "rewardManager():(address)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  rewardToken(): Address {
+    let result = super.call("rewardToken", "rewardToken():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_rewardToken(): ethereum.CallResult<Address> {
+    let result = super.tryCall("rewardToken", "rewardToken():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   router(): Address {
@@ -439,55 +544,147 @@ export class IPendleForge extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  tokenizeYield(
-    underlyingAsset: Address,
-    expiry: BigInt,
-    amountToTokenize: BigInt,
-    to: Address
-  ): IPendleForge__tokenizeYieldResult {
+  yieldContractDeployer(): Address {
     let result = super.call(
-      "tokenizeYield",
-      "tokenizeYield(address,uint256,uint256,address):(address,address)",
+      "yieldContractDeployer",
+      "yieldContractDeployer():(address)",
+      []
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_yieldContractDeployer(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "yieldContractDeployer",
+      "yieldContractDeployer():(address)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  yieldTokenHolders(_underlyingAsset: Address, _expiry: BigInt): Address {
+    let result = super.call(
+      "yieldTokenHolders",
+      "yieldTokenHolders(address,uint256):(address)",
       [
-        ethereum.Value.fromAddress(underlyingAsset),
-        ethereum.Value.fromUnsignedBigInt(expiry),
-        ethereum.Value.fromUnsignedBigInt(amountToTokenize),
-        ethereum.Value.fromAddress(to)
+        ethereum.Value.fromAddress(_underlyingAsset),
+        ethereum.Value.fromUnsignedBigInt(_expiry)
       ]
     );
 
-    return new IPendleForge__tokenizeYieldResult(
-      result[0].toAddress(),
-      result[1].toAddress()
-    );
+    return result[0].toAddress();
   }
 
-  try_tokenizeYield(
-    underlyingAsset: Address,
-    expiry: BigInt,
-    amountToTokenize: BigInt,
-    to: Address
-  ): ethereum.CallResult<IPendleForge__tokenizeYieldResult> {
+  try_yieldTokenHolders(
+    _underlyingAsset: Address,
+    _expiry: BigInt
+  ): ethereum.CallResult<Address> {
     let result = super.tryCall(
-      "tokenizeYield",
-      "tokenizeYield(address,uint256,uint256,address):(address,address)",
+      "yieldTokenHolders",
+      "yieldTokenHolders(address,uint256):(address)",
       [
-        ethereum.Value.fromAddress(underlyingAsset),
-        ethereum.Value.fromUnsignedBigInt(expiry),
-        ethereum.Value.fromUnsignedBigInt(amountToTokenize),
-        ethereum.Value.fromAddress(to)
+        ethereum.Value.fromAddress(_underlyingAsset),
+        ethereum.Value.fromUnsignedBigInt(_expiry)
       ]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new IPendleForge__tokenizeYieldResult(
-        value[0].toAddress(),
-        value[1].toAddress()
-      )
-    );
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+}
+
+export class GetYieldBearingTokenCall extends ethereum.Call {
+  get inputs(): GetYieldBearingTokenCall__Inputs {
+    return new GetYieldBearingTokenCall__Inputs(this);
+  }
+
+  get outputs(): GetYieldBearingTokenCall__Outputs {
+    return new GetYieldBearingTokenCall__Outputs(this);
+  }
+}
+
+export class GetYieldBearingTokenCall__Inputs {
+  _call: GetYieldBearingTokenCall;
+
+  constructor(call: GetYieldBearingTokenCall) {
+    this._call = call;
+  }
+
+  get underlyingAsset(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class GetYieldBearingTokenCall__Outputs {
+  _call: GetYieldBearingTokenCall;
+
+  constructor(call: GetYieldBearingTokenCall) {
+    this._call = call;
+  }
+
+  get value0(): Address {
+    return this._call.outputValues[0].value.toAddress();
+  }
+}
+
+export class MintOtAndXytCall extends ethereum.Call {
+  get inputs(): MintOtAndXytCall__Inputs {
+    return new MintOtAndXytCall__Inputs(this);
+  }
+
+  get outputs(): MintOtAndXytCall__Outputs {
+    return new MintOtAndXytCall__Outputs(this);
+  }
+}
+
+export class MintOtAndXytCall__Inputs {
+  _call: MintOtAndXytCall;
+
+  constructor(call: MintOtAndXytCall) {
+    this._call = call;
+  }
+
+  get underlyingAsset(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get expiry(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get amountToTokenize(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get to(): Address {
+    return this._call.inputValues[3].value.toAddress();
+  }
+}
+
+export class MintOtAndXytCall__Outputs {
+  _call: MintOtAndXytCall;
+
+  constructor(call: MintOtAndXytCall) {
+    this._call = call;
+  }
+
+  get ot(): Address {
+    return this._call.outputValues[0].value.toAddress();
+  }
+
+  get xyt(): Address {
+    return this._call.outputValues[1].value.toAddress();
+  }
+
+  get amountTokenMinted(): BigInt {
+    return this._call.outputValues[2].value.toBigInt();
   }
 }
 
@@ -550,7 +747,7 @@ export class RedeemAfterExpiryCall__Inputs {
     this._call = call;
   }
 
-  get account(): Address {
+  get user(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
@@ -560,10 +757,6 @@ export class RedeemAfterExpiryCall__Inputs {
 
   get expiry(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
-  }
-
-  get to(): Address {
-    return this._call.inputValues[3].value.toAddress();
   }
 }
 
@@ -596,7 +789,7 @@ export class RedeemDueInterestsCall__Inputs {
     this._call = call;
   }
 
-  get account(): Address {
+  get user(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
@@ -613,48 +806,6 @@ export class RedeemDueInterestsCall__Outputs {
   _call: RedeemDueInterestsCall;
 
   constructor(call: RedeemDueInterestsCall) {
-    this._call = call;
-  }
-
-  get interests(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
-  }
-}
-
-export class RedeemDueInterestsBeforeTransferCall extends ethereum.Call {
-  get inputs(): RedeemDueInterestsBeforeTransferCall__Inputs {
-    return new RedeemDueInterestsBeforeTransferCall__Inputs(this);
-  }
-
-  get outputs(): RedeemDueInterestsBeforeTransferCall__Outputs {
-    return new RedeemDueInterestsBeforeTransferCall__Outputs(this);
-  }
-}
-
-export class RedeemDueInterestsBeforeTransferCall__Inputs {
-  _call: RedeemDueInterestsBeforeTransferCall;
-
-  constructor(call: RedeemDueInterestsBeforeTransferCall) {
-    this._call = call;
-  }
-
-  get underlyingAsset(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get expiry(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-
-  get account(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
-}
-
-export class RedeemDueInterestsBeforeTransferCall__Outputs {
-  _call: RedeemDueInterestsBeforeTransferCall;
-
-  constructor(call: RedeemDueInterestsBeforeTransferCall) {
     this._call = call;
   }
 
@@ -680,7 +831,7 @@ export class RedeemUnderlyingCall__Inputs {
     this._call = call;
   }
 
-  get account(): Address {
+  get user(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
@@ -694,10 +845,6 @@ export class RedeemUnderlyingCall__Inputs {
 
   get amountToRedeem(): BigInt {
     return this._call.inputValues[3].value.toBigInt();
-  }
-
-  get to(): Address {
-    return this._call.inputValues[4].value.toAddress();
   }
 }
 
@@ -713,20 +860,62 @@ export class RedeemUnderlyingCall__Outputs {
   }
 }
 
-export class TokenizeYieldCall extends ethereum.Call {
-  get inputs(): TokenizeYieldCall__Inputs {
-    return new TokenizeYieldCall__Inputs(this);
+export class SetUpEmergencyModeCall extends ethereum.Call {
+  get inputs(): SetUpEmergencyModeCall__Inputs {
+    return new SetUpEmergencyModeCall__Inputs(this);
   }
 
-  get outputs(): TokenizeYieldCall__Outputs {
-    return new TokenizeYieldCall__Outputs(this);
+  get outputs(): SetUpEmergencyModeCall__Outputs {
+    return new SetUpEmergencyModeCall__Outputs(this);
   }
 }
 
-export class TokenizeYieldCall__Inputs {
-  _call: TokenizeYieldCall;
+export class SetUpEmergencyModeCall__Inputs {
+  _call: SetUpEmergencyModeCall;
 
-  constructor(call: TokenizeYieldCall) {
+  constructor(call: SetUpEmergencyModeCall) {
+    this._call = call;
+  }
+
+  get _underlyingAsset(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get _expiry(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get tokens(): Array<Address> {
+    return this._call.inputValues[2].value.toAddressArray();
+  }
+
+  get spender(): Address {
+    return this._call.inputValues[3].value.toAddress();
+  }
+}
+
+export class SetUpEmergencyModeCall__Outputs {
+  _call: SetUpEmergencyModeCall;
+
+  constructor(call: SetUpEmergencyModeCall) {
+    this._call = call;
+  }
+}
+
+export class UpdateDueInterestsCall extends ethereum.Call {
+  get inputs(): UpdateDueInterestsCall__Inputs {
+    return new UpdateDueInterestsCall__Inputs(this);
+  }
+
+  get outputs(): UpdateDueInterestsCall__Outputs {
+    return new UpdateDueInterestsCall__Outputs(this);
+  }
+}
+
+export class UpdateDueInterestsCall__Inputs {
+  _call: UpdateDueInterestsCall;
+
+  constructor(call: UpdateDueInterestsCall) {
     this._call = call;
   }
 
@@ -738,27 +927,87 @@ export class TokenizeYieldCall__Inputs {
     return this._call.inputValues[1].value.toBigInt();
   }
 
-  get amountToTokenize(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-
-  get to(): Address {
-    return this._call.inputValues[3].value.toAddress();
+  get user(): Address {
+    return this._call.inputValues[2].value.toAddress();
   }
 }
 
-export class TokenizeYieldCall__Outputs {
-  _call: TokenizeYieldCall;
+export class UpdateDueInterestsCall__Outputs {
+  _call: UpdateDueInterestsCall;
 
-  constructor(call: TokenizeYieldCall) {
+  constructor(call: UpdateDueInterestsCall) {
+    this._call = call;
+  }
+}
+
+export class UpdatePendingRewardsCall extends ethereum.Call {
+  get inputs(): UpdatePendingRewardsCall__Inputs {
+    return new UpdatePendingRewardsCall__Inputs(this);
+  }
+
+  get outputs(): UpdatePendingRewardsCall__Outputs {
+    return new UpdatePendingRewardsCall__Outputs(this);
+  }
+}
+
+export class UpdatePendingRewardsCall__Inputs {
+  _call: UpdatePendingRewardsCall;
+
+  constructor(call: UpdatePendingRewardsCall) {
     this._call = call;
   }
 
-  get ot(): Address {
-    return this._call.outputValues[0].value.toAddress();
+  get _underlyingAsset(): Address {
+    return this._call.inputValues[0].value.toAddress();
   }
 
-  get xyt(): Address {
-    return this._call.outputValues[1].value.toAddress();
+  get _expiry(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get _user(): Address {
+    return this._call.inputValues[2].value.toAddress();
+  }
+}
+
+export class UpdatePendingRewardsCall__Outputs {
+  _call: UpdatePendingRewardsCall;
+
+  constructor(call: UpdatePendingRewardsCall) {
+    this._call = call;
+  }
+}
+
+export class WithdrawForgeFeeCall extends ethereum.Call {
+  get inputs(): WithdrawForgeFeeCall__Inputs {
+    return new WithdrawForgeFeeCall__Inputs(this);
+  }
+
+  get outputs(): WithdrawForgeFeeCall__Outputs {
+    return new WithdrawForgeFeeCall__Outputs(this);
+  }
+}
+
+export class WithdrawForgeFeeCall__Inputs {
+  _call: WithdrawForgeFeeCall;
+
+  constructor(call: WithdrawForgeFeeCall) {
+    this._call = call;
+  }
+
+  get underlyingAsset(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get expiry(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class WithdrawForgeFeeCall__Outputs {
+  _call: WithdrawForgeFeeCall;
+
+  constructor(call: WithdrawForgeFeeCall) {
+    this._call = call;
   }
 }

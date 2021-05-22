@@ -10,25 +10,39 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class EtherWithdraw extends ethereum.Event {
-  get params(): EtherWithdraw__Params {
-    return new EtherWithdraw__Params(this);
+export class CurveShiftBlockDeltaSet extends ethereum.Event {
+  get params(): CurveShiftBlockDeltaSet__Params {
+    return new CurveShiftBlockDeltaSet__Params(this);
   }
 }
 
-export class EtherWithdraw__Params {
-  _event: EtherWithdraw;
+export class CurveShiftBlockDeltaSet__Params {
+  _event: CurveShiftBlockDeltaSet;
 
-  constructor(event: EtherWithdraw) {
+  constructor(event: CurveShiftBlockDeltaSet) {
     this._event = event;
   }
 
-  get amount(): BigInt {
+  get _blockDelta(): BigInt {
     return this._event.parameters[0].value.toBigInt();
   }
+}
 
-  get sendTo(): Address {
-    return this._event.parameters[1].value.toAddress();
+export class ExpiryDivisorSet extends ethereum.Event {
+  get params(): ExpiryDivisorSet__Params {
+    return new ExpiryDivisorSet__Params(this);
+  }
+}
+
+export class ExpiryDivisorSet__Params {
+  _event: ExpiryDivisorSet;
+
+  constructor(event: ExpiryDivisorSet) {
+    this._event = event;
+  }
+
+  get expiryDivisor(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 }
 
@@ -80,42 +94,38 @@ export class ForgeFactoryValiditySet__Params {
   }
 }
 
-export class GovernanceClaimed extends ethereum.Event {
-  get params(): GovernanceClaimed__Params {
-    return new GovernanceClaimed__Params(this);
+export class ForgeFeeSet extends ethereum.Event {
+  get params(): ForgeFeeSet__Params {
+    return new ForgeFeeSet__Params(this);
   }
 }
 
-export class GovernanceClaimed__Params {
-  _event: GovernanceClaimed;
+export class ForgeFeeSet__Params {
+  _event: ForgeFeeSet;
 
-  constructor(event: GovernanceClaimed) {
+  constructor(event: ForgeFeeSet) {
     this._event = event;
   }
 
-  get newGovernance(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get previousGovernance(): Address {
-    return this._event.parameters[1].value.toAddress();
+  get forgeFee(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 }
 
-export class InterestUpdateDeltaSet extends ethereum.Event {
-  get params(): InterestUpdateDeltaSet__Params {
-    return new InterestUpdateDeltaSet__Params(this);
+export class InterestUpdateRateDeltaForMarketSet extends ethereum.Event {
+  get params(): InterestUpdateRateDeltaForMarketSet__Params {
+    return new InterestUpdateRateDeltaForMarketSet__Params(this);
   }
 }
 
-export class InterestUpdateDeltaSet__Params {
-  _event: InterestUpdateDeltaSet;
+export class InterestUpdateRateDeltaForMarketSet__Params {
+  _event: InterestUpdateRateDeltaForMarketSet;
 
-  constructor(event: InterestUpdateDeltaSet) {
+  constructor(event: InterestUpdateRateDeltaForMarketSet) {
     this._event = event;
   }
 
-  get interestUpdateDelta(): BigInt {
+  get interestUpdateRateDeltaForMarket(): BigInt {
     return this._event.parameters[0].value.toBigInt();
   }
 }
@@ -138,6 +148,28 @@ export class LockParamsSet__Params {
   }
 
   get lockDenominator(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class MarketFeesSet extends ethereum.Event {
+  get params(): MarketFeesSet__Params {
+    return new MarketFeesSet__Params(this);
+  }
+}
+
+export class MarketFeesSet__Params {
+  _event: MarketFeesSet;
+
+  constructor(event: MarketFeesSet) {
+    this._event = event;
+  }
+
+  get _swapFee(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get _protocolSwapFee(): BigInt {
     return this._event.parameters[1].value.toBigInt();
   }
 }
@@ -168,69 +200,25 @@ export class MarketPairAdded__Params {
   }
 }
 
-export class ReentrancyWhitelistUpdated extends ethereum.Event {
-  get params(): ReentrancyWhitelistUpdated__Params {
-    return new ReentrancyWhitelistUpdated__Params(this);
+export class NewMarketFactory extends ethereum.Event {
+  get params(): NewMarketFactory__Params {
+    return new NewMarketFactory__Params(this);
   }
 }
 
-export class ReentrancyWhitelistUpdated__Params {
-  _event: ReentrancyWhitelistUpdated;
+export class NewMarketFactory__Params {
+  _event: NewMarketFactory;
 
-  constructor(event: ReentrancyWhitelistUpdated) {
+  constructor(event: NewMarketFactory) {
     this._event = event;
   }
 
-  get addresses(): Array<Address> {
-    return this._event.parameters[0].value.toAddressArray();
+  get marketFactoryId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
   }
 
-  get whitelisted(): Array<boolean> {
-    return this._event.parameters[1].value.toBooleanArray();
-  }
-}
-
-export class TokenWithdraw extends ethereum.Event {
-  get params(): TokenWithdraw__Params {
-    return new TokenWithdraw__Params(this);
-  }
-}
-
-export class TokenWithdraw__Params {
-  _event: TokenWithdraw;
-
-  constructor(event: TokenWithdraw) {
-    this._event = event;
-  }
-
-  get token(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
-  }
-
-  get sendTo(): Address {
-    return this._event.parameters[2].value.toAddress();
-  }
-}
-
-export class TransferGovernancePending extends ethereum.Event {
-  get params(): TransferGovernancePending__Params {
-    return new TransferGovernancePending__Params(this);
-  }
-}
-
-export class TransferGovernancePending__Params {
-  _event: TransferGovernancePending;
-
-  constructor(event: TransferGovernancePending) {
-    this._event = event;
-  }
-
-  get pendingGovernance(): Address {
-    return this._event.parameters[0].value.toAddress();
+  get marketFactoryAddress(): Address {
+    return this._event.parameters[1].value.toAddress();
   }
 }
 
@@ -249,26 +237,6 @@ export class TreasurySet__Params {
 
   get treasury(): Address {
     return this._event.parameters[0].value.toAddress();
-  }
-}
-
-export class PendleData__getMarketInfoResult {
-  value0: BigInt;
-  value1: BigInt;
-  value2: BigInt;
-
-  constructor(value0: BigInt, value1: BigInt, value2: BigInt) {
-    this.value0 = value0;
-    this.value1 = value1;
-    this.value2 = value2;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
-    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
-    return map;
   }
 }
 
@@ -294,6 +262,25 @@ export class PendleData extends ethereum.SmartContract {
     return new PendleData("PendleData", address);
   }
 
+  allMarkets(param0: BigInt): Address {
+    let result = super.call("allMarkets", "allMarkets(uint256):(address)", [
+      ethereum.Value.fromUnsignedBigInt(param0)
+    ]);
+
+    return result[0].toAddress();
+  }
+
+  try_allMarkets(param0: BigInt): ethereum.CallResult<Address> {
+    let result = super.tryCall("allMarkets", "allMarkets(uint256):(address)", [
+      ethereum.Value.fromUnsignedBigInt(param0)
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   allMarketsLength(): BigInt {
     let result = super.call(
       "allMarketsLength",
@@ -317,14 +304,22 @@ export class PendleData extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  exitFee(): BigInt {
-    let result = super.call("exitFee", "exitFee():(uint256)", []);
+  curveShiftBlockDelta(): BigInt {
+    let result = super.call(
+      "curveShiftBlockDelta",
+      "curveShiftBlockDelta():(uint256)",
+      []
+    );
 
     return result[0].toBigInt();
   }
 
-  try_exitFee(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("exitFee", "exitFee():(uint256)", []);
+  try_curveShiftBlockDelta(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "curveShiftBlockDelta",
+      "curveShiftBlockDelta():(uint256)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -332,57 +327,33 @@ export class PendleData extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  getAllMarkets(): Array<Address> {
-    let result = super.call("getAllMarkets", "getAllMarkets():(address[])", []);
+  expiryDivisor(): BigInt {
+    let result = super.call("expiryDivisor", "expiryDivisor():(uint256)", []);
 
-    return result[0].toAddressArray();
+    return result[0].toBigInt();
   }
 
-  try_getAllMarkets(): ethereum.CallResult<Array<Address>> {
+  try_expiryDivisor(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "getAllMarkets",
-      "getAllMarkets():(address[])",
+      "expiryDivisor",
+      "expiryDivisor():(uint256)",
       []
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddressArray());
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  getEffectiveLiquidityForMarket(
-    _tokenIn: Address,
-    _tokenOut: Address,
-    _marketFactoryId: Bytes
-  ): BigInt {
-    let result = super.call(
-      "getEffectiveLiquidityForMarket",
-      "getEffectiveLiquidityForMarket(address,address,bytes32):(uint256)",
-      [
-        ethereum.Value.fromAddress(_tokenIn),
-        ethereum.Value.fromAddress(_tokenOut),
-        ethereum.Value.fromFixedBytes(_marketFactoryId)
-      ]
-    );
+  forgeFee(): BigInt {
+    let result = super.call("forgeFee", "forgeFee():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
-  try_getEffectiveLiquidityForMarket(
-    _tokenIn: Address,
-    _tokenOut: Address,
-    _marketFactoryId: Bytes
-  ): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "getEffectiveLiquidityForMarket",
-      "getEffectiveLiquidityForMarket(address,address,bytes32):(uint256)",
-      [
-        ethereum.Value.fromAddress(_tokenIn),
-        ethereum.Value.fromAddress(_tokenOut),
-        ethereum.Value.fromFixedBytes(_marketFactoryId)
-      ]
-    );
+  try_forgeFee(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("forgeFee", "forgeFee():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -411,25 +382,6 @@ export class PendleData extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  getForgeId(param0: Address): Bytes {
-    let result = super.call("getForgeId", "getForgeId(address):(bytes32)", [
-      ethereum.Value.fromAddress(param0)
-    ]);
-
-    return result[0].toBytes();
-  }
-
-  try_getForgeId(param0: Address): ethereum.CallResult<Bytes> {
-    let result = super.tryCall("getForgeId", "getForgeId(address):(bytes32)", [
-      ethereum.Value.fromAddress(param0)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
   getMarket(param0: Bytes, param1: Address, param2: Address): Address {
@@ -467,6 +419,29 @@ export class PendleData extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  getMarketByIndex(index: BigInt): Address {
+    let result = super.call(
+      "getMarketByIndex",
+      "getMarketByIndex(uint256):(address)",
+      [ethereum.Value.fromUnsignedBigInt(index)]
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_getMarketByIndex(index: BigInt): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "getMarketByIndex",
+      "getMarketByIndex(uint256):(address)",
+      [ethereum.Value.fromUnsignedBigInt(index)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   getMarketFactoryAddress(param0: Bytes): Address {
     let result = super.call(
       "getMarketFactoryAddress",
@@ -488,29 +463,6 @@ export class PendleData extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  getMarketFactoryId(param0: Address): Bytes {
-    let result = super.call(
-      "getMarketFactoryId",
-      "getMarketFactoryId(address):(bytes32)",
-      [ethereum.Value.fromAddress(param0)]
-    );
-
-    return result[0].toBytes();
-  }
-
-  try_getMarketFactoryId(param0: Address): ethereum.CallResult<Bytes> {
-    let result = super.tryCall(
-      "getMarketFactoryId",
-      "getMarketFactoryId(address):(bytes32)",
-      [ethereum.Value.fromAddress(param0)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
   getMarketFromKey(
@@ -550,55 +502,6 @@ export class PendleData extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  getMarketInfo(
-    _tokenIn: Address,
-    _tokenOut: Address,
-    _marketFactoryId: Bytes
-  ): PendleData__getMarketInfoResult {
-    let result = super.call(
-      "getMarketInfo",
-      "getMarketInfo(address,address,bytes32):(uint256,uint256,uint256)",
-      [
-        ethereum.Value.fromAddress(_tokenIn),
-        ethereum.Value.fromAddress(_tokenOut),
-        ethereum.Value.fromFixedBytes(_marketFactoryId)
-      ]
-    );
-
-    return new PendleData__getMarketInfoResult(
-      result[0].toBigInt(),
-      result[1].toBigInt(),
-      result[2].toBigInt()
-    );
-  }
-
-  try_getMarketInfo(
-    _tokenIn: Address,
-    _tokenOut: Address,
-    _marketFactoryId: Bytes
-  ): ethereum.CallResult<PendleData__getMarketInfoResult> {
-    let result = super.tryCall(
-      "getMarketInfo",
-      "getMarketInfo(address,address,bytes32):(uint256,uint256,uint256)",
-      [
-        ethereum.Value.fromAddress(_tokenIn),
-        ethereum.Value.fromAddress(_tokenOut),
-        ethereum.Value.fromFixedBytes(_marketFactoryId)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new PendleData__getMarketInfoResult(
-        value[0].toBigInt(),
-        value[1].toBigInt(),
-        value[2].toBigInt()
-      )
-    );
   }
 
   getPendleYieldTokens(
@@ -648,14 +551,22 @@ export class PendleData extends ethereum.SmartContract {
     );
   }
 
-  governance(): Address {
-    let result = super.call("governance", "governance():(address)", []);
+  governanceManager(): Address {
+    let result = super.call(
+      "governanceManager",
+      "governanceManager():(address)",
+      []
+    );
 
     return result[0].toAddress();
   }
 
-  try_governance(): ethereum.CallResult<Address> {
-    let result = super.tryCall("governance", "governance():(address)", []);
+  try_governanceManager(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "governanceManager",
+      "governanceManager():(address)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -663,20 +574,20 @@ export class PendleData extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  interestUpdateDelta(): BigInt {
+  interestUpdateRateDeltaForMarket(): BigInt {
     let result = super.call(
-      "interestUpdateDelta",
-      "interestUpdateDelta():(uint256)",
+      "interestUpdateRateDeltaForMarket",
+      "interestUpdateRateDeltaForMarket():(uint256)",
       []
     );
 
     return result[0].toBigInt();
   }
 
-  try_interestUpdateDelta(): ethereum.CallResult<BigInt> {
+  try_interestUpdateRateDeltaForMarket(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "interestUpdateDelta",
-      "interestUpdateDelta():(uint256)",
+      "interestUpdateRateDeltaForMarket",
+      "interestUpdateRateDeltaForMarket():(uint256)",
       []
     );
     if (result.reverted) {
@@ -705,16 +616,16 @@ export class PendleData extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
-  isValidXYT(
-    _forge: Address,
+  isValidOT(
+    _forgeId: Bytes,
     _underlyingAsset: Address,
     _expiry: BigInt
   ): boolean {
     let result = super.call(
-      "isValidXYT",
-      "isValidXYT(address,address,uint256):(bool)",
+      "isValidOT",
+      "isValidOT(bytes32,address,uint256):(bool)",
       [
-        ethereum.Value.fromAddress(_forge),
+        ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromAddress(_underlyingAsset),
         ethereum.Value.fromUnsignedBigInt(_expiry)
       ]
@@ -723,16 +634,16 @@ export class PendleData extends ethereum.SmartContract {
     return result[0].toBoolean();
   }
 
-  try_isValidXYT(
-    _forge: Address,
+  try_isValidOT(
+    _forgeId: Bytes,
     _underlyingAsset: Address,
     _expiry: BigInt
   ): ethereum.CallResult<boolean> {
     let result = super.tryCall(
-      "isValidXYT",
-      "isValidXYT(address,address,uint256):(bool)",
+      "isValidOT",
+      "isValidOT(bytes32,address,uint256):(bool)",
       [
-        ethereum.Value.fromAddress(_forge),
+        ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromAddress(_underlyingAsset),
         ethereum.Value.fromUnsignedBigInt(_expiry)
       ]
@@ -744,7 +655,7 @@ export class PendleData extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
-  isValidXYT1(
+  isValidXYT(
     _forgeId: Bytes,
     _underlyingAsset: Address,
     _expiry: BigInt
@@ -762,7 +673,7 @@ export class PendleData extends ethereum.SmartContract {
     return result[0].toBoolean();
   }
 
-  try_isValidXYT1(
+  try_isValidXYT(
     _forgeId: Bytes,
     _underlyingAsset: Address,
     _expiry: BigInt
@@ -879,20 +790,16 @@ export class PendleData extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  pendingGovernance(): Address {
-    let result = super.call(
-      "pendingGovernance",
-      "pendingGovernance():(address)",
-      []
-    );
+  pausingManager(): Address {
+    let result = super.call("pausingManager", "pausingManager():(address)", []);
 
     return result[0].toAddress();
   }
 
-  try_pendingGovernance(): ethereum.CallResult<Address> {
+  try_pausingManager(): ethereum.CallResult<Address> {
     let result = super.tryCall(
-      "pendingGovernance",
-      "pendingGovernance():(address)",
+      "pausingManager",
+      "pausingManager():(address)",
       []
     );
     if (result.reverted) {
@@ -902,27 +809,27 @@ export class PendleData extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  reentrancyWhitelisted(param0: Address): boolean {
+  protocolSwapFee(): BigInt {
     let result = super.call(
-      "reentrancyWhitelisted",
-      "reentrancyWhitelisted(address):(bool)",
-      [ethereum.Value.fromAddress(param0)]
+      "protocolSwapFee",
+      "protocolSwapFee():(uint256)",
+      []
     );
 
-    return result[0].toBoolean();
+    return result[0].toBigInt();
   }
 
-  try_reentrancyWhitelisted(param0: Address): ethereum.CallResult<boolean> {
+  try_protocolSwapFee(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "reentrancyWhitelisted",
-      "reentrancyWhitelisted(address):(bool)",
-      [ethereum.Value.fromAddress(param0)]
+      "protocolSwapFee",
+      "protocolSwapFee():(uint256)",
+      []
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   router(): Address {
@@ -1055,12 +962,16 @@ export class ConstructorCall__Inputs {
     this._call = call;
   }
 
-  get _governance(): Address {
+  get _governanceManager(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
   get _treasury(): Address {
     return this._call.inputValues[1].value.toAddress();
+  }
+
+  get _pausingManager(): Address {
+    return this._call.inputValues[2].value.toAddress();
   }
 }
 
@@ -1182,32 +1093,6 @@ export class AddMarketFactoryCall__Outputs {
   }
 }
 
-export class ClaimGovernanceCall extends ethereum.Call {
-  get inputs(): ClaimGovernanceCall__Inputs {
-    return new ClaimGovernanceCall__Inputs(this);
-  }
-
-  get outputs(): ClaimGovernanceCall__Outputs {
-    return new ClaimGovernanceCall__Outputs(this);
-  }
-}
-
-export class ClaimGovernanceCall__Inputs {
-  _call: ClaimGovernanceCall;
-
-  constructor(call: ClaimGovernanceCall) {
-    this._call = call;
-  }
-}
-
-export class ClaimGovernanceCall__Outputs {
-  _call: ClaimGovernanceCall;
-
-  constructor(call: ClaimGovernanceCall) {
-    this._call = call;
-  }
-}
-
 export class InitializeCall extends ethereum.Call {
   get inputs(): InitializeCall__Inputs {
     return new InitializeCall__Inputs(this);
@@ -1234,6 +1119,66 @@ export class InitializeCall__Outputs {
   _call: InitializeCall;
 
   constructor(call: InitializeCall) {
+    this._call = call;
+  }
+}
+
+export class SetCurveShiftBlockDeltaCall extends ethereum.Call {
+  get inputs(): SetCurveShiftBlockDeltaCall__Inputs {
+    return new SetCurveShiftBlockDeltaCall__Inputs(this);
+  }
+
+  get outputs(): SetCurveShiftBlockDeltaCall__Outputs {
+    return new SetCurveShiftBlockDeltaCall__Outputs(this);
+  }
+}
+
+export class SetCurveShiftBlockDeltaCall__Inputs {
+  _call: SetCurveShiftBlockDeltaCall;
+
+  constructor(call: SetCurveShiftBlockDeltaCall) {
+    this._call = call;
+  }
+
+  get _blockDelta(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class SetCurveShiftBlockDeltaCall__Outputs {
+  _call: SetCurveShiftBlockDeltaCall;
+
+  constructor(call: SetCurveShiftBlockDeltaCall) {
+    this._call = call;
+  }
+}
+
+export class SetExpiryDivisorCall extends ethereum.Call {
+  get inputs(): SetExpiryDivisorCall__Inputs {
+    return new SetExpiryDivisorCall__Inputs(this);
+  }
+
+  get outputs(): SetExpiryDivisorCall__Outputs {
+    return new SetExpiryDivisorCall__Outputs(this);
+  }
+}
+
+export class SetExpiryDivisorCall__Inputs {
+  _call: SetExpiryDivisorCall;
+
+  constructor(call: SetExpiryDivisorCall) {
+    this._call = call;
+  }
+
+  get _expiryDivisor(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class SetExpiryDivisorCall__Outputs {
+  _call: SetExpiryDivisorCall;
+
+  constructor(call: SetExpiryDivisorCall) {
     this._call = call;
   }
 }
@@ -1276,32 +1221,62 @@ export class SetForgeFactoryValidityCall__Outputs {
   }
 }
 
-export class SetInterestUpdateDeltaCall extends ethereum.Call {
-  get inputs(): SetInterestUpdateDeltaCall__Inputs {
-    return new SetInterestUpdateDeltaCall__Inputs(this);
+export class SetForgeFeeCall extends ethereum.Call {
+  get inputs(): SetForgeFeeCall__Inputs {
+    return new SetForgeFeeCall__Inputs(this);
   }
 
-  get outputs(): SetInterestUpdateDeltaCall__Outputs {
-    return new SetInterestUpdateDeltaCall__Outputs(this);
+  get outputs(): SetForgeFeeCall__Outputs {
+    return new SetForgeFeeCall__Outputs(this);
   }
 }
 
-export class SetInterestUpdateDeltaCall__Inputs {
-  _call: SetInterestUpdateDeltaCall;
+export class SetForgeFeeCall__Inputs {
+  _call: SetForgeFeeCall;
 
-  constructor(call: SetInterestUpdateDeltaCall) {
+  constructor(call: SetForgeFeeCall) {
     this._call = call;
   }
 
-  get _interestUpdateDelta(): BigInt {
+  get _forgeFee(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
 }
 
-export class SetInterestUpdateDeltaCall__Outputs {
-  _call: SetInterestUpdateDeltaCall;
+export class SetForgeFeeCall__Outputs {
+  _call: SetForgeFeeCall;
 
-  constructor(call: SetInterestUpdateDeltaCall) {
+  constructor(call: SetForgeFeeCall) {
+    this._call = call;
+  }
+}
+
+export class SetInterestUpdateRateDeltaForMarketCall extends ethereum.Call {
+  get inputs(): SetInterestUpdateRateDeltaForMarketCall__Inputs {
+    return new SetInterestUpdateRateDeltaForMarketCall__Inputs(this);
+  }
+
+  get outputs(): SetInterestUpdateRateDeltaForMarketCall__Outputs {
+    return new SetInterestUpdateRateDeltaForMarketCall__Outputs(this);
+  }
+}
+
+export class SetInterestUpdateRateDeltaForMarketCall__Inputs {
+  _call: SetInterestUpdateRateDeltaForMarketCall;
+
+  constructor(call: SetInterestUpdateRateDeltaForMarketCall) {
+    this._call = call;
+  }
+
+  get _interestUpdateRateDeltaForMarket(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class SetInterestUpdateRateDeltaForMarketCall__Outputs {
+  _call: SetInterestUpdateRateDeltaForMarketCall;
+
+  constructor(call: SetInterestUpdateRateDeltaForMarketCall) {
     this._call = call;
   }
 }
@@ -1361,7 +1336,7 @@ export class SetMarketFeesCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get _exitFee(): BigInt {
+  get _protocolSwapFee(): BigInt {
     return this._call.inputValues[1].value.toBigInt();
   }
 }
@@ -1370,40 +1345,6 @@ export class SetMarketFeesCall__Outputs {
   _call: SetMarketFeesCall;
 
   constructor(call: SetMarketFeesCall) {
-    this._call = call;
-  }
-}
-
-export class SetReentrancyWhitelistCall extends ethereum.Call {
-  get inputs(): SetReentrancyWhitelistCall__Inputs {
-    return new SetReentrancyWhitelistCall__Inputs(this);
-  }
-
-  get outputs(): SetReentrancyWhitelistCall__Outputs {
-    return new SetReentrancyWhitelistCall__Outputs(this);
-  }
-}
-
-export class SetReentrancyWhitelistCall__Inputs {
-  _call: SetReentrancyWhitelistCall;
-
-  constructor(call: SetReentrancyWhitelistCall) {
-    this._call = call;
-  }
-
-  get addresses(): Array<Address> {
-    return this._call.inputValues[0].value.toAddressArray();
-  }
-
-  get whitelisted(): Array<boolean> {
-    return this._call.inputValues[1].value.toBooleanArray();
-  }
-}
-
-export class SetReentrancyWhitelistCall__Outputs {
-  _call: SetReentrancyWhitelistCall;
-
-  constructor(call: SetReentrancyWhitelistCall) {
     this._call = call;
   }
 }
@@ -1480,184 +1421,6 @@ export class StoreTokensCall__Outputs {
   _call: StoreTokensCall;
 
   constructor(call: StoreTokensCall) {
-    this._call = call;
-  }
-}
-
-export class TransferGovernanceCall extends ethereum.Call {
-  get inputs(): TransferGovernanceCall__Inputs {
-    return new TransferGovernanceCall__Inputs(this);
-  }
-
-  get outputs(): TransferGovernanceCall__Outputs {
-    return new TransferGovernanceCall__Outputs(this);
-  }
-}
-
-export class TransferGovernanceCall__Inputs {
-  _call: TransferGovernanceCall;
-
-  constructor(call: TransferGovernanceCall) {
-    this._call = call;
-  }
-
-  get _governance(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class TransferGovernanceCall__Outputs {
-  _call: TransferGovernanceCall;
-
-  constructor(call: TransferGovernanceCall) {
-    this._call = call;
-  }
-}
-
-export class UpdateMarketInfoCall extends ethereum.Call {
-  get inputs(): UpdateMarketInfoCall__Inputs {
-    return new UpdateMarketInfoCall__Inputs(this);
-  }
-
-  get outputs(): UpdateMarketInfoCall__Outputs {
-    return new UpdateMarketInfoCall__Outputs(this);
-  }
-}
-
-export class UpdateMarketInfoCall__Inputs {
-  _call: UpdateMarketInfoCall;
-
-  constructor(call: UpdateMarketInfoCall) {
-    this._call = call;
-  }
-
-  get _xyt(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _token(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _marketFactory(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
-}
-
-export class UpdateMarketInfoCall__Outputs {
-  _call: UpdateMarketInfoCall;
-
-  constructor(call: UpdateMarketInfoCall) {
-    this._call = call;
-  }
-}
-
-export class UpdateMarketInfo1Call extends ethereum.Call {
-  get inputs(): UpdateMarketInfo1Call__Inputs {
-    return new UpdateMarketInfo1Call__Inputs(this);
-  }
-
-  get outputs(): UpdateMarketInfo1Call__Outputs {
-    return new UpdateMarketInfo1Call__Outputs(this);
-  }
-}
-
-export class UpdateMarketInfo1Call__Inputs {
-  _call: UpdateMarketInfo1Call;
-
-  constructor(call: UpdateMarketInfo1Call) {
-    this._call = call;
-  }
-
-  get _xyt(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _token(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _marketFactoryId(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
-  }
-}
-
-export class UpdateMarketInfo1Call__Outputs {
-  _call: UpdateMarketInfo1Call;
-
-  constructor(call: UpdateMarketInfo1Call) {
-    this._call = call;
-  }
-}
-
-export class WithdrawEtherCall extends ethereum.Call {
-  get inputs(): WithdrawEtherCall__Inputs {
-    return new WithdrawEtherCall__Inputs(this);
-  }
-
-  get outputs(): WithdrawEtherCall__Outputs {
-    return new WithdrawEtherCall__Outputs(this);
-  }
-}
-
-export class WithdrawEtherCall__Inputs {
-  _call: WithdrawEtherCall;
-
-  constructor(call: WithdrawEtherCall) {
-    this._call = call;
-  }
-
-  get amount(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get sendTo(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-}
-
-export class WithdrawEtherCall__Outputs {
-  _call: WithdrawEtherCall;
-
-  constructor(call: WithdrawEtherCall) {
-    this._call = call;
-  }
-}
-
-export class WithdrawTokenCall extends ethereum.Call {
-  get inputs(): WithdrawTokenCall__Inputs {
-    return new WithdrawTokenCall__Inputs(this);
-  }
-
-  get outputs(): WithdrawTokenCall__Outputs {
-    return new WithdrawTokenCall__Outputs(this);
-  }
-}
-
-export class WithdrawTokenCall__Inputs {
-  _call: WithdrawTokenCall;
-
-  constructor(call: WithdrawTokenCall) {
-    this._call = call;
-  }
-
-  get token(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-
-  get sendTo(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
-}
-
-export class WithdrawTokenCall__Outputs {
-  _call: WithdrawTokenCall;
-
-  constructor(call: WithdrawTokenCall) {
     this._call = call;
   }
 }

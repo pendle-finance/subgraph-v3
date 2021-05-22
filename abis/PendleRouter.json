@@ -3,36 +3,22 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_governance",
+        "name": "_governanceManager",
         "type": "address"
       },
       {
         "internalType": "contract IWETH",
         "name": "_weth",
         "type": "address"
+      },
+      {
+        "internalType": "contract IPendleData",
+        "name": "_data",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "marketFactoryId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "marketFactoryAddress",
-        "type": "address"
-      }
-    ],
-    "name": "NewMarketFactory",
-    "type": "event"
   },
   {
     "anonymous": false,
@@ -119,19 +105,31 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "bytes32",
-        "name": "forgeId",
+        "name": "marketFactoryId",
         "type": "bytes32"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "forgeAddress",
+        "name": "xyt",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "market",
         "type": "address"
       }
     ],
-    "name": "NewForge",
+    "name": "MarketCreated",
     "type": "event"
   },
   {
@@ -206,42 +204,6 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "_forgeId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "_forgeAddress",
-        "type": "address"
-      }
-    ],
-    "name": "addForge",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_marketFactoryId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "_marketFactoryAddress",
-        "type": "address"
-      }
-    ],
-    "name": "addMarketFactory",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
         "name": "_marketFactoryId",
         "type": "bytes32"
       },
@@ -257,22 +219,43 @@
       },
       {
         "internalType": "uint256",
-        "name": "_maxInXyt",
+        "name": "_desiredXytAmount",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_maxInToken",
+        "name": "_desiredTokenAmount",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_exactOutLp",
+        "name": "_xytMinAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tokenMinAmount",
         "type": "uint256"
       }
     ],
-    "name": "addMarketLiquidityAll",
-    "outputs": [],
+    "name": "addMarketLiquidityDual",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amountXytUsed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountTokenUsed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpOut",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "payable",
     "type": "function"
   },
@@ -300,7 +283,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_exactInAsset",
+        "name": "_exactIn",
         "type": "uint256"
       },
       {
@@ -350,25 +333,6 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "markets",
-        "type": "address[]"
-      }
-    ],
-    "name": "claimLpInterests",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "interests",
-        "type": "uint256[]"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "_marketFactoryId",
         "type": "bytes32"
@@ -409,234 +373,16 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_tokenIn",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_tokenOut",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_inSwapAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_marketFactoryId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getMarketRateExactIn",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "market",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "tokenIn",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "tokenOut",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "swapAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "limitReturnAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxPrice",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPendleRouter.Swap",
-        "name": "swap",
-        "type": "tuple"
-      },
-      {
-        "internalType": "uint256",
-        "name": "outSwapAmount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_tokenIn",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_tokenOut",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_outSwapAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_marketFactoryId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getMarketRateExactOut",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "market",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "tokenIn",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "tokenOut",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "swapAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "limitReturnAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxPrice",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPendleRouter.Swap",
-        "name": "swap",
-        "type": "tuple"
-      },
-      {
-        "internalType": "uint256",
-        "name": "inSwapAmount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_marketFactoryId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "_xyt",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      }
-    ],
-    "name": "getMarketReserves",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "xytAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokenAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "currentTime",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_market",
-        "type": "address"
-      }
-    ],
-    "name": "getMarketTokenAddresses",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "xyt",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
-    "name": "governance",
+    "name": "governanceManager",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "contract PendleGovernanceManager",
         "name": "",
         "type": "address"
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "contract IPendleData",
-        "name": "_data",
-        "type": "address"
-      }
-    ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -689,11 +435,6 @@
         "internalType": "uint256",
         "name": "_expiry",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_to",
-        "type": "address"
       }
     ],
     "name": "redeemAfterExpiry",
@@ -723,6 +464,11 @@
         "internalType": "uint256",
         "name": "_expiry",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
       }
     ],
     "name": "redeemDueInterests",
@@ -739,27 +485,22 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32[]",
-        "name": "_forgeIds",
-        "type": "bytes32[]"
+        "internalType": "address",
+        "name": "market",
+        "type": "address"
       },
       {
-        "internalType": "address[]",
-        "name": "_underlyingAssets",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "_expiries",
-        "type": "uint256[]"
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       }
     ],
-    "name": "redeemDueInterestsMultiple",
+    "name": "redeemLpInterests",
     "outputs": [
       {
-        "internalType": "uint256[]",
+        "internalType": "uint256",
         "name": "interests",
-        "type": "uint256[]"
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -786,11 +527,6 @@
         "internalType": "uint256",
         "name": "_amountToRedeem",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_to",
-        "type": "address"
       }
     ],
     "name": "redeemUnderlying",
@@ -837,8 +573,19 @@
         "type": "uint256"
       }
     ],
-    "name": "removeMarketLiquidityAll",
-    "outputs": [],
+    "name": "removeMarketLiquidityDual",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "exactOutXyt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "exactOutToken",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -876,7 +623,18 @@
       }
     ],
     "name": "removeMarketLiquiditySingle",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "exactOutXyt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "exactOutToken",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -904,13 +662,8 @@
       },
       {
         "internalType": "uint256",
-        "name": "_amountToTokenize",
+        "name": "_renewalRate",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_yieldTo",
-        "type": "address"
       }
     ],
     "name": "renewYield",
@@ -918,6 +671,11 @@
       {
         "internalType": "uint256",
         "name": "redeemedAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountRenewed",
         "type": "uint256"
       },
       {
@@ -929,6 +687,11 @@
         "internalType": "address",
         "name": "xyt",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountTokenMinted",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -948,17 +711,12 @@
       },
       {
         "internalType": "uint256",
-        "name": "_inTotalAmount",
+        "name": "_inAmount",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_minOutTotalAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_maxPrice",
+        "name": "_minOutAmount",
         "type": "uint256"
       },
       {
@@ -992,17 +750,12 @@
       },
       {
         "internalType": "uint256",
-        "name": "_outTotalAmount",
+        "name": "_outAmount",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_maxInTotalAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_maxPrice",
+        "name": "_maxInAmount",
         "type": "uint256"
       },
       {
@@ -1061,6 +814,11 @@
         "internalType": "address",
         "name": "xyt",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountTokenMinted",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",

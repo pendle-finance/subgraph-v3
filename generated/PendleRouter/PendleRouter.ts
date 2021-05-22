@@ -10,28 +10,6 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class NewMarketFactory extends ethereum.Event {
-  get params(): NewMarketFactory__Params {
-    return new NewMarketFactory__Params(this);
-  }
-}
-
-export class NewMarketFactory__Params {
-  _event: NewMarketFactory;
-
-  constructor(event: NewMarketFactory) {
-    this._event = event;
-  }
-
-  get marketFactoryId(): Bytes {
-    return this._event.parameters[0].value.toBytes();
-  }
-
-  get marketFactoryAddress(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-}
-
 export class EtherWithdraw extends ethereum.Event {
   get params(): EtherWithdraw__Params {
     return new EtherWithdraw__Params(this);
@@ -114,25 +92,33 @@ export class Join__Params {
   }
 }
 
-export class NewForge extends ethereum.Event {
-  get params(): NewForge__Params {
-    return new NewForge__Params(this);
+export class MarketCreated extends ethereum.Event {
+  get params(): MarketCreated__Params {
+    return new MarketCreated__Params(this);
   }
 }
 
-export class NewForge__Params {
-  _event: NewForge;
+export class MarketCreated__Params {
+  _event: MarketCreated;
 
-  constructor(event: NewForge) {
+  constructor(event: MarketCreated) {
     this._event = event;
   }
 
-  get forgeId(): Bytes {
+  get marketFactoryId(): Bytes {
     return this._event.parameters[0].value.toBytes();
   }
 
-  get forgeAddress(): Address {
+  get xyt(): Address {
     return this._event.parameters[1].value.toAddress();
+  }
+
+  get token(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+
+  get market(): Address {
+    return this._event.parameters[3].value.toAddress();
   }
 }
 
@@ -200,135 +186,6 @@ export class TokenWithdraw__Params {
   }
 }
 
-export class PendleRouter__getMarketRateExactInResultSwapStruct extends ethereum.Tuple {
-  get market(): Address {
-    return this[0].toAddress();
-  }
-
-  get tokenIn(): Address {
-    return this[1].toAddress();
-  }
-
-  get tokenOut(): Address {
-    return this[2].toAddress();
-  }
-
-  get swapAmount(): BigInt {
-    return this[3].toBigInt();
-  }
-
-  get limitReturnAmount(): BigInt {
-    return this[4].toBigInt();
-  }
-
-  get maxPrice(): BigInt {
-    return this[5].toBigInt();
-  }
-}
-
-export class PendleRouter__getMarketRateExactInResult {
-  value0: PendleRouter__getMarketRateExactInResultSwapStruct;
-  value1: BigInt;
-
-  constructor(
-    value0: PendleRouter__getMarketRateExactInResultSwapStruct,
-    value1: BigInt
-  ) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromTuple(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
-    return map;
-  }
-}
-
-export class PendleRouter__getMarketRateExactOutResultSwapStruct extends ethereum.Tuple {
-  get market(): Address {
-    return this[0].toAddress();
-  }
-
-  get tokenIn(): Address {
-    return this[1].toAddress();
-  }
-
-  get tokenOut(): Address {
-    return this[2].toAddress();
-  }
-
-  get swapAmount(): BigInt {
-    return this[3].toBigInt();
-  }
-
-  get limitReturnAmount(): BigInt {
-    return this[4].toBigInt();
-  }
-
-  get maxPrice(): BigInt {
-    return this[5].toBigInt();
-  }
-}
-
-export class PendleRouter__getMarketRateExactOutResult {
-  value0: PendleRouter__getMarketRateExactOutResultSwapStruct;
-  value1: BigInt;
-
-  constructor(
-    value0: PendleRouter__getMarketRateExactOutResultSwapStruct,
-    value1: BigInt
-  ) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromTuple(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
-    return map;
-  }
-}
-
-export class PendleRouter__getMarketReservesResult {
-  value0: BigInt;
-  value1: BigInt;
-  value2: BigInt;
-
-  constructor(value0: BigInt, value1: BigInt, value2: BigInt) {
-    this.value0 = value0;
-    this.value1 = value1;
-    this.value2 = value2;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
-    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
-    return map;
-  }
-}
-
-export class PendleRouter__getMarketTokenAddressesResult {
-  value0: Address;
-  value1: Address;
-
-  constructor(value0: Address, value1: Address) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromAddress(this.value0));
-    map.set("value1", ethereum.Value.fromAddress(this.value1));
-    return map;
-  }
-}
-
 export class PendleRouter__newYieldContractsResult {
   value0: Address;
   value1: Address;
@@ -346,22 +203,68 @@ export class PendleRouter__newYieldContractsResult {
   }
 }
 
-export class PendleRouter__renewYieldResult {
+export class PendleRouter__removeMarketLiquidityDualResult {
   value0: BigInt;
-  value1: Address;
-  value2: Address;
+  value1: BigInt;
 
-  constructor(value0: BigInt, value1: Address, value2: Address) {
+  constructor(value0: BigInt, value1: BigInt) {
     this.value0 = value0;
     this.value1 = value1;
-    this.value2 = value2;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromAddress(this.value1));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+}
+
+export class PendleRouter__removeMarketLiquiditySingleResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+}
+
+export class PendleRouter__renewYieldResult {
+  value0: BigInt;
+  value1: BigInt;
+  value2: Address;
+  value3: Address;
+  value4: BigInt;
+
+  constructor(
+    value0: BigInt,
+    value1: BigInt,
+    value2: Address,
+    value3: Address,
+    value4: BigInt
+  ) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+    this.value3 = value3;
+    this.value4 = value4;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     map.set("value2", ethereum.Value.fromAddress(this.value2));
+    map.set("value3", ethereum.Value.fromAddress(this.value3));
+    map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
     return map;
   }
 }
@@ -369,16 +272,19 @@ export class PendleRouter__renewYieldResult {
 export class PendleRouter__tokenizeYieldResult {
   value0: Address;
   value1: Address;
+  value2: BigInt;
 
-  constructor(value0: Address, value1: Address) {
+  constructor(value0: Address, value1: Address, value2: BigInt) {
     this.value0 = value0;
     this.value1 = value1;
+    this.value2 = value2;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
     map.set("value0", ethereum.Value.fromAddress(this.value0));
     map.set("value1", ethereum.Value.fromAddress(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
     return map;
   }
 }
@@ -386,31 +292,6 @@ export class PendleRouter__tokenizeYieldResult {
 export class PendleRouter extends ethereum.SmartContract {
   static bind(address: Address): PendleRouter {
     return new PendleRouter("PendleRouter", address);
-  }
-
-  claimLpInterests(markets: Array<Address>): Array<BigInt> {
-    let result = super.call(
-      "claimLpInterests",
-      "claimLpInterests(address[]):(uint256[])",
-      [ethereum.Value.fromAddressArray(markets)]
-    );
-
-    return result[0].toBigIntArray();
-  }
-
-  try_claimLpInterests(
-    markets: Array<Address>
-  ): ethereum.CallResult<Array<BigInt>> {
-    let result = super.tryCall(
-      "claimLpInterests",
-      "claimLpInterests(address[]):(uint256[])",
-      [ethereum.Value.fromAddressArray(markets)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigIntArray());
   }
 
   createMarket(
@@ -467,200 +348,22 @@ export class PendleRouter extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  getMarketRateExactIn(
-    _tokenIn: Address,
-    _tokenOut: Address,
-    _inSwapAmount: BigInt,
-    _marketFactoryId: Bytes
-  ): PendleRouter__getMarketRateExactInResult {
+  governanceManager(): Address {
     let result = super.call(
-      "getMarketRateExactIn",
-      "getMarketRateExactIn(address,address,uint256,bytes32):((address,address,address,uint256,uint256,uint256),uint256)",
-      [
-        ethereum.Value.fromAddress(_tokenIn),
-        ethereum.Value.fromAddress(_tokenOut),
-        ethereum.Value.fromUnsignedBigInt(_inSwapAmount),
-        ethereum.Value.fromFixedBytes(_marketFactoryId)
-      ]
+      "governanceManager",
+      "governanceManager():(address)",
+      []
     );
-
-    return new PendleRouter__getMarketRateExactInResult(
-      result[0].toTuple() as PendleRouter__getMarketRateExactInResultSwapStruct,
-      result[1].toBigInt()
-    ) as PendleRouter__getMarketRateExactInResult;
-  }
-
-  try_getMarketRateExactIn(
-    _tokenIn: Address,
-    _tokenOut: Address,
-    _inSwapAmount: BigInt,
-    _marketFactoryId: Bytes
-  ): ethereum.CallResult<PendleRouter__getMarketRateExactInResult> {
-    let result = super.tryCall(
-      "getMarketRateExactIn",
-      "getMarketRateExactIn(address,address,uint256,bytes32):((address,address,address,uint256,uint256,uint256),uint256)",
-      [
-        ethereum.Value.fromAddress(_tokenIn),
-        ethereum.Value.fromAddress(_tokenOut),
-        ethereum.Value.fromUnsignedBigInt(_inSwapAmount),
-        ethereum.Value.fromFixedBytes(_marketFactoryId)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new PendleRouter__getMarketRateExactInResult(
-        value[0].toTuple() as PendleRouter__getMarketRateExactInResultSwapStruct,
-        value[1].toBigInt()
-      ) as PendleRouter__getMarketRateExactInResult
-    );
-  }
-
-  getMarketRateExactOut(
-    _tokenIn: Address,
-    _tokenOut: Address,
-    _outSwapAmount: BigInt,
-    _marketFactoryId: Bytes
-  ): PendleRouter__getMarketRateExactOutResult {
-    let result = super.call(
-      "getMarketRateExactOut",
-      "getMarketRateExactOut(address,address,uint256,bytes32):((address,address,address,uint256,uint256,uint256),uint256)",
-      [
-        ethereum.Value.fromAddress(_tokenIn),
-        ethereum.Value.fromAddress(_tokenOut),
-        ethereum.Value.fromUnsignedBigInt(_outSwapAmount),
-        ethereum.Value.fromFixedBytes(_marketFactoryId)
-      ]
-    );
-
-    return new PendleRouter__getMarketRateExactOutResult(
-      result[0].toTuple() as PendleRouter__getMarketRateExactOutResultSwapStruct,
-      result[1].toBigInt()
-    ) as PendleRouter__getMarketRateExactOutResult;
-  }
-
-  try_getMarketRateExactOut(
-    _tokenIn: Address,
-    _tokenOut: Address,
-    _outSwapAmount: BigInt,
-    _marketFactoryId: Bytes
-  ): ethereum.CallResult<PendleRouter__getMarketRateExactOutResult> {
-    let result = super.tryCall(
-      "getMarketRateExactOut",
-      "getMarketRateExactOut(address,address,uint256,bytes32):((address,address,address,uint256,uint256,uint256),uint256)",
-      [
-        ethereum.Value.fromAddress(_tokenIn),
-        ethereum.Value.fromAddress(_tokenOut),
-        ethereum.Value.fromUnsignedBigInt(_outSwapAmount),
-        ethereum.Value.fromFixedBytes(_marketFactoryId)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new PendleRouter__getMarketRateExactOutResult(
-        value[0].toTuple() as PendleRouter__getMarketRateExactOutResultSwapStruct,
-        value[1].toBigInt()
-      ) as PendleRouter__getMarketRateExactOutResult
-    );
-  }
-
-  getMarketReserves(
-    _marketFactoryId: Bytes,
-    _xyt: Address,
-    _token: Address
-  ): PendleRouter__getMarketReservesResult {
-    let result = super.call(
-      "getMarketReserves",
-      "getMarketReserves(bytes32,address,address):(uint256,uint256,uint256)",
-      [
-        ethereum.Value.fromFixedBytes(_marketFactoryId),
-        ethereum.Value.fromAddress(_xyt),
-        ethereum.Value.fromAddress(_token)
-      ]
-    );
-
-    return new PendleRouter__getMarketReservesResult(
-      result[0].toBigInt(),
-      result[1].toBigInt(),
-      result[2].toBigInt()
-    );
-  }
-
-  try_getMarketReserves(
-    _marketFactoryId: Bytes,
-    _xyt: Address,
-    _token: Address
-  ): ethereum.CallResult<PendleRouter__getMarketReservesResult> {
-    let result = super.tryCall(
-      "getMarketReserves",
-      "getMarketReserves(bytes32,address,address):(uint256,uint256,uint256)",
-      [
-        ethereum.Value.fromFixedBytes(_marketFactoryId),
-        ethereum.Value.fromAddress(_xyt),
-        ethereum.Value.fromAddress(_token)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new PendleRouter__getMarketReservesResult(
-        value[0].toBigInt(),
-        value[1].toBigInt(),
-        value[2].toBigInt()
-      )
-    );
-  }
-
-  getMarketTokenAddresses(
-    _market: Address
-  ): PendleRouter__getMarketTokenAddressesResult {
-    let result = super.call(
-      "getMarketTokenAddresses",
-      "getMarketTokenAddresses(address):(address,address)",
-      [ethereum.Value.fromAddress(_market)]
-    );
-
-    return new PendleRouter__getMarketTokenAddressesResult(
-      result[0].toAddress(),
-      result[1].toAddress()
-    );
-  }
-
-  try_getMarketTokenAddresses(
-    _market: Address
-  ): ethereum.CallResult<PendleRouter__getMarketTokenAddressesResult> {
-    let result = super.tryCall(
-      "getMarketTokenAddresses",
-      "getMarketTokenAddresses(address):(address,address)",
-      [ethereum.Value.fromAddress(_market)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new PendleRouter__getMarketTokenAddressesResult(
-        value[0].toAddress(),
-        value[1].toAddress()
-      )
-    );
-  }
-
-  governance(): Address {
-    let result = super.call("governance", "governance():(address)", []);
 
     return result[0].toAddress();
   }
 
-  try_governance(): ethereum.CallResult<Address> {
-    let result = super.tryCall("governance", "governance():(address)", []);
+  try_governanceManager(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "governanceManager",
+      "governanceManager():(address)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -718,17 +421,15 @@ export class PendleRouter extends ethereum.SmartContract {
   redeemAfterExpiry(
     _forgeId: Bytes,
     _underlyingAsset: Address,
-    _expiry: BigInt,
-    _to: Address
+    _expiry: BigInt
   ): BigInt {
     let result = super.call(
       "redeemAfterExpiry",
-      "redeemAfterExpiry(bytes32,address,uint256,address):(uint256)",
+      "redeemAfterExpiry(bytes32,address,uint256):(uint256)",
       [
         ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromAddress(_underlyingAsset),
-        ethereum.Value.fromUnsignedBigInt(_expiry),
-        ethereum.Value.fromAddress(_to)
+        ethereum.Value.fromUnsignedBigInt(_expiry)
       ]
     );
 
@@ -738,17 +439,15 @@ export class PendleRouter extends ethereum.SmartContract {
   try_redeemAfterExpiry(
     _forgeId: Bytes,
     _underlyingAsset: Address,
-    _expiry: BigInt,
-    _to: Address
+    _expiry: BigInt
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "redeemAfterExpiry",
-      "redeemAfterExpiry(bytes32,address,uint256,address):(uint256)",
+      "redeemAfterExpiry(bytes32,address,uint256):(uint256)",
       [
         ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromAddress(_underlyingAsset),
-        ethereum.Value.fromUnsignedBigInt(_expiry),
-        ethereum.Value.fromAddress(_to)
+        ethereum.Value.fromUnsignedBigInt(_expiry)
       ]
     );
     if (result.reverted) {
@@ -761,15 +460,17 @@ export class PendleRouter extends ethereum.SmartContract {
   redeemDueInterests(
     _forgeId: Bytes,
     _underlyingAsset: Address,
-    _expiry: BigInt
+    _expiry: BigInt,
+    _user: Address
   ): BigInt {
     let result = super.call(
       "redeemDueInterests",
-      "redeemDueInterests(bytes32,address,uint256):(uint256)",
+      "redeemDueInterests(bytes32,address,uint256,address):(uint256)",
       [
         ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromAddress(_underlyingAsset),
-        ethereum.Value.fromUnsignedBigInt(_expiry)
+        ethereum.Value.fromUnsignedBigInt(_expiry),
+        ethereum.Value.fromAddress(_user)
       ]
     );
 
@@ -779,15 +480,17 @@ export class PendleRouter extends ethereum.SmartContract {
   try_redeemDueInterests(
     _forgeId: Bytes,
     _underlyingAsset: Address,
-    _expiry: BigInt
+    _expiry: BigInt,
+    _user: Address
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "redeemDueInterests",
-      "redeemDueInterests(bytes32,address,uint256):(uint256)",
+      "redeemDueInterests(bytes32,address,uint256,address):(uint256)",
       [
         ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromAddress(_underlyingAsset),
-        ethereum.Value.fromUnsignedBigInt(_expiry)
+        ethereum.Value.fromUnsignedBigInt(_expiry),
+        ethereum.Value.fromAddress(_user)
       ]
     );
     if (result.reverted) {
@@ -797,61 +500,46 @@ export class PendleRouter extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  redeemDueInterestsMultiple(
-    _forgeIds: Array<Bytes>,
-    _underlyingAssets: Array<Address>,
-    _expiries: Array<BigInt>
-  ): Array<BigInt> {
+  redeemLpInterests(market: Address, user: Address): BigInt {
     let result = super.call(
-      "redeemDueInterestsMultiple",
-      "redeemDueInterestsMultiple(bytes32[],address[],uint256[]):(uint256[])",
-      [
-        ethereum.Value.fromFixedBytesArray(_forgeIds),
-        ethereum.Value.fromAddressArray(_underlyingAssets),
-        ethereum.Value.fromUnsignedBigIntArray(_expiries)
-      ]
+      "redeemLpInterests",
+      "redeemLpInterests(address,address):(uint256)",
+      [ethereum.Value.fromAddress(market), ethereum.Value.fromAddress(user)]
     );
 
-    return result[0].toBigIntArray();
+    return result[0].toBigInt();
   }
 
-  try_redeemDueInterestsMultiple(
-    _forgeIds: Array<Bytes>,
-    _underlyingAssets: Array<Address>,
-    _expiries: Array<BigInt>
-  ): ethereum.CallResult<Array<BigInt>> {
+  try_redeemLpInterests(
+    market: Address,
+    user: Address
+  ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "redeemDueInterestsMultiple",
-      "redeemDueInterestsMultiple(bytes32[],address[],uint256[]):(uint256[])",
-      [
-        ethereum.Value.fromFixedBytesArray(_forgeIds),
-        ethereum.Value.fromAddressArray(_underlyingAssets),
-        ethereum.Value.fromUnsignedBigIntArray(_expiries)
-      ]
+      "redeemLpInterests",
+      "redeemLpInterests(address,address):(uint256)",
+      [ethereum.Value.fromAddress(market), ethereum.Value.fromAddress(user)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigIntArray());
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   redeemUnderlying(
     _forgeId: Bytes,
     _underlyingAsset: Address,
     _expiry: BigInt,
-    _amountToRedeem: BigInt,
-    _to: Address
+    _amountToRedeem: BigInt
   ): BigInt {
     let result = super.call(
       "redeemUnderlying",
-      "redeemUnderlying(bytes32,address,uint256,uint256,address):(uint256)",
+      "redeemUnderlying(bytes32,address,uint256,uint256):(uint256)",
       [
         ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromAddress(_underlyingAsset),
         ethereum.Value.fromUnsignedBigInt(_expiry),
-        ethereum.Value.fromUnsignedBigInt(_amountToRedeem),
-        ethereum.Value.fromAddress(_to)
+        ethereum.Value.fromUnsignedBigInt(_amountToRedeem)
       ]
     );
 
@@ -862,18 +550,16 @@ export class PendleRouter extends ethereum.SmartContract {
     _forgeId: Bytes,
     _underlyingAsset: Address,
     _expiry: BigInt,
-    _amountToRedeem: BigInt,
-    _to: Address
+    _amountToRedeem: BigInt
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "redeemUnderlying",
-      "redeemUnderlying(bytes32,address,uint256,uint256,address):(uint256)",
+      "redeemUnderlying(bytes32,address,uint256,uint256):(uint256)",
       [
         ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromAddress(_underlyingAsset),
         ethereum.Value.fromUnsignedBigInt(_expiry),
-        ethereum.Value.fromUnsignedBigInt(_amountToRedeem),
-        ethereum.Value.fromAddress(_to)
+        ethereum.Value.fromUnsignedBigInt(_amountToRedeem)
       ]
     );
     if (result.reverted) {
@@ -883,31 +569,149 @@ export class PendleRouter extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  removeMarketLiquidityDual(
+    _marketFactoryId: Bytes,
+    _xyt: Address,
+    _token: Address,
+    _exactInLp: BigInt,
+    _minOutXyt: BigInt,
+    _minOutToken: BigInt
+  ): PendleRouter__removeMarketLiquidityDualResult {
+    let result = super.call(
+      "removeMarketLiquidityDual",
+      "removeMarketLiquidityDual(bytes32,address,address,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromFixedBytes(_marketFactoryId),
+        ethereum.Value.fromAddress(_xyt),
+        ethereum.Value.fromAddress(_token),
+        ethereum.Value.fromUnsignedBigInt(_exactInLp),
+        ethereum.Value.fromUnsignedBigInt(_minOutXyt),
+        ethereum.Value.fromUnsignedBigInt(_minOutToken)
+      ]
+    );
+
+    return new PendleRouter__removeMarketLiquidityDualResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_removeMarketLiquidityDual(
+    _marketFactoryId: Bytes,
+    _xyt: Address,
+    _token: Address,
+    _exactInLp: BigInt,
+    _minOutXyt: BigInt,
+    _minOutToken: BigInt
+  ): ethereum.CallResult<PendleRouter__removeMarketLiquidityDualResult> {
+    let result = super.tryCall(
+      "removeMarketLiquidityDual",
+      "removeMarketLiquidityDual(bytes32,address,address,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromFixedBytes(_marketFactoryId),
+        ethereum.Value.fromAddress(_xyt),
+        ethereum.Value.fromAddress(_token),
+        ethereum.Value.fromUnsignedBigInt(_exactInLp),
+        ethereum.Value.fromUnsignedBigInt(_minOutXyt),
+        ethereum.Value.fromUnsignedBigInt(_minOutToken)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new PendleRouter__removeMarketLiquidityDualResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
+  removeMarketLiquiditySingle(
+    _marketFactoryId: Bytes,
+    _xyt: Address,
+    _token: Address,
+    _forXyt: boolean,
+    _exactInLp: BigInt,
+    _minOutAsset: BigInt
+  ): PendleRouter__removeMarketLiquiditySingleResult {
+    let result = super.call(
+      "removeMarketLiquiditySingle",
+      "removeMarketLiquiditySingle(bytes32,address,address,bool,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromFixedBytes(_marketFactoryId),
+        ethereum.Value.fromAddress(_xyt),
+        ethereum.Value.fromAddress(_token),
+        ethereum.Value.fromBoolean(_forXyt),
+        ethereum.Value.fromUnsignedBigInt(_exactInLp),
+        ethereum.Value.fromUnsignedBigInt(_minOutAsset)
+      ]
+    );
+
+    return new PendleRouter__removeMarketLiquiditySingleResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_removeMarketLiquiditySingle(
+    _marketFactoryId: Bytes,
+    _xyt: Address,
+    _token: Address,
+    _forXyt: boolean,
+    _exactInLp: BigInt,
+    _minOutAsset: BigInt
+  ): ethereum.CallResult<PendleRouter__removeMarketLiquiditySingleResult> {
+    let result = super.tryCall(
+      "removeMarketLiquiditySingle",
+      "removeMarketLiquiditySingle(bytes32,address,address,bool,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromFixedBytes(_marketFactoryId),
+        ethereum.Value.fromAddress(_xyt),
+        ethereum.Value.fromAddress(_token),
+        ethereum.Value.fromBoolean(_forXyt),
+        ethereum.Value.fromUnsignedBigInt(_exactInLp),
+        ethereum.Value.fromUnsignedBigInt(_minOutAsset)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new PendleRouter__removeMarketLiquiditySingleResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
   renewYield(
     _forgeId: Bytes,
     _oldExpiry: BigInt,
     _underlyingAsset: Address,
     _newExpiry: BigInt,
-    _amountToTokenize: BigInt,
-    _yieldTo: Address
+    _renewalRate: BigInt
   ): PendleRouter__renewYieldResult {
     let result = super.call(
       "renewYield",
-      "renewYield(bytes32,uint256,address,uint256,uint256,address):(uint256,address,address)",
+      "renewYield(bytes32,uint256,address,uint256,uint256):(uint256,uint256,address,address,uint256)",
       [
         ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromUnsignedBigInt(_oldExpiry),
         ethereum.Value.fromAddress(_underlyingAsset),
         ethereum.Value.fromUnsignedBigInt(_newExpiry),
-        ethereum.Value.fromUnsignedBigInt(_amountToTokenize),
-        ethereum.Value.fromAddress(_yieldTo)
+        ethereum.Value.fromUnsignedBigInt(_renewalRate)
       ]
     );
 
     return new PendleRouter__renewYieldResult(
       result[0].toBigInt(),
-      result[1].toAddress(),
-      result[2].toAddress()
+      result[1].toBigInt(),
+      result[2].toAddress(),
+      result[3].toAddress(),
+      result[4].toBigInt()
     );
   }
 
@@ -916,19 +720,17 @@ export class PendleRouter extends ethereum.SmartContract {
     _oldExpiry: BigInt,
     _underlyingAsset: Address,
     _newExpiry: BigInt,
-    _amountToTokenize: BigInt,
-    _yieldTo: Address
+    _renewalRate: BigInt
   ): ethereum.CallResult<PendleRouter__renewYieldResult> {
     let result = super.tryCall(
       "renewYield",
-      "renewYield(bytes32,uint256,address,uint256,uint256,address):(uint256,address,address)",
+      "renewYield(bytes32,uint256,address,uint256,uint256):(uint256,uint256,address,address,uint256)",
       [
         ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromUnsignedBigInt(_oldExpiry),
         ethereum.Value.fromAddress(_underlyingAsset),
         ethereum.Value.fromUnsignedBigInt(_newExpiry),
-        ethereum.Value.fromUnsignedBigInt(_amountToTokenize),
-        ethereum.Value.fromAddress(_yieldTo)
+        ethereum.Value.fromUnsignedBigInt(_renewalRate)
       ]
     );
     if (result.reverted) {
@@ -938,8 +740,10 @@ export class PendleRouter extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       new PendleRouter__renewYieldResult(
         value[0].toBigInt(),
-        value[1].toAddress(),
-        value[2].toAddress()
+        value[1].toBigInt(),
+        value[2].toAddress(),
+        value[3].toAddress(),
+        value[4].toBigInt()
       )
     );
   }
@@ -953,7 +757,7 @@ export class PendleRouter extends ethereum.SmartContract {
   ): PendleRouter__tokenizeYieldResult {
     let result = super.call(
       "tokenizeYield",
-      "tokenizeYield(bytes32,address,uint256,uint256,address):(address,address)",
+      "tokenizeYield(bytes32,address,uint256,uint256,address):(address,address,uint256)",
       [
         ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromAddress(_underlyingAsset),
@@ -965,7 +769,8 @@ export class PendleRouter extends ethereum.SmartContract {
 
     return new PendleRouter__tokenizeYieldResult(
       result[0].toAddress(),
-      result[1].toAddress()
+      result[1].toAddress(),
+      result[2].toBigInt()
     );
   }
 
@@ -978,7 +783,7 @@ export class PendleRouter extends ethereum.SmartContract {
   ): ethereum.CallResult<PendleRouter__tokenizeYieldResult> {
     let result = super.tryCall(
       "tokenizeYield",
-      "tokenizeYield(bytes32,address,uint256,uint256,address):(address,address)",
+      "tokenizeYield(bytes32,address,uint256,uint256,address):(address,address,uint256)",
       [
         ethereum.Value.fromFixedBytes(_forgeId),
         ethereum.Value.fromAddress(_underlyingAsset),
@@ -994,7 +799,8 @@ export class PendleRouter extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       new PendleRouter__tokenizeYieldResult(
         value[0].toAddress(),
-        value[1].toAddress()
+        value[1].toAddress(),
+        value[2].toBigInt()
       )
     );
   }
@@ -1032,12 +838,16 @@ export class ConstructorCall__Inputs {
     this._call = call;
   }
 
-  get _governance(): Address {
+  get _governanceManager(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
   get _weth(): Address {
     return this._call.inputValues[1].value.toAddress();
+  }
+
+  get _data(): Address {
+    return this._call.inputValues[2].value.toAddress();
   }
 }
 
@@ -1049,88 +859,20 @@ export class ConstructorCall__Outputs {
   }
 }
 
-export class AddForgeCall extends ethereum.Call {
-  get inputs(): AddForgeCall__Inputs {
-    return new AddForgeCall__Inputs(this);
+export class AddMarketLiquidityDualCall extends ethereum.Call {
+  get inputs(): AddMarketLiquidityDualCall__Inputs {
+    return new AddMarketLiquidityDualCall__Inputs(this);
   }
 
-  get outputs(): AddForgeCall__Outputs {
-    return new AddForgeCall__Outputs(this);
-  }
-}
-
-export class AddForgeCall__Inputs {
-  _call: AddForgeCall;
-
-  constructor(call: AddForgeCall) {
-    this._call = call;
-  }
-
-  get _forgeId(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get _forgeAddress(): Address {
-    return this._call.inputValues[1].value.toAddress();
+  get outputs(): AddMarketLiquidityDualCall__Outputs {
+    return new AddMarketLiquidityDualCall__Outputs(this);
   }
 }
 
-export class AddForgeCall__Outputs {
-  _call: AddForgeCall;
+export class AddMarketLiquidityDualCall__Inputs {
+  _call: AddMarketLiquidityDualCall;
 
-  constructor(call: AddForgeCall) {
-    this._call = call;
-  }
-}
-
-export class AddMarketFactoryCall extends ethereum.Call {
-  get inputs(): AddMarketFactoryCall__Inputs {
-    return new AddMarketFactoryCall__Inputs(this);
-  }
-
-  get outputs(): AddMarketFactoryCall__Outputs {
-    return new AddMarketFactoryCall__Outputs(this);
-  }
-}
-
-export class AddMarketFactoryCall__Inputs {
-  _call: AddMarketFactoryCall;
-
-  constructor(call: AddMarketFactoryCall) {
-    this._call = call;
-  }
-
-  get _marketFactoryId(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get _marketFactoryAddress(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-}
-
-export class AddMarketFactoryCall__Outputs {
-  _call: AddMarketFactoryCall;
-
-  constructor(call: AddMarketFactoryCall) {
-    this._call = call;
-  }
-}
-
-export class AddMarketLiquidityAllCall extends ethereum.Call {
-  get inputs(): AddMarketLiquidityAllCall__Inputs {
-    return new AddMarketLiquidityAllCall__Inputs(this);
-  }
-
-  get outputs(): AddMarketLiquidityAllCall__Outputs {
-    return new AddMarketLiquidityAllCall__Outputs(this);
-  }
-}
-
-export class AddMarketLiquidityAllCall__Inputs {
-  _call: AddMarketLiquidityAllCall;
-
-  constructor(call: AddMarketLiquidityAllCall) {
+  constructor(call: AddMarketLiquidityDualCall) {
     this._call = call;
   }
 
@@ -1146,24 +888,40 @@ export class AddMarketLiquidityAllCall__Inputs {
     return this._call.inputValues[2].value.toAddress();
   }
 
-  get _maxInXyt(): BigInt {
+  get _desiredXytAmount(): BigInt {
     return this._call.inputValues[3].value.toBigInt();
   }
 
-  get _maxInToken(): BigInt {
+  get _desiredTokenAmount(): BigInt {
     return this._call.inputValues[4].value.toBigInt();
   }
 
-  get _exactOutLp(): BigInt {
+  get _xytMinAmount(): BigInt {
     return this._call.inputValues[5].value.toBigInt();
+  }
+
+  get _tokenMinAmount(): BigInt {
+    return this._call.inputValues[6].value.toBigInt();
   }
 }
 
-export class AddMarketLiquidityAllCall__Outputs {
-  _call: AddMarketLiquidityAllCall;
+export class AddMarketLiquidityDualCall__Outputs {
+  _call: AddMarketLiquidityDualCall;
 
-  constructor(call: AddMarketLiquidityAllCall) {
+  constructor(call: AddMarketLiquidityDualCall) {
     this._call = call;
+  }
+
+  get amountXytUsed(): BigInt {
+    return this._call.outputValues[0].value.toBigInt();
+  }
+
+  get amountTokenUsed(): BigInt {
+    return this._call.outputValues[1].value.toBigInt();
+  }
+
+  get lpOut(): BigInt {
+    return this._call.outputValues[2].value.toBigInt();
   }
 }
 
@@ -1200,7 +958,7 @@ export class AddMarketLiquiditySingleCall__Inputs {
     return this._call.inputValues[3].value.toBoolean();
   }
 
-  get _exactInAsset(): BigInt {
+  get _exactIn(): BigInt {
     return this._call.inputValues[4].value.toBigInt();
   }
 
@@ -1263,40 +1021,6 @@ export class BootstrapMarketCall__Outputs {
   }
 }
 
-export class ClaimLpInterestsCall extends ethereum.Call {
-  get inputs(): ClaimLpInterestsCall__Inputs {
-    return new ClaimLpInterestsCall__Inputs(this);
-  }
-
-  get outputs(): ClaimLpInterestsCall__Outputs {
-    return new ClaimLpInterestsCall__Outputs(this);
-  }
-}
-
-export class ClaimLpInterestsCall__Inputs {
-  _call: ClaimLpInterestsCall;
-
-  constructor(call: ClaimLpInterestsCall) {
-    this._call = call;
-  }
-
-  get markets(): Array<Address> {
-    return this._call.inputValues[0].value.toAddressArray();
-  }
-}
-
-export class ClaimLpInterestsCall__Outputs {
-  _call: ClaimLpInterestsCall;
-
-  constructor(call: ClaimLpInterestsCall) {
-    this._call = call;
-  }
-
-  get interests(): Array<BigInt> {
-    return this._call.outputValues[0].value.toBigIntArray();
-  }
-}
-
 export class CreateMarketCall extends ethereum.Call {
   get inputs(): CreateMarketCall__Inputs {
     return new CreateMarketCall__Inputs(this);
@@ -1336,36 +1060,6 @@ export class CreateMarketCall__Outputs {
 
   get market(): Address {
     return this._call.outputValues[0].value.toAddress();
-  }
-}
-
-export class InitializeCall extends ethereum.Call {
-  get inputs(): InitializeCall__Inputs {
-    return new InitializeCall__Inputs(this);
-  }
-
-  get outputs(): InitializeCall__Outputs {
-    return new InitializeCall__Outputs(this);
-  }
-}
-
-export class InitializeCall__Inputs {
-  _call: InitializeCall;
-
-  constructor(call: InitializeCall) {
-    this._call = call;
-  }
-
-  get _data(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class InitializeCall__Outputs {
-  _call: InitializeCall;
-
-  constructor(call: InitializeCall) {
-    this._call = call;
   }
 }
 
@@ -1443,10 +1137,6 @@ export class RedeemAfterExpiryCall__Inputs {
   get _expiry(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
-
-  get _to(): Address {
-    return this._call.inputValues[3].value.toAddress();
-  }
 }
 
 export class RedeemAfterExpiryCall__Outputs {
@@ -1489,6 +1179,10 @@ export class RedeemDueInterestsCall__Inputs {
   get _expiry(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
+
+  get _user(): Address {
+    return this._call.inputValues[3].value.toAddress();
+  }
 }
 
 export class RedeemDueInterestsCall__Outputs {
@@ -1503,45 +1197,41 @@ export class RedeemDueInterestsCall__Outputs {
   }
 }
 
-export class RedeemDueInterestsMultipleCall extends ethereum.Call {
-  get inputs(): RedeemDueInterestsMultipleCall__Inputs {
-    return new RedeemDueInterestsMultipleCall__Inputs(this);
+export class RedeemLpInterestsCall extends ethereum.Call {
+  get inputs(): RedeemLpInterestsCall__Inputs {
+    return new RedeemLpInterestsCall__Inputs(this);
   }
 
-  get outputs(): RedeemDueInterestsMultipleCall__Outputs {
-    return new RedeemDueInterestsMultipleCall__Outputs(this);
-  }
-}
-
-export class RedeemDueInterestsMultipleCall__Inputs {
-  _call: RedeemDueInterestsMultipleCall;
-
-  constructor(call: RedeemDueInterestsMultipleCall) {
-    this._call = call;
-  }
-
-  get _forgeIds(): Array<Bytes> {
-    return this._call.inputValues[0].value.toBytesArray();
-  }
-
-  get _underlyingAssets(): Array<Address> {
-    return this._call.inputValues[1].value.toAddressArray();
-  }
-
-  get _expiries(): Array<BigInt> {
-    return this._call.inputValues[2].value.toBigIntArray();
+  get outputs(): RedeemLpInterestsCall__Outputs {
+    return new RedeemLpInterestsCall__Outputs(this);
   }
 }
 
-export class RedeemDueInterestsMultipleCall__Outputs {
-  _call: RedeemDueInterestsMultipleCall;
+export class RedeemLpInterestsCall__Inputs {
+  _call: RedeemLpInterestsCall;
 
-  constructor(call: RedeemDueInterestsMultipleCall) {
+  constructor(call: RedeemLpInterestsCall) {
     this._call = call;
   }
 
-  get interests(): Array<BigInt> {
-    return this._call.outputValues[0].value.toBigIntArray();
+  get market(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get user(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+}
+
+export class RedeemLpInterestsCall__Outputs {
+  _call: RedeemLpInterestsCall;
+
+  constructor(call: RedeemLpInterestsCall) {
+    this._call = call;
+  }
+
+  get interests(): BigInt {
+    return this._call.outputValues[0].value.toBigInt();
   }
 }
 
@@ -1577,10 +1267,6 @@ export class RedeemUnderlyingCall__Inputs {
   get _amountToRedeem(): BigInt {
     return this._call.inputValues[3].value.toBigInt();
   }
-
-  get _to(): Address {
-    return this._call.inputValues[4].value.toAddress();
-  }
 }
 
 export class RedeemUnderlyingCall__Outputs {
@@ -1595,20 +1281,20 @@ export class RedeemUnderlyingCall__Outputs {
   }
 }
 
-export class RemoveMarketLiquidityAllCall extends ethereum.Call {
-  get inputs(): RemoveMarketLiquidityAllCall__Inputs {
-    return new RemoveMarketLiquidityAllCall__Inputs(this);
+export class RemoveMarketLiquidityDualCall extends ethereum.Call {
+  get inputs(): RemoveMarketLiquidityDualCall__Inputs {
+    return new RemoveMarketLiquidityDualCall__Inputs(this);
   }
 
-  get outputs(): RemoveMarketLiquidityAllCall__Outputs {
-    return new RemoveMarketLiquidityAllCall__Outputs(this);
+  get outputs(): RemoveMarketLiquidityDualCall__Outputs {
+    return new RemoveMarketLiquidityDualCall__Outputs(this);
   }
 }
 
-export class RemoveMarketLiquidityAllCall__Inputs {
-  _call: RemoveMarketLiquidityAllCall;
+export class RemoveMarketLiquidityDualCall__Inputs {
+  _call: RemoveMarketLiquidityDualCall;
 
-  constructor(call: RemoveMarketLiquidityAllCall) {
+  constructor(call: RemoveMarketLiquidityDualCall) {
     this._call = call;
   }
 
@@ -1637,11 +1323,19 @@ export class RemoveMarketLiquidityAllCall__Inputs {
   }
 }
 
-export class RemoveMarketLiquidityAllCall__Outputs {
-  _call: RemoveMarketLiquidityAllCall;
+export class RemoveMarketLiquidityDualCall__Outputs {
+  _call: RemoveMarketLiquidityDualCall;
 
-  constructor(call: RemoveMarketLiquidityAllCall) {
+  constructor(call: RemoveMarketLiquidityDualCall) {
     this._call = call;
+  }
+
+  get exactOutXyt(): BigInt {
+    return this._call.outputValues[0].value.toBigInt();
+  }
+
+  get exactOutToken(): BigInt {
+    return this._call.outputValues[1].value.toBigInt();
   }
 }
 
@@ -1693,6 +1387,14 @@ export class RemoveMarketLiquiditySingleCall__Outputs {
   constructor(call: RemoveMarketLiquiditySingleCall) {
     this._call = call;
   }
+
+  get exactOutXyt(): BigInt {
+    return this._call.outputValues[0].value.toBigInt();
+  }
+
+  get exactOutToken(): BigInt {
+    return this._call.outputValues[1].value.toBigInt();
+  }
 }
 
 export class RenewYieldCall extends ethereum.Call {
@@ -1728,12 +1430,8 @@ export class RenewYieldCall__Inputs {
     return this._call.inputValues[3].value.toBigInt();
   }
 
-  get _amountToTokenize(): BigInt {
+  get _renewalRate(): BigInt {
     return this._call.inputValues[4].value.toBigInt();
-  }
-
-  get _yieldTo(): Address {
-    return this._call.inputValues[5].value.toAddress();
   }
 }
 
@@ -1748,12 +1446,20 @@ export class RenewYieldCall__Outputs {
     return this._call.outputValues[0].value.toBigInt();
   }
 
+  get amountRenewed(): BigInt {
+    return this._call.outputValues[1].value.toBigInt();
+  }
+
   get ot(): Address {
-    return this._call.outputValues[1].value.toAddress();
+    return this._call.outputValues[2].value.toAddress();
   }
 
   get xyt(): Address {
-    return this._call.outputValues[2].value.toAddress();
+    return this._call.outputValues[3].value.toAddress();
+  }
+
+  get amountTokenMinted(): BigInt {
+    return this._call.outputValues[4].value.toBigInt();
   }
 }
 
@@ -1782,20 +1488,16 @@ export class SwapExactInCall__Inputs {
     return this._call.inputValues[1].value.toAddress();
   }
 
-  get _inTotalAmount(): BigInt {
+  get _inAmount(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
 
-  get _minOutTotalAmount(): BigInt {
+  get _minOutAmount(): BigInt {
     return this._call.inputValues[3].value.toBigInt();
   }
 
-  get _maxPrice(): BigInt {
-    return this._call.inputValues[4].value.toBigInt();
-  }
-
   get _marketFactoryId(): Bytes {
-    return this._call.inputValues[5].value.toBytes();
+    return this._call.inputValues[4].value.toBytes();
   }
 }
 
@@ -1836,20 +1538,16 @@ export class SwapExactOutCall__Inputs {
     return this._call.inputValues[1].value.toAddress();
   }
 
-  get _outTotalAmount(): BigInt {
+  get _outAmount(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
 
-  get _maxInTotalAmount(): BigInt {
+  get _maxInAmount(): BigInt {
     return this._call.inputValues[3].value.toBigInt();
   }
 
-  get _maxPrice(): BigInt {
-    return this._call.inputValues[4].value.toBigInt();
-  }
-
   get _marketFactoryId(): Bytes {
-    return this._call.inputValues[5].value.toBytes();
+    return this._call.inputValues[4].value.toBytes();
   }
 }
 
@@ -1916,6 +1614,10 @@ export class TokenizeYieldCall__Outputs {
 
   get xyt(): Address {
     return this._call.outputValues[1].value.toAddress();
+  }
+
+  get amountTokenMinted(): BigInt {
+    return this._call.outputValues[2].value.toBigInt();
   }
 }
 
