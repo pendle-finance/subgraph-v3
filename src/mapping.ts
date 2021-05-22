@@ -6,11 +6,11 @@ import {
   log,
 } from "@graphprotocol/graph-ts";
 import {
-  NewForge as NewForgeEvent,
   SwapEvent,
   Join as JoinLiquidityPoolEvent,
   Exit as ExitLiquidityPoolEvent,
-  NewMarketFactory as NewMarketFactoryEvent,
+  // NewMarketFactory as NewMarketFactoryEvent,
+  PendleRouter as PendleRouterContract,
 } from "../generated/PendleRouter/PendleRouter";
 import {
   MintYieldToken as MintYieldTokenEvent,
@@ -21,7 +21,7 @@ import { MarketCreated as MarketCreatedEvent } from "../generated/PendleMarketFa
 import {
   IPendleForge as PendleForgeTemplate,
   PendleMarket as PendleMarketTemplate,
-  PendleMarketFactory as PendleMarketFactoryTemplate,
+  // PendleMarketFactory as PendleMarketFactoryTemplate,
 } from "../generated/templates";
 import {
   Sync as SyncEvent,
@@ -32,7 +32,10 @@ import {
   ERC20,
   Transfer as TransferEvent,
 } from "../generated/templates/PendleMarket/ERC20";
-import { PendleData as PendleDataContract } from "../generated/templates/PendleMarket/PendleData";
+import {
+  PendleData as PendleDataContract,
+  ForgeAdded as NewForgeEvent,
+} from "../generated/templates/PendleMarket/PendleData";
 
 import {
   Forge,
@@ -87,10 +90,12 @@ function loadPendleData(): PendleData {
     .swapFee()
     .toBigDecimal()
     .div(BigDecimal.fromString("100"));
-  pendleData.exitFee = pendleContract
-    .exitFee()
-    .toBigDecimal()
-    .div(BigDecimal.fromString("100"));
+  pendleData.exitFee = ZERO_BD;
+
+  // pendleContract
+  //   .exitFee()
+  //   .toBigDecimal()
+  //   .div(BigDecimal.fromString("100"));
 
   pendleData.save();
   return pendleData as PendleData;
@@ -281,15 +286,15 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   liquidityPool.save();
 }
 
-export function handleNewMarketFactory(event: NewMarketFactoryEvent): void {
-  let newMarketFactory = new MarketFactory(
-    event.params.marketFactoryId.toString()
-  );
-  newMarketFactory.address = event.params.marketFactoryAddress.toHexString();
-  newMarketFactory.save();
+// export function handleNewMarketFactory(event: NewMarketFactoryEvent): void {
+//   let newMarketFactory = new MarketFactory(
+//     event.params.marketFactoryId.toString()
+//   );
+//   newMarketFactory.address = event.params.marketFactoryAddress.toHexString();
+//   newMarketFactory.save();
 
-  PendleMarketFactoryTemplate.create(event.params.marketFactoryAddress);
-}
+//   PendleMarketFactoryTemplate.create(event.params.marketFactoryAddress);
+// }
 
 /* ** PENDLE FORGE EVENTS */
 export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
@@ -385,7 +390,7 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
 
   // Getting the mint volume
   let newRedeenVolume = convertTokenToDecimal(
-    event.params.amount,
+    event.params.redeemedAmount,
     underlyingToken.decimals
   );
 
@@ -422,7 +427,7 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
 
   mintYieldToken.forgeId = forgeId;
   mintYieldToken.amountRedeemed = convertTokenToDecimal(
-    event.params.amount,
+    event.params.redeemedAmount,
     BigInt.fromI32(6)
   );
   mintYieldToken.expiry = event.params.expiry;
@@ -505,20 +510,26 @@ export function handleSync(event: SyncEvent): void {
   /* Fetches spot price*/
   let pendleMarketContract = PendleMarketContract.bind(event.address);
   if (pair.reserve0.notEqual(ZERO_BD) && pair.reserve1.notEqual(ZERO_BD)) {
-    pair.token0Price = convertTokenToDecimal(
-      pendleMarketContract.spotPrice(
-        ByteArray.fromHexString(token0.id) as Address,
-        ByteArray.fromHexString(token1.id) as Address
-      ),
-      BigInt.fromI32(12)
-    );
-    pair.token1Price = convertTokenToDecimal(
-      pendleMarketContract.spotPrice(
-        ByteArray.fromHexString(token1.id) as Address,
-        ByteArray.fromHexString(token0.id) as Address
-      ),
-      BigInt.fromI32(12)
-    );
+    // let token0Price = pendleMarketContract.try_swapExactIn(
+    //   ByteArray.fromHexString(token0.id) as Address,
+    //   ONE_BI,
+    //   ByteArray.fromHexString(token1.id) as Address,
+    //   ZERO_BI
+    // );
+    // let token1Price = pendleMarketContract.try_swapExactIn(
+    //   ByteArray.fromHexString(token1.id) as Address,
+    //   ONE_BI,
+    //   ByteArray.fromHexString(token0.id) as Address,
+    //   ZERO_BI
+    // );
+    // pair.token0Price = convertTokenToDecimal(
+    //   token0Price.value.value0,
+    //   BigInt.fromI32(12)
+    // );
+    // pair.token1Price = convertTokenToDecimal(
+    //   token1Price.value.value0,
+    //   BigInt.fromI32(12)
+    // );
   } else {
     pair.token0Price = ZERO_BD;
     pair.token1Price = ZERO_BD;
