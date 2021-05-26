@@ -25,8 +25,6 @@ dataSources:
           file: PendleRouter\abis\PendleRouter.json
         - name: PendleData
           file: PendleRouter\abis\PendleData.json
-        - name: PendleMarketFactory
-          file: PendleRouter\abis\PendleMarketFactory.json
         - name: ERC20
           file: PendleRouter\abis\ERC20.json
         - name: ERC20SymbolBytes
@@ -62,6 +60,8 @@ dataSources:
       eventHandlers:
         - event: ForgeAdded(indexed bytes32,indexed address)
           handler: handleNewForge
+        - event: NewMarketFactory(indexed bytes32,indexed address)
+          handler: handleNewMarketFactory
       file: PendleRouter\PendleRouter.wasm
 templates:
   - kind: ethereum/contract

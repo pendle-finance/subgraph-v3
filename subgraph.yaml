@@ -25,8 +25,6 @@ dataSources:
           file: ./abis/PendleRouter.json
         - name: PendleData
           file: ./abis/PendleData.json
-        - name: PendleMarketFactory
-          file: ./abis/PendleMarketFactory.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: ERC20SymbolBytes
@@ -62,8 +60,8 @@ dataSources:
       eventHandlers:
         - event: ForgeAdded(indexed bytes32,indexed address)
           handler: handleNewForge
-        # - event: NewMarketFactory(indexed bytes32,indexed address)
-        #   handler: handleNewMarketFactory
+        - event: NewMarketFactory(indexed bytes32,indexed address)
+          handler: handleNewMarketFactory
       file: ./src/mapping.ts
 templates:
   - kind: ethereum/contract

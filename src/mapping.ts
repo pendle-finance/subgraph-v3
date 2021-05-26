@@ -9,19 +9,17 @@ import {
   SwapEvent,
   Join as JoinLiquidityPoolEvent,
   Exit as ExitLiquidityPoolEvent,
-  // NewMarketFactory as NewMarketFactoryEvent,
   PendleRouter as PendleRouterContract,
+  MarketCreated as MarketCreatedEvent,
 } from "../generated/PendleRouter/PendleRouter";
 import {
   MintYieldToken as MintYieldTokenEvent,
   NewYieldContracts as NewYieldContractsEvent,
   RedeemYieldToken as RedeemYieldTokenEvent,
 } from "../generated/templates/IPendleForge/IPendleForge";
-import { MarketCreated as MarketCreatedEvent } from "../generated/PendleMarketFactory/PendleMarketFactory";
 import {
   IPendleForge as PendleForgeTemplate,
   PendleMarket as PendleMarketTemplate,
-  // PendleMarketFactory as PendleMarketFactoryTemplate,
 } from "../generated/templates";
 import {
   Sync as SyncEvent,
@@ -35,6 +33,7 @@ import {
 import {
   PendleData as PendleDataContract,
   ForgeAdded as NewForgeEvent,
+  NewMarketFactory as NewMarketFactoryEvent,
 } from "../generated/templates/PendleMarket/PendleData";
 
 import {
@@ -105,7 +104,6 @@ function loadPendleData(): PendleData {
 export function handleNewForge(event: NewForgeEvent): void {
   let forge = new Forge(event.params.forgeAddress.toHexString());
   forge.forgeId = event.params.forgeId.toString();
-
   forge.save();
 
   PendleForgeTemplate.create(event.params.forgeAddress);
@@ -286,15 +284,13 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   liquidityPool.save();
 }
 
-// export function handleNewMarketFactory(event: NewMarketFactoryEvent): void {
-//   let newMarketFactory = new MarketFactory(
-//     event.params.marketFactoryId.toString()
-//   );
-//   newMarketFactory.address = event.params.marketFactoryAddress.toHexString();
-//   newMarketFactory.save();
-
-//   PendleMarketFactoryTemplate.create(event.params.marketFactoryAddress);
-// }
+export function handleNewMarketFactory(event: NewMarketFactoryEvent): void {
+  let newMarketFactory = new MarketFactory(
+    event.params.marketFactoryId.toString()
+  );
+  newMarketFactory.address = event.params.marketFactoryAddress.toHexString();
+  newMarketFactory.save();
+}
 
 /* ** PENDLE FORGE EVENTS */
 export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
