@@ -65,6 +65,7 @@ import {
   loadUser,
   createLiquidityPosition,
   createLiquiditySnapshot,
+  ONE_BD,
 } from "./helpers";
 
 /* ** MISC Functions */
@@ -506,13 +507,26 @@ export function handleSync(event: SyncEvent): void {
 
   /* Fetches spot price*/
   let pendleMarketContract = PendleMarketContract.bind(event.address);
+  let marketReserves = pendleMarketContract.getReserves();
+
+  let xytBalance = marketReserves.value0;
+  let xytWeight = marketReserves.value1;
+  let tokenBalance = marketReserves.value2;
+  let tokenWeight = marketReserves.value3;
+
   if (pair.reserve0.notEqual(ZERO_BD) && pair.reserve1.notEqual(ZERO_BD)) {
-    // let token0Price = pendleMarketContract.try_swapExactIn(
-    //   ByteArray.fromHexString(token0.id) as Address,
-    //   ONE_BI,
-    //   ByteArray.fromHexString(token1.id) as Address,
-    //   ZERO_BI
-    // );
+    let rawXytPrice = tokenBalance.times()
+    let token0Price = tokenBalance
+      .times(xytWeight)
+      .div(tokenWeight.times(xytBalance));
+
+    let decimal = token0.decimals.minus(token1.decimals).toI32();
+    let tokenDecimal = BigInt.fromI32(10).pow(decimal as u8);
+    pair.token0Price = convertTokenToDecimal(
+      token0Price.times(tokenDecimal),
+      token0.decimals
+    );
+    // pair.token1Price = ONE_BD.div(token0Price.toBigDecimal());
     // let token1Price = pendleMarketContract.try_swapExactIn(
     //   ByteArray.fromHexString(token1.id) as Address,
     //   ONE_BI,
