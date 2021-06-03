@@ -1763,6 +1763,15 @@ export class PendleData extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get protocolSwapFee(): BigDecimal {
+    let value = this.get("protocolSwapFee");
+    return value.toBigDecimal();
+  }
+
+  set protocolSwapFee(value: BigDecimal) {
+    this.set("protocolSwapFee", Value.fromBigDecimal(value));
+  }
+
   get swapFee(): BigDecimal {
     let value = this.get("swapFee");
     return value.toBigDecimal();

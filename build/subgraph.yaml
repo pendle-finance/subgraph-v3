@@ -62,6 +62,8 @@ dataSources:
           handler: handleNewForge
         - event: NewMarketFactory(indexed bytes32,indexed address)
           handler: handleNewMarketFactory
+        - event: MarketFeesSet(uint256,uint256)
+          handler: handleMarketFeesSet
       file: PendleRouter\PendleRouter.wasm
 templates:
   - kind: ethereum/contract

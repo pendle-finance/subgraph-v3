@@ -34,7 +34,8 @@ import {
   PendleData as PendleDataContract,
   ForgeAdded as NewForgeEvent,
   NewMarketFactory as NewMarketFactoryEvent,
-} from "../generated/templates/PendleMarket/PendleData";
+  MarketFeesSet as MarketFeesSetEvent,
+} from "../generated/PendleData/PendleData";
 
 import {
   Forge,
@@ -65,6 +66,7 @@ import {
   loadUser,
   createLiquidityPosition,
   createLiquiditySnapshot,
+  RONE,
 } from "./helpers";
 
 /* ** MISC Functions */
@@ -76,28 +78,29 @@ import {
  */
 function loadPendleData(): PendleData {
   let pendleData = PendleData.load("1");
-  let pendleContract = PendleDataContract.bind(
-    Address.fromHexString(
-      "0x6B827d177BDe594f224FFd13F2d4D09D5b8Eb56D"
-    ) as Address
-  );
   if (pendleData === null) {
     pendleData = new PendleData("1");
+    pendleData.protocolSwapFee = ZERO_BD;
+    pendleData.swapFee = ZERO_BD;
+    pendleData.exitFee = ZERO_BD;
   }
-
-  pendleData.swapFee = pendleContract
-    .swapFee()
-    .toBigDecimal()
-    .div(BigDecimal.fromString("100"));
-  pendleData.exitFee = ZERO_BD;
-
-  // pendleContract
-  //   .exitFee()
-  //   .toBigDecimal()
-  //   .div(BigDecimal.fromString("100"));
 
   pendleData.save();
   return pendleData as PendleData;
+}
+
+/** PENDLE DATA EVENTS */
+export function handleMarketFeesSet(event: MarketFeesSetEvent): void {
+  let pendleData = loadPendleData();
+
+  pendleData.swapFee = event.params._swapFee
+    .toBigDecimal()
+    .div(RONE.toBigDecimal());
+  pendleData.protocolSwapFee = event.params._swapFee
+    .toBigDecimal()
+    .div(RONE.toBigDecimal());
+
+  pendleData.save();
 }
 
 /** PENDLE ROUTER EVENTS */
