@@ -259,6 +259,7 @@ type BurnLPToken @entity {
 
 type PendleData @entity {
   id: ID!
+  protocolSwapFee: BigDecimal!
   swapFee: BigDecimal!
   exitFee: BigDecimal!
 }
@@ -270,7 +271,6 @@ type LiquidityPool @entity {
   timestamp: BigInt! # need this to pull recent txns for specific token or pair
   pair: Pair!
   type: String! # Join or Exit only
-
   # populated from the LiquidityPool event
   from: Bytes! # the EOA that initiated the txn
   inToken0: Token!
