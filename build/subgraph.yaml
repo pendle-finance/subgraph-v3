@@ -113,8 +113,6 @@ templates:
           file: PendleMarket\abis\PendleMarket.json
         - name: ERC20
           file: PendleMarket\abis\ERC20.json
-        - name: PendleData
-          file: PendleMarket\abis\PendleData.json
       eventHandlers:
         - event: Sync(uint256,uint256,uint256)
           handler: handleSync
