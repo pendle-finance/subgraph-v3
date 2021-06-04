@@ -445,6 +445,9 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
   let token0 = Token.load(event.params.xyt.toHexString());
   let token1 = Token.load(event.params.token.toHexString());
 
+  //Generating LP Token
+  generateNewToken(event.params.market)
+
   // fetch info if null
   if (token0 === null) {
     token0 = generateNewToken(event.params.xyt);
@@ -527,7 +530,9 @@ export function handleSync(event: SyncEvent): void {
       .times(xytWeight)
       .div(tokenWeight.times(xytBalance));
 
-    let multipledBy = BigInt.fromI32(10).pow(xytDecimal.minus(baseDecimal).toI32() as u8);
+    let multipledBy = BigInt.fromI32(10).pow(
+      xytDecimal.minus(baseDecimal).toI32() as u8
+    );
 
     pair.token0Price = rawXytPrice.times(multipledBy.toBigDecimal());
     pair.token1Price = ONE_BD.div(pair.token0Price);
@@ -549,114 +554,105 @@ export function handleSync(event: SyncEvent): void {
 /**
  * @dev Handles tracking of joining and exiting liquidity of market
  */
-export function handleTransfer(event: TransferEvent): void {
-  // user stats
-  let from = loadUser(event.params.from);
-  let to = loadUser(event.params.to);
+// export function handleTransfer(event: TransferEvent): void {
+//   // user stats
+//   let from = loadUser(event.params.from);
+//   let to = loadUser(event.params.to);
 
-  let pair = Pair.load(event.address.toHexString());
-  let pairContract = ERC20.bind(event.address);
-  let token = Token.load(event.address.toHexString());
-  let value = convertTokenToDecimal(event.params.value, BI_18);
+//   let pair = Pair.load(event.address.toHexString());
+//   let pairContract = ERC20.bind(event.address);
+//   let token = Token.load(event.address.toHexString());
+//   let value = convertTokenToDecimal(event.params.value, BI_18);
 
-  if (token === null) {
-    token = generateNewToken(event.address);
-  }
+//   if (token === null) {
+//     token = generateNewToken(event.address);
+//   }
 
-  let transactionHash = event.transaction.hash.toHexString();
+//   let transactionHash = event.transaction.hash.toHexString();
 
-  // get or create transaction
-  let transaction = Transaction.load(transactionHash);
-  if (transaction === null) {
-    transaction = new Transaction(transactionHash);
-    transaction.blockNumber = event.block.number;
-    transaction.timestamp = event.block.timestamp;
-    transaction.lpMints = [];
-    transaction.lpBurns = [];
-    transaction.swaps = [];
-    transaction.mintYieldTokens = [];
-    transaction.redeemYieldTokens = [];
-  }
+//   // get or create transaction
+//   let transaction = Transaction.load(transactionHash);
+//   if (transaction === null) {
+//     transaction = new Transaction(transactionHash);
+//     transaction.blockNumber = event.block.number;
+//     transaction.timestamp = event.block.timestamp;
+//     transaction.lpMints = [];
+//     transaction.lpBurns = [];
+//     transaction.swaps = [];
+//     transaction.mintYieldTokens = [];
+//     transaction.redeemYieldTokens = [];
+//   }
 
-  /**
-   * @dev Mints LP Token
-   */
-  let mints = transaction.lpMints;
-  if (from.id == ADDRESS_ZERO) {
-    // update total supply
-    pair.totalSupply = pair.totalSupply.plus(value);
-    pair.save();
+//   /**
+//    * @dev User adding liquidity
+//    */
+//   let mints = transaction.lpMints;
+//   if (from.id == ADDRESS_ZERO) {
+//     // update total supply
+//     pair.totalSupply = pair.totalSupply.plus(value);
+//     pair.save();
 
-    // create new mint if no mints so far
-    if (mints.length === 0) {
-      let mint = new MintLPToken(
-        event.transaction.hash
-          .toHexString()
-          .concat("-")
-          .concat(BigInt.fromI32(mints.length).toString())
-      );
-      mint.transaction = transaction.id;
-      mint.pair = pair.id;
-      mint.to = event.params.to;
-      mint.liquidity = value;
-      mint.timestamp = transaction.timestamp;
-      mint.transaction = transaction.id;
-      mint.save();
+//     // create new mint if no mints so far
+//     if (mints.length === 0) {
+//       let mint = new MintLPToken(
+//         event.transaction.hash
+//           .toHexString()
+//           .concat("-")
+//           .concat(BigInt.fromI32(mints.length).toString())
+//       );
+//       mint.transaction = transaction.id;
+//       mint.pair = pair.id;
+//       mint.to = event.params.to;
+//       mint.liquidity = value;
+//       mint.timestamp = transaction.timestamp;
+//       mint.transaction = transaction.id;
+//       mint.save();
 
-      // update mints in transaction
-      transaction.lpMints = mints.concat([mint.id]);
+//       // update mints in transaction
+//       transaction.lpMints = mints.concat([mint.id]);
 
-      // save entities
-      transaction.save();
-    }
-  }
+//       // save entities
+//       transaction.save();
+//     }
 
-  /**
-   * wallet address = 0xE8A4095437dd20a01e66115dE33164eBCEA9B09a
-   * market factory address = 0x2d0DaF52777D6Fd2A7233E693320BF519CFA9B01
-   */
+//     let toUserLiquidityPosition = createLiquidityPosition(
+//       event.address,
+//       event.params.to
+//     );
+//     toUserLiquidityPosition.liquidityTokenBalance = convertTokenToDecimal(
+//       pairContract.balanceOf(event.params.to),
+//       BI_18
+//     );
+//     toUserLiquidityPosition.save();
+//     // createLiquiditySnapshot(toUserLiquidityPosition, event, "add", value);
+//   }
 
-  /**
-   * @dev User removing liquidity
-   */
-  if (from.id != ADDRESS_ZERO && from.id != pair.id) {
-    // log.debug("handle transfer and sync, this is remove liquidity", []);
-    pair.totalSupply = pair.totalSupply.minus(value);
-    pair.save();
-    let fromUserLiquidityPosition = createLiquidityPosition(
-      event.address,
-      event.params.from
-    );
-    fromUserLiquidityPosition.liquidityTokenBalance = convertTokenToDecimal(
-      pairContract.balanceOf(event.params.from),
-      BI_18
-    );
-    fromUserLiquidityPosition.save();
-    // createLiquiditySnapshot(
-    //   fromUserLiquidityPosition,
-    //   event,
-    //   "remove",
-    //   value.neg()
-    // );
-  }
+//   /**
+//    * wallet address = 0xE8A4095437dd20a01e66115dE33164eBCEA9B09a
+//    * market factory address = 0x2d0DaF52777D6Fd2A7233E693320BF519CFA9B01
+//    */
 
-  /**
-   * @dev User adding liquidity
-   */
-  if (
-    to.id != ADDRESS_ZERO &&
-    to.id != pair.id &&
-    to.id != "0x85eb31dd2ddf092672ee819cb1f401efe63fe2c0" //Market factory
-  ) {
-    let toUserLiquidityPosition = createLiquidityPosition(
-      event.address,
-      event.params.to
-    );
-    toUserLiquidityPosition.liquidityTokenBalance = convertTokenToDecimal(
-      pairContract.balanceOf(event.params.to),
-      BI_18
-    );
-    toUserLiquidityPosition.save();
-    // createLiquiditySnapshot(toUserLiquidityPosition, event, "add", value);
-  }
-}
+//   /**
+//    * @dev User removing liquidity
+//    */
+//   if (from.id != ADDRESS_ZERO && from.id != pair.id) {
+//     // log.debug("handle transfer and sync, this is remove liquidity", []);
+//     pair.totalSupply = pair.totalSupply.minus(value);
+//     pair.save();
+//     let fromUserLiquidityPosition = createLiquidityPosition(
+//       event.address,
+//       event.params.from
+//     );
+//     fromUserLiquidityPosition.liquidityTokenBalance = convertTokenToDecimal(
+//       pairContract.balanceOf(event.params.from),
+//       BI_18
+//     );
+//     fromUserLiquidityPosition.save();
+//     // createLiquiditySnapshot(
+//     //   fromUserLiquidityPosition,
+//     //   event,
+//     //   "remove",
+//     //   value.neg()
+//     // );
+//   }
+// }
