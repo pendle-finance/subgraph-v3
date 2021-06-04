@@ -498,7 +498,9 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
  *  */
 export function handleSync(event: SyncEvent): void {
   let pair = Pair.load(event.address.toHex());
+  // XYT
   let token0 = Token.load(pair.token0);
+  // Base Token
   let token1 = Token.load(pair.token1);
 
   // reset token total liquidity amounts
@@ -509,41 +511,26 @@ export function handleSync(event: SyncEvent): void {
   pair.reserve1 = convertTokenToDecimal(event.params.reserve1, token1.decimals);
 
   /* Fetches spot price*/
-  let pendleMarketContract = PendleMarketContract.bind(event.address);
-  let marketReserves = pendleMarketContract.getReserves();
 
-  let xytBalance = marketReserves.value0;
-  let xytWeight = marketReserves.value1;
-  let tokenBalance = marketReserves.value2;
-  let tokenWeight = marketReserves.value3;
+  let xytBalance = event.params.reserve0.toBigDecimal();
+  let xytWeight = event.params.weight0.toBigDecimal();
+  let tokenBalance = event.params.reserve1.toBigDecimal();
+  let tokenWeight = RONE.toBigDecimal().minus(xytWeight);
+
+  log.debug("tokenWeight: {}", [tokenWeight.toString()]);
+
+  let xytDecimal = token0.decimals;
+  let baseDecimal = token1.decimals;
 
   if (pair.reserve0.notEqual(ZERO_BD) && pair.reserve1.notEqual(ZERO_BD)) {
-    let rawXytPrice = tokenBalance.times();
-    let token0Price = tokenBalance
+    let rawXytPrice = tokenBalance
       .times(xytWeight)
       .div(tokenWeight.times(xytBalance));
 
-    let decimal = token0.decimals.minus(token1.decimals).toI32();
-    let tokenDecimal = BigInt.fromI32(10).pow(decimal as u8);
-    pair.token0Price = convertTokenToDecimal(
-      token0Price.times(tokenDecimal),
-      token0.decimals
-    );
-    // pair.token1Price = ONE_BD.div(token0Price.toBigDecimal());
-    // let token1Price = pendleMarketContract.try_swapExactIn(
-    //   ByteArray.fromHexString(token1.id) as Address,
-    //   ONE_BI,
-    //   ByteArray.fromHexString(token0.id) as Address,
-    //   ZERO_BI
-    // );
-    // pair.token0Price = convertTokenToDecimal(
-    //   token0Price.value.value0,
-    //   BigInt.fromI32(12)
-    // );
-    // pair.token1Price = convertTokenToDecimal(
-    //   token1Price.value.value0,
-    //   BigInt.fromI32(12)
-    // );
+    let multipledBy = BigInt.fromI32(10).pow(xytDecimal.minus(baseDecimal).toI32() as u8);
+
+    pair.token0Price = rawXytPrice.times(multipledBy.toBigDecimal());
+    pair.token1Price = ONE_BD.div(pair.token0Price);
   } else {
     pair.token0Price = ZERO_BD;
     pair.token1Price = ZERO_BD;
