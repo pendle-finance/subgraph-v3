@@ -13,9 +13,9 @@ import {
   MarketCreated as MarketCreatedEvent,
 } from "../generated/PendleRouter/PendleRouter";
 import {
-  MintYieldToken as MintYieldTokenEvent,
   NewYieldContracts as NewYieldContractsEvent,
   RedeemYieldToken as RedeemYieldTokenEvent,
+  MintYieldTokens as MintYieldTokenEvent,
 } from "../generated/templates/IPendleForge/IPendleForge";
 import {
   IPendleForge as PendleForgeTemplate,
@@ -26,10 +26,6 @@ import {
   PendleMarket as PendleMarketContract,
   // Mint as MintLPTokenEvent,
 } from "../generated/templates/PendleMarket/PendleMarket";
-import {
-  ERC20,
-  Transfer as TransferEvent,
-} from "../generated/templates/PendleMarket/ERC20";
 import {
   PendleData as PendleDataContract,
   ForgeAdded as NewForgeEvent,
@@ -342,7 +338,7 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
 
   // Getting the mint volume
   let newMintVolume = convertTokenToDecimal(
-    event.params.amount,
+    event.params.amountTokenMinted,
     underlyingToken.decimals
   );
 
@@ -372,7 +368,7 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
 
   mintYieldToken.forgeId = forgeId;
   mintYieldToken.amountMinted = convertTokenToDecimal(
-    event.params.amount,
+    event.params.amountTokenMinted,
     xytToken.decimals
   );
   mintYieldToken.expiry = event.params.expiry;

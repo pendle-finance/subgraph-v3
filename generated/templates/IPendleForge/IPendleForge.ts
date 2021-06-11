@@ -10,16 +10,16 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class DueInterestSettled extends ethereum.Event {
-  get params(): DueInterestSettled__Params {
-    return new DueInterestSettled__Params(this);
+export class DueInterestsSettled extends ethereum.Event {
+  get params(): DueInterestsSettled__Params {
+    return new DueInterestsSettled__Params(this);
   }
 }
 
-export class DueInterestSettled__Params {
-  _event: DueInterestSettled;
+export class DueInterestsSettled__Params {
+  _event: DueInterestsSettled;
 
-  constructor(event: DueInterestSettled) {
+  constructor(event: DueInterestsSettled) {
     this._event = event;
   }
 
@@ -39,21 +39,25 @@ export class DueInterestSettled__Params {
     return this._event.parameters[3].value.toBigInt();
   }
 
-  get receiver(): Address {
-    return this._event.parameters[4].value.toAddress();
+  get forgeFeeAmount(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
+  }
+
+  get user(): Address {
+    return this._event.parameters[5].value.toAddress();
   }
 }
 
-export class MintYieldToken extends ethereum.Event {
-  get params(): MintYieldToken__Params {
-    return new MintYieldToken__Params(this);
+export class ForgeFeeWithdrawn extends ethereum.Event {
+  get params(): ForgeFeeWithdrawn__Params {
+    return new ForgeFeeWithdrawn__Params(this);
   }
 }
 
-export class MintYieldToken__Params {
-  _event: MintYieldToken;
+export class ForgeFeeWithdrawn__Params {
+  _event: ForgeFeeWithdrawn;
 
-  constructor(event: MintYieldToken) {
+  constructor(event: ForgeFeeWithdrawn) {
     this._event = event;
   }
 
@@ -71,6 +75,44 @@ export class MintYieldToken__Params {
 
   get amount(): BigInt {
     return this._event.parameters[3].value.toBigInt();
+  }
+}
+
+export class MintYieldTokens extends ethereum.Event {
+  get params(): MintYieldTokens__Params {
+    return new MintYieldTokens__Params(this);
+  }
+}
+
+export class MintYieldTokens__Params {
+  _event: MintYieldTokens;
+
+  constructor(event: MintYieldTokens) {
+    this._event = event;
+  }
+
+  get forgeId(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get underlyingAsset(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get expiry(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+
+  get amountToTokenize(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
+  get amountTokenMinted(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
+  }
+
+  get user(): Address {
+    return this._event.parameters[5].value.toAddress();
   }
 }
 
@@ -106,6 +148,10 @@ export class NewYieldContracts__Params {
   get xyt(): Address {
     return this._event.parameters[4].value.toAddress();
   }
+
+  get yieldBearingAsset(): Address {
+    return this._event.parameters[5].value.toAddress();
+  }
 }
 
 export class RedeemYieldToken extends ethereum.Event {
@@ -139,6 +185,10 @@ export class RedeemYieldToken__Params {
 
   get redeemedAmount(): BigInt {
     return this._event.parameters[4].value.toBigInt();
+  }
+
+  get user(): Address {
+    return this._event.parameters[5].value.toAddress();
   }
 }
 
@@ -885,12 +935,8 @@ export class SetUpEmergencyModeCall__Inputs {
     return this._call.inputValues[1].value.toBigInt();
   }
 
-  get tokens(): Array<Address> {
-    return this._call.inputValues[2].value.toAddressArray();
-  }
-
   get spender(): Address {
-    return this._call.inputValues[3].value.toAddress();
+    return this._call.inputValues[2].value.toAddress();
   }
 }
 

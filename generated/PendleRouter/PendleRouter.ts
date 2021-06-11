@@ -60,6 +60,10 @@ export class Exit__Params {
   get market(): Address {
     return this._event.parameters[3].value.toAddress();
   }
+
+  get exactInLp(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
+  }
 }
 
 export class Join extends ethereum.Event {
@@ -89,6 +93,10 @@ export class Join__Params {
 
   get market(): Address {
     return this._event.parameters[3].value.toAddress();
+  }
+
+  get exactOutLp(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
   }
 }
 
@@ -972,6 +980,10 @@ export class AddMarketLiquiditySingleCall__Outputs {
 
   constructor(call: AddMarketLiquiditySingleCall) {
     this._call = call;
+  }
+
+  get exactOutLp(): BigInt {
+    return this._call.outputValues[0].value.toBigInt();
   }
 }
 

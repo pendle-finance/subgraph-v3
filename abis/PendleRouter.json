@@ -65,6 +65,12 @@
         "internalType": "address",
         "name": "market",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "exactInLp",
+        "type": "uint256"
       }
     ],
     "name": "Exit",
@@ -96,6 +102,12 @@
         "internalType": "address",
         "name": "market",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "exactOutLp",
+        "type": "uint256"
       }
     ],
     "name": "Join",
@@ -293,7 +305,13 @@
       }
     ],
     "name": "addMarketLiquiditySingle",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "exactOutLp",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "payable",
     "type": "function"
   },

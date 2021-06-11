@@ -27,13 +27,19 @@
         "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "forgeFeeAmount",
+        "type": "uint256"
+      },
+      {
         "indexed": true,
         "internalType": "address",
-        "name": "receiver",
+        "name": "user",
         "type": "address"
       }
     ],
-    "name": "DueInterestSettled",
+    "name": "DueInterestsSettled",
     "type": "event"
   },
   {
@@ -64,7 +70,50 @@
         "type": "uint256"
       }
     ],
-    "name": "MintYieldToken",
+    "name": "ForgeFeeWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "forgeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "underlyingAsset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "expiry",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountToTokenize",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountTokenMinted",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "MintYieldTokens",
     "type": "event"
   },
   {
@@ -98,6 +147,12 @@
         "indexed": false,
         "internalType": "address",
         "name": "xyt",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "yieldBearingAsset",
         "type": "address"
       }
     ],
@@ -136,6 +191,12 @@
         "internalType": "uint256",
         "name": "redeemedAmount",
         "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       }
     ],
     "name": "RedeemYieldToken",
@@ -430,11 +491,6 @@
         "internalType": "uint256",
         "name": "_expiry",
         "type": "uint256"
-      },
-      {
-        "internalType": "address[]",
-        "name": "tokens",
-        "type": "address[]"
       },
       {
         "internalType": "address",

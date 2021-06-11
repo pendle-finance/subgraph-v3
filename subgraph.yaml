@@ -8,9 +8,9 @@ dataSources:
     name: PendleRouter
     network: kovan
     source:
-      address: "0x2015aC1e1A70C20B1130683A596311aE0EdCe686"
+      address: "0xe7148Eb95627E5C43997c5f7F480e44d03959558"
       abi: PendleRouter
-      startBlock: 24959203
+      startBlock: 25377832
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -34,9 +34,9 @@ dataSources:
       eventHandlers:
         - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
           handler: handleSwap
-        - event: Join(indexed address,uint256,uint256,address)
+        - event: Join(indexed address,uint256,uint256,address,uint256)
           handler: handleJoinLiquidityPool
-        - event: Exit(indexed address,uint256,uint256,address)
+        - event: Exit(indexed address,uint256,uint256,address,uint256)
           handler: handleExitLiquidityPool
         - event: MarketCreated(bytes32,indexed address,indexed address,indexed address)
           handler: handleMarketCreated
@@ -45,9 +45,9 @@ dataSources:
     name: PendleData
     network: kovan
     source:
-      address: "0x9AB7D0298D39B6220B1C8B36E76F842530719B89"
+      address: "0xf79f239CcB30694E3daB030787aC8647AC58bfe5"
       abi: PendleData
-      startBlock: 24959203
+      startBlock: 25377822
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -90,11 +90,11 @@ templates:
         - name: ERC20NameBytes
           file: ./abis/ERC20NameBytes.json
       eventHandlers:
-        - event: NewYieldContracts(bytes32,indexed address,indexed uint256,address,address)
+        - event: NewYieldContracts(bytes32,indexed address,indexed uint256,address,address,address)
           handler: handleNewYieldContracts
-        - event: MintYieldToken(bytes32,indexed address,indexed uint256,uint256)
+        - event: MintYieldTokens(bytes32,indexed address,indexed uint256,uint256,uint256,indexed address)
           handler: handleMintYieldToken
-        - event: RedeemYieldToken(bytes32,indexed address,indexed uint256,uint256,uint256)
+        - event: RedeemYieldToken(bytes32,indexed address,indexed uint256,uint256,uint256,indexed address)
           handler: handleRedeemYieldContracts
   - kind: ethereum/contract
     name: PendleMarket
