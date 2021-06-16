@@ -18,6 +18,7 @@ import {
   LiquidityPositionSnapshot,
   Pair,
 } from "../generated/schema";
+import { PendleMarket as PendleMarketContract } from "../generated/templates/PendleMarket/PendleMarket";
 
 export let ZERO_BI = BigInt.fromI32(0);
 export let ONE_BI = BigInt.fromI32(1);
@@ -25,7 +26,7 @@ export let ZERO_BD = BigDecimal.fromString("0");
 export let ONE_BD = BigDecimal.fromString("1");
 export let BI_18 = BigInt.fromI32(18);
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-export let RONE = BigInt.fromI32(2).pow(40) // 2^40
+export let RONE = BigInt.fromI32(2).pow(40); // 2^40
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
   let bd = BigDecimal.fromString("1");
@@ -268,4 +269,50 @@ export function createLiquiditySnapshot(
   snapshot.type = type.toString();
   snapshot.save();
   position.save();
+}
+
+export function calcLpPrice(
+  marketAddress: Address,
+  baseTokenAddress: string,
+  baseTokenAmount: BigInt,
+  lpAmount: BigDecimal,
+  isJoin: boolean
+): BigDecimal {
+  let marketContract = PendleMarketContract.bind(marketAddress);
+  let baseToken = Token.load(baseTokenAddress);
+
+  log.debug("baseToken: {}, decimal: {}", [
+    baseToken.symbol,
+    baseToken.decimals.toString(),
+  ]);
+
+  let reserves = marketContract.getReserves();
+  let xytBalance = reserves.value0;
+  let xytWeight = reserves.value1;
+  let tokenBalance = reserves.value2;
+  let tokenWeight = reserves.value3;
+
+  let totalLpSupply = marketContract.totalSupply().toBigDecimal();
+
+  if (isJoin) {
+    totalLpSupply = totalLpSupply.plus(lpAmount);
+    tokenBalance = tokenBalance.plus(baseTokenAmount);
+  } else {
+    totalLpSupply = totalLpSupply.minus(lpAmount);
+    tokenBalance = tokenBalance.minus(baseTokenAmount);
+  }
+
+  //@TODO Fetch proper base token price
+  let priceOfBaseToken = BigInt.fromI32(1);
+  let totalValueOfBaseToken = priceOfBaseToken
+    .times(tokenBalance)
+    .div(BigInt.fromI32(10).pow(baseToken.decimals.toI32() as u8))
+    .toBigDecimal();
+  let baseTokenWeight = tokenWeight.toBigDecimal().div(RONE.toBigDecimal());
+
+  let lpPrice = totalValueOfBaseToken.div(baseTokenWeight).div(totalLpSupply);
+
+  log.debug("lpPrice: {}", [lpPrice.toString()]);
+
+  return lpPrice;
 }

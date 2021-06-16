@@ -65,6 +65,7 @@ import {
   createLiquiditySnapshot,
   ONE_BD,
   RONE,
+  calcLpPrice,
 } from "./helpers";
 
 /* ** MISC Functions */
@@ -207,12 +208,18 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
     inToken1.decimals
   );
 
-  // @TODO Find a way to calculate USD amount
   let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
+  let rawLpPrice = ZERO_BD;
 
-  if (inToken1.type == "swapBase") {
-    derivedAmountUSD = inAmount1.times(BigDecimal.fromString("2"));
-  }
+  rawLpPrice = calcLpPrice(
+    event.params.market,
+    inToken1.id,
+    event.params.token1Amount,
+    event.params.exactOutLp.toBigDecimal(),
+    true
+  );
+
+  derivedAmountUSD = event.params.exactOutLp.toBigDecimal().times(rawLpPrice);
 
   // Calculate and update collected fees
   let tokenFee = ZERO_BD;
@@ -256,12 +263,18 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
     inToken1.decimals
   );
 
-  // @TODO Find a way to calculate USD amount
   let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
+  let rawLpPrice = ZERO_BD;
 
-  if (inToken1.type == "swapBase") {
-    derivedAmountUSD = inAmount1.times(BigDecimal.fromString("2"));
-  }
+  rawLpPrice = calcLpPrice(
+    event.params.market,
+    inToken1.id,
+    event.params.token1Amount,
+    event.params.exactInLp.toBigDecimal(),
+    false
+  );
+
+  derivedAmountUSD = event.params.exactInLp.toBigDecimal().times(rawLpPrice);
 
   // Calculate and update collected fees
   let tokenFee = ZERO_BD;
@@ -524,19 +537,20 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
   // fetch info if null
   if (token0 === null) {
     token0 = generateNewToken(event.params.xyt);
-    token0.type = "yt";
   }
 
   // fetch info if null
   if (token1 === null) {
     token1 = generateNewToken(event.params.token);
-    token0.type = "swapBase";
   }
 
   // Bailing if token0 or token1 is still null
   if (token0 === null || token1 === null) {
     return;
   }
+
+  token0.type = "yt";
+  token1.type = "swapBase";
 
   let pair = new Pair(event.params.market.toHexString());
 

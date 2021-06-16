@@ -31,6 +31,8 @@ dataSources:
           file: ./abis/ERC20SymbolBytes.json
         - name: ERC20NameBytes
           file: ./abis/ERC20NameBytes.json
+        - name: PendleMarket
+          file: ./abis/PendleMarket.json
       eventHandlers:
         - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
           handler: handleSwap
