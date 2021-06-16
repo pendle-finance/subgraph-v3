@@ -2027,6 +2027,15 @@ export class LiquidityPool extends Entity {
     this.set("feesCollectedUSD", Value.fromBigDecimal(value));
   }
 
+  get lpAmount(): BigDecimal {
+    let value = this.get("lpAmount");
+    return value.toBigDecimal();
+  }
+
+  set lpAmount(value: BigDecimal) {
+    this.set("lpAmount", Value.fromBigDecimal(value));
+  }
+
   get amountUSD(): BigDecimal {
     let value = this.get("amountUSD");
     return value.toBigDecimal();

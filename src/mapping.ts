@@ -235,6 +235,10 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   liquidityPool.feesCollectedUSD = usdFee;
   // use the tracked amount if we have it
   liquidityPool.amountUSD = derivedAmountUSD;
+  liquidityPool.lpAmount = convertTokenToDecimal(
+    event.params.exactOutLp,
+    BigInt.fromI32(18)
+  );
 
   liquidityPool.save();
 }
@@ -280,6 +284,10 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   liquidityPool.feesCollectedUSD = usdFee;
   // use the tracked amount if we have it
   liquidityPool.amountUSD = derivedAmountUSD;
+  liquidityPool.lpAmount = convertTokenToDecimal(
+    event.params.exactInLp,
+    BigInt.fromI32(18)
+  );
 
   liquidityPool.save();
 }
