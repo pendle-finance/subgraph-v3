@@ -220,6 +220,15 @@ export class YieldContract extends Entity {
   set interestSettledVolume(value: BigDecimal) {
     this.set("interestSettledVolume", Value.fromBigDecimal(value));
   }
+
+  get yieldBearingAsset(): string {
+    let value = this.get("yieldBearingAsset");
+    return value.toString();
+  }
+
+  set yieldBearingAsset(value: string) {
+    this.set("yieldBearingAsset", Value.fromString(value));
+  }
 }
 
 export class Token extends Entity {
@@ -418,6 +427,15 @@ export class MintYieldToken extends Entity {
     this.set("forgeId", Value.fromString(value));
   }
 
+  get amountToTokenize(): BigDecimal {
+    let value = this.get("amountToTokenize");
+    return value.toBigDecimal();
+  }
+
+  set amountToTokenize(value: BigDecimal) {
+    this.set("amountToTokenize", Value.fromBigDecimal(value));
+  }
+
   get amountMinted(): BigDecimal {
     let value = this.get("amountMinted");
     return value.toBigDecimal();
@@ -454,6 +472,15 @@ export class MintYieldToken extends Entity {
     this.set("underlyingAsset", Value.fromString(value));
   }
 
+  get yieldBearingAsset(): string {
+    let value = this.get("yieldBearingAsset");
+    return value.toString();
+  }
+
+  set yieldBearingAsset(value: string) {
+    this.set("yieldBearingAsset", Value.fromString(value));
+  }
+
   get yieldContract(): string {
     let value = this.get("yieldContract");
     return value.toString();
@@ -461,6 +488,15 @@ export class MintYieldToken extends Entity {
 
   set yieldContract(value: string) {
     this.set("yieldContract", Value.fromString(value));
+  }
+
+  get mintedValueUSD(): BigDecimal {
+    let value = this.get("mintedValueUSD");
+    return value.toBigDecimal();
+  }
+
+  set mintedValueUSD(value: BigDecimal) {
+    this.set("mintedValueUSD", Value.fromBigDecimal(value));
   }
 }
 
@@ -555,6 +591,15 @@ export class RedeemYieldToken extends Entity {
 
   set underlyingAsset(value: string) {
     this.set("underlyingAsset", Value.fromString(value));
+  }
+
+  get yieldBearingAsset(): string {
+    let value = this.get("yieldBearingAsset");
+    return value.toString();
+  }
+
+  set yieldBearingAsset(value: string) {
+    this.set("yieldBearingAsset", Value.fromString(value));
   }
 
   get yieldContract(): string {

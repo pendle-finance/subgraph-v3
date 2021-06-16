@@ -33,6 +33,7 @@ type YieldContract @entity {
   mintVolume: BigDecimal!
   redeemVolume: BigDecimal!
   interestSettledVolume: BigDecimal!
+  yieldBearingAsset: Token!
 }
 
 type Token @entity {
@@ -76,6 +77,7 @@ type MintYieldToken @entity {
   from: Bytes! # the EOA that initiated the txn
   # Underlying Asset Token
   underlyingAsset: Token!
+  yieldBearingAsset: Token!
   yieldContract: YieldContract!
 }
 
@@ -91,6 +93,7 @@ type RedeemYieldToken @entity {
   from: Bytes! # the EOA that initiated the txn
   # Underlying Asset Token
   underlyingAsset: Token!
+  yieldBearingAsset: Token!
   yieldContract: YieldContract!
 }
 

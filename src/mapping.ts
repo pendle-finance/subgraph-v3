@@ -297,6 +297,7 @@ export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   let xytToken = generateNewToken(event.params.xyt);
   let otToken = generateNewToken(event.params.ot);
   let underlyingToken = generateNewToken(event.params.underlyingAsset);
+  let yieldBearingToken = generateNewToken(event.params.yieldBearingAsset)
 
   if (xytToken === null || otToken === null) return;
   let forgeId = event.params.forgeId.toString();
@@ -307,6 +308,7 @@ export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   yieldContract.forgeId = forgeId;
 
   yieldContract.underlyingAsset = underlyingToken.id;
+  yieldContract.yieldBearingAsset = yieldBearingToken.id;
   yieldContract.xyt = xytToken.id;
   yieldContract.ot = otToken.id;
   yieldContract.expiry = event.params.expiry;
@@ -323,11 +325,11 @@ export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   xytToken.save();
   otToken.save();
   underlyingToken.save();
+  yieldBearingToken.save();
 }
 
 export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   let underlyingToken = Token.load(event.params.underlyingAsset.toHexString());
-
   let forgeId = event.params.forgeId.toString();
   let yieldContractid =
     forgeId + "-" + underlyingToken.id + "-" + event.params.expiry.toString();
@@ -335,10 +337,11 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
 
   let xytToken = Token.load(yieldContract.xyt);
   let otToken = Token.load(yieldContract.ot);
+  let yieldBearingToken = Token.load(yieldContract.yieldBearingAsset)
 
   // Getting the mint volume
   let newMintVolume = convertTokenToDecimal(
-    event.params.amountTokenMinted,
+    event.params.amountToTokenize,
     underlyingToken.decimals
   );
 
@@ -367,6 +370,10 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   mintYieldToken.timestamp = event.block.timestamp;
 
   mintYieldToken.forgeId = forgeId;
+  mintYieldToken.amountToTokenize = convertTokenToDecimal(
+    event.params.amountToTokenize,
+    yieldBearingToken.decimals
+  );
   mintYieldToken.amountMinted = convertTokenToDecimal(
     event.params.amountTokenMinted,
     xytToken.decimals
@@ -375,6 +382,7 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   mintYieldToken.from = event.transaction.from;
   mintYieldToken.underlyingAsset = underlyingToken.id;
   mintYieldToken.yieldContract = yieldContract.id;
+  mintYieldToken.yieldBearingAsset = yieldContract.yieldBearingAsset;
   mintYieldToken.save();
 }
 
@@ -430,6 +438,7 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
   mintYieldToken.expiry = event.params.expiry;
   mintYieldToken.from = event.transaction.from;
   mintYieldToken.underlyingAsset = underlyingToken.id;
+  mintYieldToken.yieldBearingAsset = yieldContract.yieldBearingAsset;
   mintYieldToken.yieldContract = yieldContract.id;
   mintYieldToken.save();
 }
@@ -442,7 +451,7 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
   let token1 = Token.load(event.params.token.toHexString());
 
   //Generating LP Token
-  generateNewToken(event.params.market)
+  generateNewToken(event.params.market);
 
   // fetch info if null
   if (token0 === null) {
