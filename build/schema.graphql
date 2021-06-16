@@ -72,6 +72,7 @@ type MintYieldToken @entity {
   timestamp: BigInt!
 
   forgeId: String!
+  amountToTokenize: BigDecimal!
   amountMinted: BigDecimal!
   expiry: BigInt!
   from: Bytes! # the EOA that initiated the txn
@@ -79,6 +80,7 @@ type MintYieldToken @entity {
   underlyingAsset: Token!
   yieldBearingAsset: Token!
   yieldContract: YieldContract!
+  mintedValueUSD: BigDecimal!
 }
 
 type RedeemYieldToken @entity {

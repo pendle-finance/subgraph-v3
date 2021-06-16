@@ -17,6 +17,7 @@ import {
   RedeemYieldToken as RedeemYieldTokenEvent,
   MintYieldTokens as MintYieldTokenEvent,
 } from "../generated/templates/IPendleForge/IPendleForge";
+import { ICToken as ICTokenContract } from "../generated/templates/IPendleForge/ICToken";
 import {
   IPendleForge as PendleForgeTemplate,
   PendleMarket as PendleMarketTemplate,
@@ -297,7 +298,7 @@ export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   let xytToken = generateNewToken(event.params.xyt);
   let otToken = generateNewToken(event.params.ot);
   let underlyingToken = generateNewToken(event.params.underlyingAsset);
-  let yieldBearingToken = generateNewToken(event.params.yieldBearingAsset)
+  let yieldBearingToken = generateNewToken(event.params.yieldBearingAsset);
 
   if (xytToken === null || otToken === null) return;
   let forgeId = event.params.forgeId.toString();
@@ -337,7 +338,7 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
 
   let xytToken = Token.load(yieldContract.xyt);
   let otToken = Token.load(yieldContract.ot);
-  let yieldBearingToken = Token.load(yieldContract.yieldBearingAsset)
+  let yieldBearingToken = Token.load(yieldContract.yieldBearingAsset);
 
   // Getting the mint volume
   let newMintVolume = convertTokenToDecimal(
@@ -366,6 +367,32 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
 
   // Creating new MintYieldToken entity
   let mintYieldToken = new MintYieldToken(event.transaction.hash.toHexString());
+
+  // Calculating USD Value
+  if (forgeId == "Compound") {
+    let cTokenContract = ICTokenContract.bind(
+      Address.fromString(yieldBearingToken.id)
+    );
+    let currentRate = cTokenContract.exchangeRateCurrent().toBigDecimal();
+    let underlyingPrice = ONE_BD; //TODO: get from coingeko
+
+    let underlyingPowered = BigInt.fromI32(10)
+      // @TODO use proper underlyingToken.decimals as u8
+      .pow(18)
+      .toBigDecimal();
+    mintYieldToken.mintedValueUSD = event.params.amountToTokenize
+      .toBigDecimal()
+      .times(currentRate)
+      .times(underlyingPrice)
+      .div(BigDecimal.fromString("1000000000000000000")) //1e18
+      .div(underlyingPowered);
+  } else {
+    mintYieldToken.mintedValueUSD = convertTokenToDecimal(
+      event.params.amountToTokenize,
+      yieldBearingToken.decimals
+    );
+  }
+
   mintYieldToken.blockNumber = event.block.number;
   mintYieldToken.timestamp = event.block.timestamp;
 

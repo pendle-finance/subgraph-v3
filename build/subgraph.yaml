@@ -89,6 +89,8 @@ templates:
           file: IPendleForge\abis\ERC20SymbolBytes.json
         - name: ERC20NameBytes
           file: IPendleForge\abis\ERC20NameBytes.json
+        - name: ICToken
+          file: IPendleForge\abis\ICToken.json
       eventHandlers:
         - event: NewYieldContracts(bytes32,indexed address,indexed uint256,address,address,address)
           handler: handleNewYieldContracts
