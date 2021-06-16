@@ -123,10 +123,9 @@ export function handleSwap(event: SwapEvent): void {
 
   // @TODO Find a way to calculate USD amount
   let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
-
-  if (inToken.symbol == "USDT") {
+  if (inToken.type == "swapBase") {
     derivedAmountUSD = amountIn;
-  } else if (outToken.symbol == "USDT") {
+  } else {
     derivedAmountUSD = amountOut;
   }
 
@@ -211,7 +210,7 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   // @TODO Find a way to calculate USD amount
   let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
 
-  if (inToken1.symbol == "USDT" || inToken1.symbol == "USDC") {
+  if (inToken1.type == "swapBase") {
     derivedAmountUSD = inAmount1.times(BigDecimal.fromString("2"));
   }
 
@@ -256,7 +255,7 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   // @TODO Find a way to calculate USD amount
   let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
 
-  if (inToken1.symbol == "USDT" || inToken1.symbol == "USDC") {
+  if (inToken1.type == "swapBase") {
     derivedAmountUSD = inAmount1.times(BigDecimal.fromString("2"));
   }
 
@@ -511,18 +510,19 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
   // create the tokens
   let token0 = Token.load(event.params.xyt.toHexString());
   let token1 = Token.load(event.params.token.toHexString());
-
   //Generating LP Token
   generateNewToken(event.params.market);
 
   // fetch info if null
   if (token0 === null) {
     token0 = generateNewToken(event.params.xyt);
+    token0.type = "yt";
   }
 
   // fetch info if null
   if (token1 === null) {
     token1 = generateNewToken(event.params.token);
+    token0.type = "swapBase";
   }
 
   // Bailing if token0 or token1 is still null

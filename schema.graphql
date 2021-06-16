@@ -63,6 +63,7 @@ type Token @entity {
 
   # liquidity across all pairs
   totalLiquidity: BigDecimal!
+  type: String # yt | swapBase
 }
 
 type MintYieldToken @entity {
