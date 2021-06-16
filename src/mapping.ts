@@ -410,6 +410,8 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   mintYieldToken.underlyingAsset = underlyingToken.id;
   mintYieldToken.yieldContract = yieldContract.id;
   mintYieldToken.yieldBearingAsset = yieldContract.yieldBearingAsset;
+  mintYieldToken.xytAsset = xytToken.id;
+  mintYieldToken.otAsset = otToken.id;
   mintYieldToken.save();
 }
 
@@ -439,6 +441,7 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
   //Updating OT and XYT total supply
   let xytToken = Token.load(yieldContract.xyt);
   let otToken = Token.load(yieldContract.ot);
+  let yieldBearingToken = Token.load(yieldContract.yieldBearingAsset);
 
   xytToken.totalSupply = fetchTokenTotalSupply(
     ByteArray.fromHexString(yieldContract.xyt) as Address
@@ -454,19 +457,51 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
   let mintYieldToken = new RedeemYieldToken(
     event.transaction.hash.toHexString()
   );
+  // Calculating USD Value
+  if (forgeId == "Compound") {
+    let cTokenContract = ICTokenContract.bind(
+      Address.fromString(yieldBearingToken.id)
+    );
+    let currentRate = cTokenContract.exchangeRateCurrent().toBigDecimal();
+    let underlyingPrice = ONE_BD; //TODO: get from coingeko
+
+    let underlyingPowered = BigInt.fromI32(10)
+      // @TODO use proper underlyingToken.decimals as u8
+      .pow(18)
+      .toBigDecimal();
+    mintYieldToken.redeemedValueUSD = event.params.redeemedAmount
+      .toBigDecimal()
+      .times(currentRate)
+      .times(underlyingPrice)
+      .div(BigDecimal.fromString("1000000000000000000")) //1e18
+      .div(underlyingPowered);
+  } else {
+    mintYieldToken.redeemedValueUSD = convertTokenToDecimal(
+      event.params.amountToRedeem,
+      yieldBearingToken.decimals
+    );
+  }
+
   mintYieldToken.blockNumber = event.block.number;
   mintYieldToken.timestamp = event.block.timestamp;
 
   mintYieldToken.forgeId = forgeId;
   mintYieldToken.amountRedeemed = convertTokenToDecimal(
     event.params.redeemedAmount,
-    BigInt.fromI32(6)
+    yieldBearingToken.decimals
+  );
+
+  mintYieldToken.amountToRedeem = convertTokenToDecimal(
+    event.params.amountToRedeem,
+    xytToken.decimals
   );
   mintYieldToken.expiry = event.params.expiry;
   mintYieldToken.from = event.transaction.from;
   mintYieldToken.underlyingAsset = underlyingToken.id;
   mintYieldToken.yieldBearingAsset = yieldContract.yieldBearingAsset;
   mintYieldToken.yieldContract = yieldContract.id;
+  mintYieldToken.xytAsset = xytToken.id;
+  mintYieldToken.otAsset = otToken.id;
   mintYieldToken.save();
 }
 

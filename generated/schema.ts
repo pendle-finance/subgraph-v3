@@ -481,6 +481,24 @@ export class MintYieldToken extends Entity {
     this.set("yieldBearingAsset", Value.fromString(value));
   }
 
+  get xytAsset(): string {
+    let value = this.get("xytAsset");
+    return value.toString();
+  }
+
+  set xytAsset(value: string) {
+    this.set("xytAsset", Value.fromString(value));
+  }
+
+  get otAsset(): string {
+    let value = this.get("otAsset");
+    return value.toString();
+  }
+
+  set otAsset(value: string) {
+    this.set("otAsset", Value.fromString(value));
+  }
+
   get yieldContract(): string {
     let value = this.get("yieldContract");
     return value.toString();
@@ -557,6 +575,15 @@ export class RedeemYieldToken extends Entity {
     this.set("forgeId", Value.fromString(value));
   }
 
+  get amountToRedeem(): BigDecimal {
+    let value = this.get("amountToRedeem");
+    return value.toBigDecimal();
+  }
+
+  set amountToRedeem(value: BigDecimal) {
+    this.set("amountToRedeem", Value.fromBigDecimal(value));
+  }
+
   get amountRedeemed(): BigDecimal {
     let value = this.get("amountRedeemed");
     return value.toBigDecimal();
@@ -602,6 +629,24 @@ export class RedeemYieldToken extends Entity {
     this.set("yieldBearingAsset", Value.fromString(value));
   }
 
+  get xytAsset(): string {
+    let value = this.get("xytAsset");
+    return value.toString();
+  }
+
+  set xytAsset(value: string) {
+    this.set("xytAsset", Value.fromString(value));
+  }
+
+  get otAsset(): string {
+    let value = this.get("otAsset");
+    return value.toString();
+  }
+
+  set otAsset(value: string) {
+    this.set("otAsset", Value.fromString(value));
+  }
+
   get yieldContract(): string {
     let value = this.get("yieldContract");
     return value.toString();
@@ -609,6 +654,15 @@ export class RedeemYieldToken extends Entity {
 
   set yieldContract(value: string) {
     this.set("yieldContract", Value.fromString(value));
+  }
+
+  get redeemedValueUSD(): BigDecimal {
+    let value = this.get("redeemedValueUSD");
+    return value.toBigDecimal();
+  }
+
+  set redeemedValueUSD(value: BigDecimal) {
+    this.set("redeemedValueUSD", Value.fromBigDecimal(value));
   }
 }
 
