@@ -318,10 +318,6 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
 
   derivedAmountUSD = event.params.exactInLp.toBigDecimal().times(rawLpPrice);
 
-  // Calculate and update collected fees
-  let tokenFee = ZERO_BD;
-  let usdFee = ZERO_BD;
-
   // update pair volume data, use tracked amount if we have it as its probably more accurate
 
   // Create LiquidityPool Entity
@@ -335,8 +331,8 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   liquidityPool.inToken1 = inToken1.id;
   liquidityPool.inAmount0 = inAmount0;
   liquidityPool.inAmount1 = inAmount1;
-  liquidityPool.feesCollected = tokenFee;
-  liquidityPool.swapFeesCollectedUSD = usdFee;
+  liquidityPool.feesCollected = ZERO_BD;
+  liquidityPool.swapFeesCollectedUSD = ZERO_BD;
   liquidityPool.swapVolumeUSD = ZERO_BD
   // use the tracked amount if we have it
   liquidityPool.amountUSD = derivedAmountUSD;
@@ -346,6 +342,53 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   );
 
   liquidityPool.save();
+
+  if (
+    event.params.token0Amount.notEqual(ZERO_BI) &&
+    event.params.token1Amount.notEqual(ZERO_BI)
+  ) {
+    return;
+  }
+
+  /**
+   * It will always refer to YT Token
+   */
+  let rawAmount = event.params.token0Amount;
+  let rawWeight = pair.token0WeightRaw;
+  let tokenPriceFormatted = pair.token0Price;
+  let inToken = inToken0;
+
+  /**
+   * It will always refer to base Token
+   */
+  if (event.params.token1Amount.gt(ZERO_BI)) {
+    rawAmount = event.params.token1Amount;
+    rawWeight = pair.token1WeightRaw;
+    tokenPriceFormatted = pair.token1Price;
+    inToken = inToken1;
+  }
+  let poweredTokenDecimal = BigInt.fromI32(10)
+    .pow(inToken.decimals.toI32() as u8)
+    .toBigDecimal();
+
+  let rawSwapAmount = rawAmount.times(RONE.minus(rawWeight)).div(RONE);
+
+  let pendleData = loadPendleData();
+
+  let usdVolume = rawSwapAmount
+    .toBigDecimal()
+    .div(poweredTokenDecimal)
+    .times(tokenPriceFormatted);
+  let usdFee = usdVolume.times(pendleData.swapFee);
+
+  liquidityPool.swapFeesCollectedUSD = usdFee;
+  liquidityPool.swapVolumeUSD = usdVolume;
+
+  pair.feesUSD = pair.feesUSD.plus(usdFee);
+  pair.volumeUSD = pair.volumeUSD.plus(usdVolume);
+
+  liquidityPool.save();
+  pair.save();
 }
 
 export function handleNewMarketFactory(event: NewMarketFactoryEvent): void {
