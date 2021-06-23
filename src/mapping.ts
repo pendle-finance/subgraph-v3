@@ -556,6 +556,8 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
 
   pair.token0 = token0.id;
   pair.token1 = token1.id;
+  pair.token0WeightRaw = ZERO_BI;
+  pair.token1WeightRaw = ZERO_BI;
   pair.liquidityProviderCount = ZERO_BI;
   pair.createdAtTimestamp = event.block.timestamp;
   pair.createdAtBlockNumber = event.block.number;
