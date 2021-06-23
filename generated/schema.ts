@@ -2036,13 +2036,22 @@ export class LiquidityPool extends Entity {
     this.set("feesCollected", Value.fromBigDecimal(value));
   }
 
-  get feesCollectedUSD(): BigDecimal {
-    let value = this.get("feesCollectedUSD");
+  get swapFeesCollectedUSD(): BigDecimal {
+    let value = this.get("swapFeesCollectedUSD");
     return value.toBigDecimal();
   }
 
-  set feesCollectedUSD(value: BigDecimal) {
-    this.set("feesCollectedUSD", Value.fromBigDecimal(value));
+  set swapFeesCollectedUSD(value: BigDecimal) {
+    this.set("swapFeesCollectedUSD", Value.fromBigDecimal(value));
+  }
+
+  get swapVolumeUSD(): BigDecimal {
+    let value = this.get("swapVolumeUSD");
+    return value.toBigDecimal();
+  }
+
+  set swapVolumeUSD(value: BigDecimal) {
+    this.set("swapVolumeUSD", Value.fromBigDecimal(value));
   }
 
   get lpAmount(): BigDecimal {

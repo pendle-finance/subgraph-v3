@@ -66,6 +66,7 @@ import {
   ONE_BD,
   RONE,
   calcLpPrice,
+  RONE_BD,
 } from "./helpers";
 
 /* ** MISC Functions */
@@ -193,9 +194,6 @@ export function handleSwap(event: SwapEvent): void {
 
 export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   let pair = Pair.load(event.params.market.toHexString());
-  log.debug("pairID: {}", [pair.id]);
-  log.debug("pair token0: {}", [pair.token0]);
-  log.debug("pair token1: {}", [pair.token1]);
 
   let inToken0 = Token.load(pair.token0);
   let inToken1 = Token.load(pair.token1);
@@ -221,12 +219,6 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
 
   derivedAmountUSD = event.params.exactOutLp.toBigDecimal().times(rawLpPrice);
 
-  // Calculate and update collected fees
-  let tokenFee = ZERO_BD;
-  let usdFee = ZERO_BD;
-
-  // update pair volume data, use tracked amount if we have it as its probably more accurate
-
   // Create LiquidityPool Entity
   let liquidityPool = new LiquidityPool(event.transaction.hash.toHexString());
   liquidityPool.timestamp = event.block.timestamp;
@@ -238,8 +230,9 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   liquidityPool.inToken1 = inToken1.id;
   liquidityPool.inAmount0 = inAmount0;
   liquidityPool.inAmount1 = inAmount1;
-  liquidityPool.feesCollected = tokenFee;
-  liquidityPool.feesCollectedUSD = usdFee;
+  liquidityPool.feesCollected = ZERO_BD;
+  liquidityPool.swapFeesCollectedUSD = ZERO_BD;
+  liquidityPool.swapVolumeUSD = ZERO_BD;
   // use the tracked amount if we have it
   liquidityPool.amountUSD = derivedAmountUSD;
   liquidityPool.lpAmount = convertTokenToDecimal(
@@ -248,6 +241,55 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   );
 
   liquidityPool.save();
+
+  //Calculating swap fees for add single liq only
+
+  if (
+    event.params.token0Amount.notEqual(ZERO_BI) &&
+    event.params.token1Amount.notEqual(ZERO_BI)
+  ) {
+    return;
+  }
+
+  /**
+   * It will always refer to YT Token
+   */
+  let rawAmount = event.params.token0Amount;
+  let rawWeight = pair.token0WeightRaw;
+  let tokenPriceFormatted = pair.token0Price;
+  let inToken = inToken0;
+
+  /**
+   * It will always refer to base Token
+   */
+  if (event.params.token1Amount.gt(ZERO_BI)) {
+    rawAmount = event.params.token1Amount;
+    rawWeight = pair.token1WeightRaw;
+    tokenPriceFormatted = pair.token1Price;
+    inToken = inToken1;
+  }
+  let poweredTokenDecimal = BigInt.fromI32(10)
+    .pow(inToken.decimals.toI32() as u8)
+    .toBigDecimal();
+
+  let rawSwapAmount = rawAmount.times(RONE.minus(rawWeight)).div(RONE);
+
+  let pendleData = loadPendleData();
+
+  let usdVolume = rawSwapAmount
+    .toBigDecimal()
+    .div(poweredTokenDecimal)
+    .times(tokenPriceFormatted);
+  let usdFee = usdVolume.times(pendleData.swapFee);
+
+  liquidityPool.swapFeesCollectedUSD = usdFee;
+  liquidityPool.swapVolumeUSD = usdVolume;
+
+  pair.feesUSD = pair.feesUSD.plus(usdFee);
+  pair.volumeUSD = pair.volumeUSD.plus(usdVolume);
+
+  liquidityPool.save();
+  pair.save();
 }
 
 export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
@@ -294,7 +336,8 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   liquidityPool.inAmount0 = inAmount0;
   liquidityPool.inAmount1 = inAmount1;
   liquidityPool.feesCollected = tokenFee;
-  liquidityPool.feesCollectedUSD = usdFee;
+  liquidityPool.swapFeesCollectedUSD = usdFee;
+  liquidityPool.swapVolumeUSD = ZERO_BD
   // use the tracked amount if we have it
   liquidityPool.amountUSD = derivedAmountUSD;
   liquidityPool.lpAmount = convertTokenToDecimal(
@@ -611,11 +654,11 @@ export function handleSync(event: SyncEvent): void {
   let tokenBalance = event.params.reserve1.toBigDecimal();
   let tokenWeight_BI = RONE.minus(xytWeight_BI);
 
-  pair.token0WeightRaw = xytWeight_BI
-  pair.token1WeightRaw = tokenWeight_BI
+  pair.token0WeightRaw = xytWeight_BI;
+  pair.token1WeightRaw = tokenWeight_BI;
 
-  let xytWeight_BD = xytWeight_BI.toBigDecimal()
-  let tokenWeight_BD = tokenWeight_BI.toBigDecimal()
+  let xytWeight_BD = xytWeight_BI.toBigDecimal();
+  let tokenWeight_BD = tokenWeight_BI.toBigDecimal();
 
   let xytDecimal = token0.decimals;
   let baseDecimal = token1.decimals;
