@@ -9,7 +9,9 @@
     "build": "graph build",
     "deploy:production": "yarn codegen && graph deploy josephsaw/v3 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy:staging": "yarn codegen && graph deploy josephsaw/staging --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token 3d75be1dce784c08949c46127a791288",
-    "deploy-local": "graph deploy josephsaw/v3 --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
+    "deploy-local": "graph deploy josephsaw/v3 --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "deploy:mainnet-staging": "yarn codegen && graph deploy josephsaw/mainnetstaging --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token 3d75be1dce784c08949c46127a791288",
+    "deploy:mainnet": "yarn codegen && graph deploy josephsaw/pendle --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token 3d75be1dce784c08949c46127a791288"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.19.0",

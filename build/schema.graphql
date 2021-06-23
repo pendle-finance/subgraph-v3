@@ -116,12 +116,15 @@ type Pair @entity {
   reserve0: BigDecimal!
   reserve1: BigDecimal!
   totalSupply: BigDecimal!
+  token0WeightRaw: BigInt!
+  token1WeightRaw: BigInt!
 
   # derived liquidity
   reserveUSD: BigDecimal!
   # Price in terms of the asset pair
   token0Price: BigDecimal!
   token1Price: BigDecimal!
+
 
   # lifetime volume stats
   volumeToken0: BigDecimal!

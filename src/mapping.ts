@@ -389,12 +389,12 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   let mintYieldToken = new MintYieldToken(event.transaction.hash.toHexString());
 
   // Calculating USD Value
-  if (forgeId == "Compound") {
+  if (forgeId == "CompoundV2") {
     let cTokenContract = ICTokenContract.bind(
       Address.fromString(yieldBearingToken.id)
     );
     let currentRate = cTokenContract.exchangeRateCurrent().toBigDecimal();
-    let underlyingPrice = ONE_BD; //TODO: get from coingeko
+    let underlyingPrice = ONE_BD; //TODO: get from proper uniswap
 
     let underlyingPowered = BigInt.fromI32(10)
       // @TODO use proper underlyingToken.decimals as u8
@@ -478,7 +478,7 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
     event.transaction.hash.toHexString()
   );
   // Calculating USD Value
-  if (forgeId == "Compound") {
+  if (forgeId == "CompoundV2") {
     let cTokenContract = ICTokenContract.bind(
       Address.fromString(yieldBearingToken.id)
     );
@@ -605,19 +605,23 @@ export function handleSync(event: SyncEvent): void {
   /* Fetches spot price*/
 
   let xytBalance = event.params.reserve0.toBigDecimal();
-  let xytWeight = event.params.weight0.toBigDecimal();
+  let xytWeight_BI = event.params.weight0;
   let tokenBalance = event.params.reserve1.toBigDecimal();
-  let tokenWeight = RONE.toBigDecimal().minus(xytWeight);
+  let tokenWeight_BI = RONE.minus(xytWeight_BI);
 
-  log.debug("tokenWeight: {}", [tokenWeight.toString()]);
+  pair.token0WeightRaw = xytWeight_BI
+  pair.token1WeightRaw = tokenWeight_BI
+
+  let xytWeight_BD = xytWeight_BI.toBigDecimal()
+  let tokenWeight_BD = tokenWeight_BI.toBigDecimal()
 
   let xytDecimal = token0.decimals;
   let baseDecimal = token1.decimals;
 
   if (pair.reserve0.notEqual(ZERO_BD) && pair.reserve1.notEqual(ZERO_BD)) {
     let rawXytPrice = tokenBalance
-      .times(xytWeight)
-      .div(tokenWeight.times(xytBalance));
+      .times(xytWeight_BD)
+      .div(tokenWeight_BD.times(xytBalance));
 
     let multipledBy = BigInt.fromI32(10).pow(
       xytDecimal.minus(baseDecimal).toI32() as u8

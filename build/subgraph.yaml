@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: PendleRouter
-    network: kovan
+    network: mainnet
     source:
-      address: "0x85dB6E6eDb8EC6DFeC222B80A54Cc7b42F59671e"
+      address: "0x1b6d3E5Da9004668E14Ca39d1553E9a46Fe842B3"
       abi: PendleRouter
-      startBlock: 25449543
+      startBlock: 12638048
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -45,11 +45,11 @@ dataSources:
       file: PendleRouter\PendleRouter.wasm
   - kind: ethereum/contract
     name: PendleData
-    network: kovan
+    network: mainnet
     source:
-      address: "0xb41094b55AE8cE23adfA6c4156c473E6D0e3287e"
+      address: "0xE8A6916576832AA5504092C1cCCC46E3bB9491d6"
       abi: PendleData
-      startBlock: 25449537
+      startBlock: 12638042
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -70,7 +70,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: IPendleForge
-    network: kovan
+    network: mainnet
     source:
       abi: IPendleForge
     mapping:
@@ -104,7 +104,7 @@ templates:
           handler: handleRedeemYieldContracts
   - kind: ethereum/contract
     name: PendleMarket
-    network: kovan
+    network: mainnet
     source:
       abi: PendleMarket
     mapping:

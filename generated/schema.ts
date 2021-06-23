@@ -758,6 +758,24 @@ export class Pair extends Entity {
     this.set("totalSupply", Value.fromBigDecimal(value));
   }
 
+  get token0WeightRaw(): BigInt {
+    let value = this.get("token0WeightRaw");
+    return value.toBigInt();
+  }
+
+  set token0WeightRaw(value: BigInt) {
+    this.set("token0WeightRaw", Value.fromBigInt(value));
+  }
+
+  get token1WeightRaw(): BigInt {
+    let value = this.get("token1WeightRaw");
+    return value.toBigInt();
+  }
+
+  set token1WeightRaw(value: BigInt) {
+    this.set("token1WeightRaw", Value.fromBigInt(value));
+  }
+
   get reserveUSD(): BigDecimal {
     let value = this.get("reserveUSD");
     return value.toBigDecimal();
