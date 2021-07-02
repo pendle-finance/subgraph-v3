@@ -511,6 +511,7 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
     event.params.amountTokenMinted,
     xytToken.decimals
   );
+
   mintYieldToken.expiry = event.params.expiry;
   mintYieldToken.from = event.transaction.from;
   mintYieldToken.underlyingAsset = underlyingToken.id;
@@ -689,7 +690,6 @@ export function handleSync(event: SyncEvent): void {
 
   pair.reserve0 = convertTokenToDecimal(event.params.reserve0, token0.decimals);
   pair.reserve1 = convertTokenToDecimal(event.params.reserve1, token1.decimals);
-
   /* Fetches spot price*/
 
   let xytBalance = event.params.reserve0.toBigDecimal();
@@ -716,7 +716,7 @@ export function handleSync(event: SyncEvent): void {
     );
 
     pair.token0Price = rawXytPrice.times(multipledBy.toBigDecimal());
-    pair.token1Price = ONE_BD.div(pair.token0Price);
+    pair.token1Price = ONE_BD;
   } else {
     pair.token0Price = ZERO_BD;
     pair.token1Price = ZERO_BD;
