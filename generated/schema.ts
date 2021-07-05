@@ -288,6 +288,24 @@ export class Token extends Entity {
     this.set("decimals", Value.fromBigInt(value));
   }
 
+  get forgeId(): string {
+    let value = this.get("forgeId");
+    return value.toString();
+  }
+
+  set forgeId(value: string) {
+    this.set("forgeId", Value.fromString(value));
+  }
+
+  get underlyingAsset(): string {
+    let value = this.get("underlyingAsset");
+    return value.toString();
+  }
+
+  set underlyingAsset(value: string) {
+    this.set("underlyingAsset", Value.fromString(value));
+  }
+
   get totalSupply(): BigInt {
     let value = this.get("totalSupply");
     return value.toBigInt();
@@ -2070,5 +2088,63 @@ export class LiquidityPool extends Entity {
 
   set amountUSD(value: BigDecimal) {
     this.set("amountUSD", Value.fromBigDecimal(value));
+  }
+}
+
+export class UniswapPool extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save UniswapPool entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save UniswapPool entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("UniswapPool", id.toString(), this);
+  }
+
+  static load(id: string): UniswapPool | null {
+    return store.get("UniswapPool", id) as UniswapPool | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get poolAddress(): string {
+    let value = this.get("poolAddress");
+    return value.toString();
+  }
+
+  set poolAddress(value: string) {
+    this.set("poolAddress", Value.fromString(value));
+  }
+
+  get token0Address(): string {
+    let value = this.get("token0Address");
+    return value.toString();
+  }
+
+  set token0Address(value: string) {
+    this.set("token0Address", Value.fromString(value));
+  }
+
+  get token1Address(): string {
+    let value = this.get("token1Address");
+    return value.toString();
+  }
+
+  set token1Address(value: string) {
+    this.set("token1Address", Value.fromString(value));
   }
 }
