@@ -4,9 +4,9 @@ import { ICToken as ICTokenContract } from "../../generated/templates/IPendleFor
 import { UniswapPool as UniswapPoolContract } from "../../generated/UniswapFactory/UniswapPool";
 import {
   exponentToBigDecimal,
-  getUniswapPoolAddress,
   loadToken
 } from "../helpers";
+import { getUniswapPoolAddress } from "../uniswap/factory";
 import {
   COMPOUND_EXCHANGE_RATE_DECIMAL,
   WETH_ADDRESS,

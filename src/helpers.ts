@@ -333,19 +333,4 @@ export function calcLpPrice(
   return lpPrice;
 }
 
-export function getUniswapPoolAddress(
-  token0Address: Address,
-  token1Address: Address
-): Address {
-  let id = token0Address.toHexString() + "-" + token1Address.toHexString();
-  let poolInstance = UniswapPool.load(id);
-  if (!poolInstance) {
-    id = token1Address.toHexString() + "-" + token0Address.toHexString();
-    poolInstance = UniswapPool.load(id);
-  }
-  if (!poolInstance) {
-    return null;
-  }
-  let poolAddress = Address.fromHexString(poolInstance.poolAddress) as Address;
-  return poolAddress;
-}
+
