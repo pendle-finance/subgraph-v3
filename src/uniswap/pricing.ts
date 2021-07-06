@@ -2,11 +2,8 @@ import { Address, BigDecimal, log } from "@graphprotocol/graph-ts";
 import { Token } from "../../generated/schema";
 import { ICToken as ICTokenContract } from "../../generated/templates/IPendleForge/ICToken";
 import { UniswapPool as UniswapPoolContract } from "../../generated/UniswapFactory/UniswapPool";
-import {
-  exponentToBigDecimal,
-  loadToken
-} from "../helpers";
-import { getUniswapPoolAddress } from "../uniswap/factory";
+import { exponentToBigDecimal, loadToken } from "../helpers";
+import { getUniswapPoolAddress } from "./factory";
 import {
   COMPOUND_EXCHANGE_RATE_DECIMAL,
   WETH_ADDRESS,
@@ -14,7 +11,7 @@ import {
   UNISWAP_Q192,
   ONE_BD,
   STABLE_USD_TOKENS
-} from "./consts";
+} from "../utils/consts";
 
 // @TODO: move these things to compound folder
 export function getCTokenCurrentRate(token: Token | null): BigDecimal {
@@ -61,7 +58,7 @@ export function getEthPrice(): BigDecimal {
   return getPoolPrice(USDC_WETH_03_POOL, WETH_ADDRESS);
 }
 
-export function getAddressPrice(tokenAddress: Address): BigDecimal {
+export function getUnderlyingPrice(tokenAddress: Address): BigDecimal {
   let poolAddress = getUniswapPoolAddress(tokenAddress, WETH_ADDRESS);
   if (poolAddress) {
     // tokenPrice = token/eth * eth price
@@ -79,11 +76,11 @@ export function getAddressPrice(tokenAddress: Address): BigDecimal {
   return BigDecimal.fromString("0");
 }
 
-export function getTokenPrice(token: Token | null): BigDecimal {
+export function getUniswapTokenPrice(token: Token | null): BigDecimal {
   let isYieldBearingToken = token.underlyingAsset != "";
   let tokenHexString = isYieldBearingToken ? token.underlyingAsset : token.id;
   let tokenAddress = Address.fromHexString(tokenHexString) as Address;
-  let tokenPrice = getAddressPrice(tokenAddress);
+  let tokenPrice = getUnderlyingPrice(tokenAddress);
 
   // When there are new forges, you will need to hardcode their formulas yourself
   if (isYieldBearingToken) {

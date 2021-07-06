@@ -16,8 +16,7 @@ import {
   User,
   LiquidityPosition,
   LiquidityPositionSnapshot,
-  Pair,
-  UniswapPool
+  Pair
 } from "../generated/schema";
 import { PendleMarket as PendleMarketContract } from "../generated/templates/PendleMarket/PendleMarket";
 
@@ -332,5 +331,3 @@ export function calcLpPrice(
 
   return lpPrice;
 }
-
-

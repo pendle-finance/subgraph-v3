@@ -68,13 +68,9 @@ import {
   ONE_BD,
   RONE,
   calcLpPrice,
-  RONE_BD,
+  RONE_BD
 } from "./helpers";
-import {
-  getCTokenCurrentRate,
-  getEthPrice,
-  getTokenPrice
-} from "./utils/pricing";
+import { getUniswapTokenPrice } from "./uniswap/pricing";
 import { initializeUniswapPools } from "./uniswap/factory";
 
 /* ** MISC Functions */
@@ -498,7 +494,7 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   mintYieldToken.mintedValueUSD = convertTokenToDecimal(
     event.params.amountToTokenize,
     yieldBearingToken.decimals
-  ).times(getTokenPrice(yieldBearingToken));
+  ).times(getUniswapTokenPrice(yieldBearingToken));
 
   mintYieldToken.blockNumber = event.block.number;
   mintYieldToken.timestamp = event.block.timestamp;
@@ -569,7 +565,7 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
   mintYieldToken.redeemedValueUSD = convertTokenToDecimal(
     event.params.amountToRedeem,
     yieldBearingToken.decimals
-  ).times(getTokenPrice(yieldBearingToken));
+  ).times(getUniswapTokenPrice(yieldBearingToken));
 
   mintYieldToken.blockNumber = event.block.number;
   mintYieldToken.timestamp = event.block.timestamp;
