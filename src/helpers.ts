@@ -3,11 +3,11 @@ import {
   BigInt,
   BigDecimal,
   Address,
-  ethereum,
+  ethereum
 } from "@graphprotocol/graph-ts";
 import {
   ERC20,
-  Transfer as TransferEvent,
+  Transfer as TransferEvent
 } from "../generated/templates/PendleMarket/ERC20";
 import { ERC20SymbolBytes } from "../generated/templates/IPendleForge/ERC20SymbolBytes";
 import { ERC20NameBytes } from "../generated/templates/IPendleForge/ERC20NameBytes";
@@ -17,6 +17,7 @@ import {
   LiquidityPosition,
   LiquidityPositionSnapshot,
   Pair,
+  UniswapPool
 } from "../generated/schema";
 import { PendleMarket as PendleMarketContract } from "../generated/templates/PendleMarket/PendleMarket";
 
@@ -128,7 +129,7 @@ export function fetchTokenTotalSupply(tokenAddress: Address): BigInt {
 
   log.info("tokenAddress: {}, totalsupplyValue: {}", [
     tokenAddress.toHexString(),
-    totalSupplyValue.toString(),
+    totalSupplyValue.toString()
   ]);
   return totalSupplyValue as BigInt;
 }
@@ -151,8 +152,14 @@ export function fetchTokenDecimals(tokenAddress: Address): BigInt {
   return BigInt.fromI32(decimalValue as i32);
 }
 
-export function generateNewToken(tokenAddress: Address): Token | null {
+export function generateNewToken(
+  tokenAddress: Address,
+  underlyingAsset: string = "",
+  forgeId: string = ""
+): Token | null {
   let token: Token = new Token(tokenAddress.toHexString());
+  token.forgeId = forgeId;
+  token.underlyingAsset = underlyingAsset;
 
   token.symbol = fetchTokenSymbol(tokenAddress);
   token.name = fetchTokenName(tokenAddress);
@@ -179,6 +186,14 @@ export function generateNewToken(tokenAddress: Address): Token | null {
 
   token.save();
 
+  return token;
+}
+
+export function loadToken(tokenAddress: Address): Token | null {
+  let token = Token.load(tokenAddress.toHexString());
+  if (!token) {
+    return generateNewToken(tokenAddress);
+  }
   return token;
 }
 
@@ -259,7 +274,7 @@ export function createLiquiditySnapshot(
     [
       position.liquidityTokenBalance.toString(),
       pair.totalSupply.toString(),
-      pair.id,
+      pair.id
     ]
   );
   position.supplyOfPoolOwnedPercentage = position.liquidityTokenBalance
@@ -284,7 +299,7 @@ export function calcLpPrice(
 
   log.debug("baseToken: {}, decimal: {}", [
     baseToken.symbol,
-    baseToken.decimals.toString(),
+    baseToken.decimals.toString()
   ]);
 
   let reserves = marketContract.getReserves();
@@ -317,3 +332,5 @@ export function calcLpPrice(
 
   return lpPrice;
 }
+
+
