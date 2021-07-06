@@ -30,8 +30,6 @@ export function createUniswapPool(poolAddress: Address, token0Address: Address, 
 
 
 export function handleUniswapPoolCreated(event: UniswapPoolCreatedEvent): void {
-  let poolId =
-    event.params.token0.toHexString() + "-" + event.params.token1.toHexString();
   createUniswapPool(event.params.pool, event.params.token0, event.params.token1);
 }
 
