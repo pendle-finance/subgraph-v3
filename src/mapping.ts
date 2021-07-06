@@ -69,13 +69,13 @@ import {
   RONE,
   calcLpPrice,
   RONE_BD,
-  getUniswapPoolAddress
 } from "./helpers";
 import {
   getCTokenCurrentRate,
   getEthPrice,
   getTokenPrice
 } from "./utils/pricing";
+import { initializeUniswapPools } from "./uniswap/factory";
 
 /* ** MISC Functions */
 /**
@@ -113,6 +113,8 @@ export function handleMarketFeesSet(event: MarketFeesSetEvent): void {
 
 /** PENDLE ROUTER EVENTS */
 export function handleNewForge(event: NewForgeEvent): void {
+  // This line is put here on the purpose that its just gonna run once at the start of Pendle subgraph
+  initializeUniswapPools();
   let forge = new Forge(event.params.forgeAddress.toHexString());
   forge.forgeId = event.params.forgeId.toString();
   forge.save();

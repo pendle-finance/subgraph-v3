@@ -311,4 +311,5 @@ type UniswapPool @entity {
   poolAddress: String!
   token0Address: String!
   token1Address: String!
+  hasBeenUsed: Boolean!
 }
