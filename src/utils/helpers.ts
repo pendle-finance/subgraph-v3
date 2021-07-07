@@ -8,26 +8,18 @@ import {
 import {
   ERC20,
   Transfer as TransferEvent
-} from "../generated/templates/PendleMarket/ERC20";
-import { ERC20SymbolBytes } from "../generated/templates/IPendleForge/ERC20SymbolBytes";
-import { ERC20NameBytes } from "../generated/templates/IPendleForge/ERC20NameBytes";
+} from "../../generated/templates/PendleMarket/ERC20";
+import { ERC20SymbolBytes } from "../../generated/templates/IPendleForge/ERC20SymbolBytes";
+import { ERC20NameBytes } from "../../generated/templates/IPendleForge/ERC20NameBytes";
 import {
   Token,
   User,
   LiquidityPosition,
   LiquidityPositionSnapshot,
   Pair
-} from "../generated/schema";
-import { PendleMarket as PendleMarketContract } from "../generated/templates/PendleMarket/PendleMarket";
-
-export let ZERO_BI = BigInt.fromI32(0);
-export let ONE_BI = BigInt.fromI32(1);
-export let ZERO_BD = BigDecimal.fromString("0");
-export let ONE_BD = BigDecimal.fromString("1");
-export let BI_18 = BigInt.fromI32(18);
-export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-export let RONE = BigInt.fromI32(2).pow(40); // 2^40
-export let RONE_BD = RONE.toBigDecimal();
+} from "../../generated/schema";
+import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
+import { ONE_BI, RONE, ZERO_BD, ZERO_BI } from "./consts";
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
   let bd = BigDecimal.fromString("1");
@@ -331,5 +323,3 @@ export function calcLpPrice(
 
   return lpPrice;
 }
-
-

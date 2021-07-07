@@ -52,11 +52,7 @@ import {
 } from "../generated/schema";
 import {
   convertTokenToDecimal,
-  ZERO_BD,
-  ZERO_BI,
-  ONE_BI,
-  BI_18,
-  ADDRESS_ZERO,
+
   // fetchTokenSymbol,
   // fetchTokenName,
   // fetchTokenDecimals,
@@ -65,11 +61,20 @@ import {
   loadUser,
   createLiquidityPosition,
   createLiquiditySnapshot,
+  calcLpPrice
+} from "./utils/helpers";
+
+import {
+  ZERO_BD,
+  ZERO_BI,
+  ONE_BI,
+  BI_18,
+  ADDRESS_ZERO,
+  RONE_BD,
   ONE_BD,
-  RONE,
-  calcLpPrice,
-  RONE_BD
-} from "./helpers";
+  RONE
+} from "./utils/consts";
+
 import { getUniswapTokenPrice } from "./uniswap/pricing";
 import { initializeUniswapPools } from "./uniswap/factory";
 
@@ -442,8 +447,17 @@ export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   yieldContract.redeemTxCount = ZERO_BI;
   yieldContract.interestSettledTxCount = ZERO_BI;
 
+  // Volume
+  yieldContract.lockedVolume = ZERO_BD;
   yieldContract.mintVolume = ZERO_BD;
   yieldContract.redeemVolume = ZERO_BD;
+
+  // Volume USD
+  yieldContract.lockedVolumeUSD = ZERO_BD;
+  yieldContract.mintVolumeUSD = ZERO_BD;
+  yieldContract.redeemVolumeUSD = ZERO_BD;
+
+
   yieldContract.interestSettledVolume = ZERO_BD;
 
   yieldContract.save();
@@ -463,15 +477,22 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   let xytToken = Token.load(yieldContract.xyt);
   let otToken = Token.load(yieldContract.ot);
   let yieldBearingToken = Token.load(yieldContract.yieldBearingAsset);
+  let yieldTokenPrice = getUniswapTokenPrice(yieldBearingToken)
 
   // Getting the mint volume
   let newMintVolume = convertTokenToDecimal(
     event.params.amountToTokenize,
-    underlyingToken.decimals
+    yieldBearingToken.decimals
   );
 
+  let newMintVolumeUSD = newMintVolume.times(yieldTokenPrice);
+  
+  yieldContract.lockedVolume = yieldContract.lockedVolume.plus(newMintVolume);
   yieldContract.mintVolume = yieldContract.mintVolume.plus(newMintVolume);
   underlyingToken.mintVolume = underlyingToken.mintVolume.plus(newMintVolume);
+
+  yieldContract.lockedVolumeUSD = yieldContract.lockedVolume.times(yieldTokenPrice);
+  yieldContract.mintVolumeUSD = yieldContract.mintVolume.times(yieldTokenPrice);
 
   underlyingToken.txCount = underlyingToken.txCount.plus(ONE_BI);
   yieldContract.mintTxCount = yieldContract.mintTxCount.plus(ONE_BI);
@@ -491,19 +512,13 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
 
   // Creating new MintYieldToken entity
   let mintYieldToken = new MintYieldToken(event.transaction.hash.toHexString());
-  mintYieldToken.mintedValueUSD = convertTokenToDecimal(
-    event.params.amountToTokenize,
-    yieldBearingToken.decimals
-  ).times(getUniswapTokenPrice(yieldBearingToken));
+  mintYieldToken.mintedValueUSD = newMintVolumeUSD;
 
   mintYieldToken.blockNumber = event.block.number;
   mintYieldToken.timestamp = event.block.timestamp;
 
   mintYieldToken.forgeId = forgeId;
-  mintYieldToken.amountToTokenize = convertTokenToDecimal(
-    event.params.amountToTokenize,
-    yieldBearingToken.decimals
-  );
+  mintYieldToken.amountToTokenize = newMintVolume;
   mintYieldToken.amountMinted = convertTokenToDecimal(
     event.params.amountTokenMinted,
     xytToken.decimals
@@ -525,17 +540,25 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
   let yieldContractid =
     forgeId + "-" + underlyingToken.id + "-" + event.params.expiry.toString();
   let yieldContract = YieldContract.load(yieldContractid);
+  let yieldBearingToken = Token.load(yieldContract.yieldBearingAsset);
 
   // Getting the mint volume
   let newRedeenVolume = convertTokenToDecimal(
     event.params.redeemedAmount,
-    underlyingToken.decimals
+    yieldBearingToken.decimals
   );
+  
+  let yieldTokenPrice = getUniswapTokenPrice(yieldBearingToken)
+  let newRedeenVolumeUSD = newRedeenVolume.times(yieldTokenPrice);
 
-  yieldContract.redeemVolume = yieldContract.mintVolume.plus(newRedeenVolume);
-  underlyingToken.redeemVolume = underlyingToken.mintVolume.plus(
+  yieldContract.redeemVolume = yieldContract.redeemVolume.plus(newRedeenVolume);
+  yieldContract.lockedVolume = yieldContract.lockedVolume.minus(newRedeenVolume);
+  underlyingToken.redeemVolume = underlyingToken.redeemVolume.plus(
     newRedeenVolume
   );
+
+  yieldContract.redeemVolumeUSD = yieldContract.redeemVolume.times(yieldTokenPrice);
+  yieldContract.lockedVolumeUSD = yieldContract.lockedVolume.times(yieldTokenPrice);
 
   underlyingToken.txCount = underlyingToken.txCount.plus(ONE_BI);
   yieldContract.redeemTxCount = yieldContract.redeemTxCount.plus(ONE_BI);
@@ -545,7 +568,6 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
   //Updating OT and XYT total supply
   let xytToken = Token.load(yieldContract.xyt);
   let otToken = Token.load(yieldContract.ot);
-  let yieldBearingToken = Token.load(yieldContract.yieldBearingAsset);
 
   xytToken.totalSupply = fetchTokenTotalSupply(
     ByteArray.fromHexString(yieldContract.xyt) as Address
@@ -558,36 +580,30 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
   otToken.save();
 
   // Creating new MintYieldToken entity
-  let mintYieldToken = new RedeemYieldToken(
+  let redeemYieldToken = new RedeemYieldToken(
     event.transaction.hash.toHexString()
   );
 
-  mintYieldToken.redeemedValueUSD = convertTokenToDecimal(
-    event.params.amountToRedeem,
-    yieldBearingToken.decimals
-  ).times(getUniswapTokenPrice(yieldBearingToken));
+  redeemYieldToken.redeemedValueUSD = newRedeenVolumeUSD;
 
-  mintYieldToken.blockNumber = event.block.number;
-  mintYieldToken.timestamp = event.block.timestamp;
+  redeemYieldToken.blockNumber = event.block.number;
+  redeemYieldToken.timestamp = event.block.timestamp;
 
-  mintYieldToken.forgeId = forgeId;
-  mintYieldToken.amountRedeemed = convertTokenToDecimal(
-    event.params.redeemedAmount,
-    yieldBearingToken.decimals
-  );
+  redeemYieldToken.forgeId = forgeId;
+  redeemYieldToken.amountRedeemed = newRedeenVolume;
 
-  mintYieldToken.amountToRedeem = convertTokenToDecimal(
+  redeemYieldToken.amountToRedeem = convertTokenToDecimal(
     event.params.amountToRedeem,
     xytToken.decimals
   );
-  mintYieldToken.expiry = event.params.expiry;
-  mintYieldToken.from = event.transaction.from;
-  mintYieldToken.underlyingAsset = underlyingToken.id;
-  mintYieldToken.yieldBearingAsset = yieldContract.yieldBearingAsset;
-  mintYieldToken.yieldContract = yieldContract.id;
-  mintYieldToken.xytAsset = xytToken.id;
-  mintYieldToken.otAsset = otToken.id;
-  mintYieldToken.save();
+  redeemYieldToken.expiry = event.params.expiry;
+  redeemYieldToken.from = event.transaction.from;
+  redeemYieldToken.underlyingAsset = underlyingToken.id;
+  redeemYieldToken.yieldBearingAsset = yieldContract.yieldBearingAsset;
+  redeemYieldToken.yieldContract = yieldContract.id;
+  redeemYieldToken.xytAsset = xytToken.id;
+  redeemYieldToken.otAsset = otToken.id;
+  redeemYieldToken.save();
 }
 
 /* ** PENDLE MARKET FACTORY EVENTS */

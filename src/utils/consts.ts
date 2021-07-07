@@ -6,6 +6,13 @@ export let STABLE_USD_TOKENS: Address[] = [
   Address.fromString("0xdac17f958d2ee523a2206206994597c13d831ec7") // USDT
 ];
 
+export let ZERO_BI = BigInt.fromI32(0);
+export let ONE_BI = BigInt.fromI32(1);
+export let ZERO_BD = BigDecimal.fromString("0");
+export let BI_18 = BigInt.fromI32(18);
+export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
+export let RONE = BigInt.fromI32(2).pow(40); // 2^40
+export let RONE_BD = RONE.toBigDecimal();
 export let ONE_BD = BigDecimal.fromString("1");
 export let COMPOUND_EXCHANGE_RATE_DECIMAL = BigInt.fromI32(10)
   .pow(18)
