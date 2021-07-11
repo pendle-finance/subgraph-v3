@@ -101,13 +101,36 @@ dataSources:
   #     eventHandlers:
   #       - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
   #         handler: handleUniswapPoolCreated
-  #     file:
-  #       ./src/uniswap/factory.ts
+  #     file: ./src/uniswap/factory.ts
   - kind: ethereum/contract
     name: SushiswapFactory
     network: mainnet
     source:
-      address: ""
+      address: "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac"
+      abi: SushiswapFactory
+      startBlock: 12638048
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - SushiswapPool
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: SushiswapFactory
+          file: ./abis/SushiswapFactory.json
+        - name: SushiswapPool
+          file: ./abis/sushiswap/pair.json
+      eventHandlers:
+        - event: PairCreated(indexed address,indexed address,address,uint256)
+          handler: handleNewSushiswapPair
+      file: ./src/sushiswap/factory.ts
 templates:
   - kind: ethereum/contract
     name: IPendleForge

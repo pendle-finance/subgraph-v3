@@ -513,6 +513,8 @@ export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   yieldBearingToken.underlyingAsset = underlyingToken.id;
   yieldBearingToken.type = "yieldBearing";
 
+  log.debug("Ownership token!!: {}", [otToken.id]);
+
   xytToken.save();
   otToken.save();
   yieldBearingToken.save();
