@@ -77,7 +77,7 @@ export function getUnderlyingPrice(tokenAddress: Address): BigDecimal {
 }
 
 export function getUniswapTokenPrice(token: Token | null): BigDecimal {
-  let isYieldBearingToken = token.underlyingAsset != "";
+  let isYieldBearingToken = token.underlyingAsset != null;
   let tokenHexString = isYieldBearingToken ? token.underlyingAsset : token.id;
   let tokenAddress = Address.fromHexString(tokenHexString) as Address;
   let tokenPrice = getUnderlyingPrice(tokenAddress);

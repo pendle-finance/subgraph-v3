@@ -31,3 +31,7 @@ export let UNISWAP_Q192 = BigDecimal.fromString(
     .pow(192)
     .toString()
 );
+
+export let DAYS_PER_YEAR_BD = BigDecimal.fromString("365");
+export let ONE_DAY = BigDecimal.fromString("86400");
+export const ONE_HOUR = 3600;

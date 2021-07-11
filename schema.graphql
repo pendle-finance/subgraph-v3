@@ -8,8 +8,8 @@ type MarketFactory @entity {
   address: String! #Market Factory ID
 }
 
-# Add total value locked
-# And snapshot for it (priority: 2)
+# @DONE: Add total value locked
+# @TODO: And snapshot for it (priority: 2)
 
 type YieldContract @entity {
   #Forge ID + underlying asset + expiry
@@ -56,8 +56,8 @@ type Token @entity {
   decimals: BigInt!
 
   # underlying information (for yield bearing token and pendle tokens only)
-  forgeId: String!
-  underlyingAsset: String!
+  forgeId: String
+  underlyingAsset: String
 
   # used for other stats like marketcap
   totalSupply: BigInt!
@@ -79,7 +79,7 @@ type Token @entity {
 
   # liquidity across all pairs (markets)
   totalLiquidity: BigDecimal!
-  type: String # yt | swapBase
+  type: String # yt | ot | yieldBearing | swapBase
 }
 
 type MintYieldToken @entity {
@@ -181,6 +181,11 @@ type Pair @entity {
   # mints: [Mint!]! @derivedFrom(field: "pair")
   # burns: [Burn!]! @derivedFrom(field: "pair")
   # swaps: [Swap!]! @derivedFrom(field: "pair")
+
+  expiry: BigInt!
+
+  pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
+
 }
 
 type Swap @entity {
@@ -343,6 +348,38 @@ type LiquidityPool @entity {
   amountUSD: BigDecimal!
 }
 
+############## SNAPSHOT DATA ######################
+
+type PairHourData @entity {
+  id: ID!
+  hourStartUnix: Int!
+  
+  pair: Pair!
+
+  # reserves
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  marketWorthUSD: BigDecimal!
+
+  # volume stats
+  hourlyVolumeToken0: BigDecimal!
+  hourlyVolumeToken1: BigDecimal!
+  hourlyVolumeUSD: BigDecimal!
+  hourlyTxns: BigInt!
+
+  # price
+  yieldTokenPrice_open: BigDecimal!
+  yieldTokenPrice_close: BigDecimal!
+  yieldTokenPrice_high: BigDecimal!
+  yieldTokenPrice_low: BigDecimal!
+
+  baseTokenPrice: BigDecimal!
+  yieldBearingAssetPrice: BigDecimal!
+
+  # Statistics
+  impliedYield: BigDecimal!
+}
+
 ############## THIRD PARTY PACKAGE ################
 
 type UniswapPool @entity {
@@ -351,4 +388,14 @@ type UniswapPool @entity {
   token0Address: String!
   token1Address: String!
   hasBeenUsed: Boolean!
+}
+
+type UniswapTokenPrice @entity {
+  id: ID!
+  price: BigDecimal!
+}
+
+type SushiswapPool @entity {
+  id: ID!
+  
 }

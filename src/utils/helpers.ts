@@ -19,7 +19,8 @@ import {
   Pair
 } from "../../generated/schema";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
-import { ONE_BI, RONE, ZERO_BD, ZERO_BI } from "./consts";
+import { ONE_BD, ONE_BI, RONE, RONE_BD, ZERO_BD, ZERO_BI } from "./consts";
+import { getUniswapTokenPrice } from "../uniswap/pricing";
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
   let bd = BigDecimal.fromString("1");
@@ -143,14 +144,8 @@ export function fetchTokenDecimals(tokenAddress: Address): BigInt {
   return BigInt.fromI32(decimalValue as i32);
 }
 
-export function generateNewToken(
-  tokenAddress: Address,
-  underlyingAsset: string = "",
-  forgeId: string = ""
-): Token | null {
+export function generateNewToken(tokenAddress: Address): Token | null {
   let token: Token = new Token(tokenAddress.toHexString());
-  token.forgeId = forgeId;
-  token.underlyingAsset = underlyingAsset;
 
   token.symbol = fetchTokenSymbol(tokenAddress);
   token.name = fetchTokenName(tokenAddress);
@@ -287,15 +282,7 @@ export function calcLpPrice(
 ): BigDecimal {
   let marketContract = PendleMarketContract.bind(marketAddress);
   let baseToken = Token.load(baseTokenAddress);
-
-  log.debug("baseToken: {}, decimal: {}", [
-    baseToken.symbol,
-    baseToken.decimals.toString()
-  ]);
-
   let reserves = marketContract.getReserves();
-  let xytBalance = reserves.value0;
-  let xytWeight = reserves.value1;
   let tokenBalance = reserves.value2;
   let tokenWeight = reserves.value3;
 
@@ -310,16 +297,40 @@ export function calcLpPrice(
   }
 
   //@TODO Fetch proper base token price
-  let priceOfBaseToken = BigInt.fromI32(1);
+  let priceOfBaseToken = getUniswapTokenPrice(baseToken);
   let totalValueOfBaseToken = priceOfBaseToken
-    .times(tokenBalance)
-    .div(BigInt.fromI32(10).pow(baseToken.decimals.toI32() as u8))
-    .toBigDecimal();
+    .times(tokenBalance.toBigDecimal())
+    .div(exponentToBigDecimal(baseToken.decimals));
   let baseTokenWeight = tokenWeight.toBigDecimal().div(RONE.toBigDecimal());
-
   let lpPrice = totalValueOfBaseToken.div(baseTokenWeight).div(totalLpSupply);
-
-  log.debug("lpPrice: {}", [lpPrice.toString()]);
-
   return lpPrice;
+}
+
+export function calcMarketWorthUSD(market: Pair): BigDecimal {
+  let baseToken = Token.load(market.token1);
+  let baseTokenWeight = market.token1WeightRaw.toBigDecimal().div(RONE_BD);
+  let baseTokenBalance = market.reserve1;
+  let baseTokenPrice = getUniswapTokenPrice(baseToken);
+  let marketWorthUSD = baseTokenBalance
+    .times(baseTokenPrice)
+    .div(baseTokenWeight);
+  return marketWorthUSD;
+}
+
+export function calcYieldTokenPrice(market: Pair): BigDecimal {
+  // Load 2 tokens
+  let yieldToken = Token.load(market.token0);
+  let baseToken = Token.load(market.token1);
+  // Token weights
+  let baseTokenWeight = market.token1WeightRaw.toBigDecimal().div(RONE_BD);
+  let yieldTokenWeight = ONE_BD.minus(baseTokenWeight);
+  // Token balances
+  let baseTokenBalance = market.reserve1;
+  let yieldTokenBalance = market.reserve0;
+  // Finalize answer
+  let marketWorth = baseTokenBalance.div(baseTokenWeight);
+  let yieldTokenPrice = marketWorth
+    .times(yieldTokenWeight)
+    .div(yieldTokenBalance);
+  return yieldTokenPrice;
 }
