@@ -16,7 +16,8 @@ import {
   User,
   LiquidityPosition,
   LiquidityPositionSnapshot,
-  Pair
+  Pair,
+  DebugLog
 } from "../../generated/schema";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
 import { ONE_BD, ONE_BI, RONE, RONE_BD, ZERO_BD, ZERO_BI } from "./consts";
@@ -297,7 +298,7 @@ export function calcLpPrice(
   }
 
   //@TODO Fetch proper base token price
-  let priceOfBaseToken = getUniswapTokenPrice(baseToken);
+  let priceOfBaseToken = getUniswapTokenPrice(baseToken as Token);
   let totalValueOfBaseToken = priceOfBaseToken
     .times(tokenBalance.toBigDecimal())
     .div(exponentToBigDecimal(baseToken.decimals));
@@ -310,7 +311,7 @@ export function calcMarketWorthUSD(market: Pair): BigDecimal {
   let baseToken = Token.load(market.token1);
   let baseTokenWeight = market.token1WeightRaw.toBigDecimal().div(RONE_BD);
   let baseTokenBalance = market.reserve1;
-  let baseTokenPrice = getUniswapTokenPrice(baseToken);
+  let baseTokenPrice = getUniswapTokenPrice(baseToken as Token);
   let marketWorthUSD = baseTokenBalance
     .times(baseTokenPrice)
     .div(baseTokenWeight);
@@ -333,4 +334,36 @@ export function calcYieldTokenPrice(market: Pair): BigDecimal {
     .times(yieldTokenWeight)
     .div(yieldTokenBalance);
   return yieldTokenPrice;
+}
+
+export function getBalanceOf(
+  tokenAddress: Address,
+  ofAddress: Address
+): BigDecimal {
+  let token = loadToken(tokenAddress);
+  let tokenContract = ERC20.bind(tokenAddress);
+  return convertTokenToDecimal(
+    tokenContract.balanceOf(ofAddress),
+    token.decimals
+  );
+}
+
+export function printDebug(message: string, type: string): void {
+  let id = "";
+  let root = DebugLog.load("0");
+  if (root == null) {
+    id = "0";
+  } else {
+    root.length = root.length.plus(ONE_BI);
+    root.save();
+    id = root.length.toString();
+  }
+
+  let debugInstance = new DebugLog(id);
+  debugInstance.message = message;
+  debugInstance.type = type;
+  debugInstance.length = ZERO_BI;
+  debugInstance.save();
+
+  log.debug("{} | {}", [type, message]);
 }

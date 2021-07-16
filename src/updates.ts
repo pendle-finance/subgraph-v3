@@ -14,7 +14,11 @@ import {
   ONE_HOUR,
   ZERO_BD
 } from "./utils/consts";
-import { calcMarketWorthUSD, calcYieldTokenPrice } from "./utils/helpers";
+import {
+  calcMarketWorthUSD,
+  calcYieldTokenPrice,
+  printDebug
+} from "./utils/helpers";
 
 export function updatePairHourData(
   event: ethereum.Event,
@@ -45,13 +49,13 @@ export function updatePairHourData(
 
     // BASE TOKEN price
     let baseToken = Token.load(market.token1);
-    pairHourData.baseTokenPrice = getUniswapTokenPrice(baseToken);
+    pairHourData.baseTokenPrice = getUniswapTokenPrice(baseToken as Token);
 
     // Underlying price
     let yieldToken = Token.load(market.token0);
     let yieldBearingToken = Token.load(yieldToken.underlyingAsset);
     pairHourData.yieldBearingAssetPrice = getUniswapTokenPrice(
-      yieldBearingToken
+      yieldBearingToken as Token
     );
   }
 

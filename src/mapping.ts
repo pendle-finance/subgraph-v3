@@ -61,7 +61,8 @@ import {
   loadUser,
   createLiquidityPosition,
   createLiquiditySnapshot,
-  calcLpPrice
+  calcLpPrice,
+  printDebug
 } from "./utils/helpers";
 
 import {
@@ -72,7 +73,8 @@ import {
   ADDRESS_ZERO,
   RONE_BD,
   ONE_BD,
-  RONE
+  RONE,
+  ERROR_COMPOUND_MARKET
 } from "./utils/consts";
 
 import { getUniswapTokenPrice } from "./uniswap/pricing";
@@ -139,10 +141,10 @@ export function handleSwap(event: SwapEvent): void {
   let baseTokenPrice = ZERO_BD;
   let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
   if (inToken.type == "swapBase") {
-    baseTokenPrice = getUniswapTokenPrice(inToken);
+    baseTokenPrice = getUniswapTokenPrice(inToken as Token);
     derivedAmountUSD = amountIn.times(baseTokenPrice);
   } else {
-    baseTokenPrice = getUniswapTokenPrice(outToken);
+    baseTokenPrice = getUniswapTokenPrice(outToken as Token);
     derivedAmountUSD = amountOut.times(baseTokenPrice);
   }
 
@@ -279,8 +281,11 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
 
   liquidityPool.save();
 
-  //Calculating swap fees for add single liq only
+  let pairHourData = updatePairHourData(event, pair as Pair);
+  pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
+  pairHourData.save();
 
+  //Calculating swap fees for add single liq only
   if (
     event.params.token0Amount.notEqual(ZERO_BI) &&
     event.params.token1Amount.notEqual(ZERO_BI)
@@ -328,7 +333,6 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   liquidityPool.save();
   pair.save();
 
-  let pairHourData = updatePairHourData(event, pair as Pair);
   // Add single
   if (
     event.params.token0Amount.equals(ZERO_BI) ||
@@ -344,7 +348,7 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
     let token0Amount = pair.reserve0.times(token0Lp).div(totalLp);
     let token1Amount = pair.reserve1.times(token1Lp).div(totalLp);
 
-    let volumeUSD = token1Amount.times(getUniswapTokenPrice(inToken1));
+    let volumeUSD = token1Amount.times(getUniswapTokenPrice(inToken1 as Token));
     pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
       token0Amount
     );
@@ -353,7 +357,7 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
     );
     pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(volumeUSD);
   }
-  pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
+  pairHourData.save();
 }
 
 export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
@@ -406,6 +410,9 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   );
 
   liquidityPool.save();
+  let pairHourData = updatePairHourData(event, pair as Pair);
+  pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
+  pairHourData.save();
 
   if (
     event.params.token0Amount.notEqual(ZERO_BI) &&
@@ -454,7 +461,6 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   liquidityPool.save();
   pair.save();
 
-  let pairHourData = updatePairHourData(event, pair as Pair);
   // Remove single
   if (
     event.params.token0Amount.equals(ZERO_BI) ||
@@ -472,7 +478,9 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
     let token0Amount = reserve0.times(token0Lp).div(totalLp);
     let token1Amount = reserve1.times(token1Lp).div(totalLp);
 
-    let volumeUSD = token1Amount.times(getUniswapTokenPrice(outToken1));
+    let volumeUSD = token1Amount.times(
+      getUniswapTokenPrice(outToken1 as Token)
+    );
     pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
       token0Amount
     );
@@ -481,7 +489,8 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
     );
     pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(volumeUSD);
   }
-  pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
+
+  pairHourData.save();
 }
 
 export function handleNewMarketFactory(event: NewMarketFactoryEvent): void {
@@ -565,7 +574,7 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   let xytToken = Token.load(yieldContract.xyt);
   let otToken = Token.load(yieldContract.ot);
   let yieldBearingToken = Token.load(yieldContract.yieldBearingAsset);
-  let yieldTokenPrice = getUniswapTokenPrice(yieldBearingToken);
+  let yieldTokenPrice = getUniswapTokenPrice(yieldBearingToken as Token);
 
   // Getting the mint volume
   let newMintVolume = convertTokenToDecimal(
@@ -638,7 +647,7 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
     yieldBearingToken.decimals
   );
 
-  let yieldTokenPrice = getUniswapTokenPrice(yieldBearingToken);
+  let yieldTokenPrice = getUniswapTokenPrice(yieldBearingToken as Token);
   let newRedeenVolumeUSD = newRedeenVolume.times(yieldTokenPrice);
 
   yieldContract.redeemVolume = yieldContract.redeemVolume.plus(newRedeenVolume);
@@ -705,6 +714,11 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
 /* ** PENDLE MARKET FACTORY EVENTS */
 
 export function handleMarketCreated(event: MarketCreatedEvent): void {
+  // skip error market
+  if (event.params.market.toHexString() == ERROR_COMPOUND_MARKET) {
+    return;
+  }
+
   // create the tokens
   let token0 = Token.load(event.params.xyt.toHexString());
   let token1 = Token.load(event.params.token.toHexString());

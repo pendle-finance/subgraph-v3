@@ -395,7 +395,32 @@ type UniswapTokenPrice @entity {
   price: BigDecimal!
 }
 
-type SushiswapPool @entity {
+type SushiswapPair @entity {
+  id: ID! # OT Address
+  poolAddress: String!
+  baseToken: String!
+  pendleIncentives: BigDecimal! # per week
+  marketWorthUSD: BigDecimal
+  baseTokenBalance: BigDecimal
+  otBalance: BigDecimal
+  otPrice: BigDecimal
+
+  aprPercentage: BigDecimal
+  updatedAt: BigInt
+}
+
+type SushiswapPairToOt @entity {
   id: ID!
-  
+  otAddress: String!
+}
+
+############## DEBUG ############################
+
+
+type DebugLog @entity {
+  # The instance with id "0" is the root of the entity set. It stores the number of the instances (using for generating the id-s)
+  id: ID!
+  message: String!
+  type: String!
+  length: BigInt
 }

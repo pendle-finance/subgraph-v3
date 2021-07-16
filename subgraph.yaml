@@ -21,6 +21,8 @@ dataSources:
         - Token
         - Swap
         - UniswapPool
+        - DebugLog
+        - SushiswapPair
       abis:
         - name: PendleRouter
           file: ./abis/PendleRouter.json
@@ -38,6 +40,8 @@ dataSources:
           file: ./abis/PendleMarket.json
         - name: UniswapPool
           file: ./abis/uniswap/pool.json
+        - name: SushiswapPair
+          file: ./abis/sushiswap/pair.json
       eventHandlers:
         - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
           handler: handleSwap
@@ -61,11 +65,17 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Forge
+        - DebugLog
+        - SushiswapPair
       abis:
         - name: PendleData
           file: ./abis/PendleData.json
         - name: ICToken
           file: ./abis/ICToken.json
+        - name: SushiswapPair
+          file: ./abis/sushiswap/pair.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: ForgeAdded(indexed bytes32,indexed address)
           handler: handleNewForge
@@ -74,34 +84,35 @@ dataSources:
         - event: MarketFeesSet(uint256,uint256)
           handler: handleMarketFeesSet
       file: ./src/mapping.ts
-  # - kind: ethereum/contract
-  #   name: UniswapFactory
-  #   network: mainnet
-  #   source:
-  #     address: "0x1F98431c8aD98523631AE4a59f267346ea31F984"
-  #     abi: UniswapFactory
-  #     startBlock: 12369621
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - UniswapPool
-  #     abis:
-  #       - name: UniswapFactory
-  #         file: ./abis/UniswapFactory.json
-  #       - name: UniswapPool
-  #         file: ./abis/uniswap/pool.json
-  #       - name: ERC20
-  #         file: ./abis/ERC20.json
-  #       - name: ERC20SymbolBytes
-  #         file: ./abis/ERC20SymbolBytes.json
-  #       - name: ERC20NameBytes
-  #         file: ./abis/ERC20NameBytes.json
-  #     eventHandlers:
-  #       - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
-  #         handler: handleUniswapPoolCreated
-  #     file: ./src/uniswap/factory.ts
+  - kind: ethereum/contract
+    name: UniswapFactory
+    network: mainnet
+    source:
+      address: "0x1F98431c8aD98523631AE4a59f267346ea31F984"
+      abi: UniswapFactory
+      # startBlock: 12369621
+      startBlock: 12638048
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - UniswapPool
+      abis:
+        - name: UniswapFactory
+          file: ./abis/UniswapFactory.json
+        - name: UniswapPool
+          file: ./abis/uniswap/pool.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+      eventHandlers:
+        - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
+          handler: handleUniswapPoolCreated
+      file: ./src/uniswap/factory.ts
   - kind: ethereum/contract
     name: SushiswapFactory
     network: mainnet
@@ -114,8 +125,9 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - SushiswapPool
+        - SushiswapPair
         - Token
+        - DebugLog
       abis:
         - name: ERC20
           file: ./abis/ERC20.json
@@ -125,7 +137,7 @@ dataSources:
           file: ./abis/ERC20NameBytes.json
         - name: SushiswapFactory
           file: ./abis/SushiswapFactory.json
-        - name: SushiswapPool
+        - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
       eventHandlers:
         - event: PairCreated(indexed address,indexed address,address,uint256)
@@ -147,6 +159,8 @@ templates:
         - MintYieldToken
         - YieldContract
         - UniswapPool
+        - DebugLog
+        - SushiswapPair
       abis:
         - name: IPendleForge
           file: ./abis/IPendleForge.json
@@ -160,6 +174,8 @@ templates:
           file: ./abis/ICToken.json
         - name: UniswapPool
           file: ./abis/uniswap/pool.json
+        - name: SushiswapPair
+          file: ./abis/sushiswap/pair.json
       eventHandlers:
         - event: NewYieldContracts(bytes32,indexed address,indexed uint256,address,address,address)
           handler: handleNewYieldContracts
@@ -180,6 +196,8 @@ templates:
       entities:
         - PendleData
         - UniswapPool
+        - DebugLog
+        - SushiswapPair
       abis:
         - name: PendleMarket
           file: ./abis/PendleMarket.json
@@ -189,6 +207,8 @@ templates:
           file: ./abis/uniswap/pool.json
         - name: ICToken
           file: ./abis/ICToken.json
+        - name: SushiswapPair
+          file: ./abis/sushiswap/pair.json
       eventHandlers:
         - event: Sync(uint256,uint256,uint256)
           handler: handleSync
@@ -196,4 +216,34 @@ templates:
         #   handler: handleTransfer
         # - event: Mint(indexed address,uint256,uint256)
         #   handler: handleMint
-  
+  - kind: ethereum/contract
+    name: SushiswapPair
+    network: mainnet
+    source:
+      abi: SushiswapPair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/sushiswap/factory.ts
+      entities:
+        - SushiswapPair
+        - Token
+        - UniswapPool
+        - DebugLog
+      abis:
+        - name: SushiswapPair
+          file: ./abis/sushiswap/pair.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: ICToken
+          file: ./abis/ICToken.json
+        - name: UniswapPool
+          file: ./abis/uniswap/pool.json
+      eventHandlers:
+        - event: Swap(indexed address,uint256,uint256,uint256,uint256,indexed address)
+          handler: handleUpdateSushiswap
