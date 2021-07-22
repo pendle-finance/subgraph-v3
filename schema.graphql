@@ -357,6 +357,7 @@ type PairHourData @entity {
   pair: Pair!
 
   # reserves
+  totalSupply: BigDecimal!
   reserve0: BigDecimal!
   reserve1: BigDecimal!
   marketWorthUSD: BigDecimal!
@@ -372,6 +373,8 @@ type PairHourData @entity {
   yieldTokenPrice_close: BigDecimal!
   yieldTokenPrice_high: BigDecimal!
   yieldTokenPrice_low: BigDecimal!
+
+  lpTokenPrice: BigDecimal!
 
   baseTokenPrice: BigDecimal!
   yieldBearingAssetPrice: BigDecimal!
@@ -405,8 +408,16 @@ type SushiswapPair @entity {
   otBalance: BigDecimal
   otPrice: BigDecimal
 
+  isOtToken0: Boolean!
   aprPercentage: BigDecimal
   updatedAt: BigInt
+}
+
+type SushiswapPairHourData @entity {
+  id: ID!
+  hourStartUnix: Int!
+  otAddress: String!
+  tradingVolumeUSD: BigDecimal!
 }
 
 type SushiswapPairToOt @entity {

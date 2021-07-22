@@ -2,7 +2,7 @@ import { Address, BigDecimal, log } from "@graphprotocol/graph-ts";
 import { Token } from "../../generated/schema";
 import { ICToken as ICTokenContract } from "../../generated/templates/IPendleForge/ICToken";
 import { UniswapPool as UniswapPoolContract } from "../../generated/UniswapFactory/UniswapPool";
-import { exponentToBigDecimal, loadToken } from "../utils/helpers";
+import { exponentToBigDecimal, loadToken, printDebug } from "../utils/helpers";
 import { getUniswapPoolAddress } from "./factory";
 import {
   COMPOUND_EXCHANGE_RATE_DECIMAL,
@@ -10,7 +10,8 @@ import {
   USDC_WETH_03_POOL,
   UNISWAP_Q192,
   ONE_BD,
-  STABLE_USD_TOKENS
+  STABLE_USD_TOKENS,
+  ZERO_BD
 } from "../utils/consts";
 
 // @TODO: move these things to compound folder
@@ -33,6 +34,12 @@ export function getPoolPrice(
   poolAddress: Address,
   inToken: Address
 ): BigDecimal {
+  let tryPrice = kovanHardcodedPrice(poolAddress);
+  if (tryPrice.gt(ZERO_BD)) {
+    printDebug("Using hardcoded price", "price");
+    return tryPrice;
+  }
+
   let poolContract = UniswapPoolContract.bind(poolAddress);
 
   let token0Address = poolContract.token0();
@@ -97,4 +104,17 @@ export function getUniswapTokenPrice(token: Token): BigDecimal {
 export function getUniswapAddressPrice(tokenAddress: Address): BigDecimal {
   let token = loadToken(tokenAddress);
   return getUniswapTokenPrice(token as Token);
+}
+
+export function kovanHardcodedPrice(pool: Address): BigDecimal {
+  if (pool.toHexString() == "0x89007e48d47484245805679ab37114db117afab2") {
+    return BigDecimal.fromString("0.0005");
+  }
+  if (pool.toHexString() == "0x877bd57caf5a8620f06e80688070f23f091df3b1") {
+    return BigDecimal.fromString("0.0005");
+  }
+  if (pool.toHexString() == "0xbaca9d50c2ae0cd5b9a457e7dbe38c673197caa3") {
+    return BigDecimal.fromString("2000");
+  }
+  return BigDecimal.fromString("0");
 }

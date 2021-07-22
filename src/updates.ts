@@ -87,6 +87,10 @@ export function updatePairHourData(
   pairHourData.reserve0 = market.reserve0;
   pairHourData.reserve1 = market.reserve1;
   pairHourData.marketWorthUSD = calcMarketWorthUSD(market);
+  pairHourData.totalSupply = market.totalSupply;
+  pairHourData.lpTokenPrice = pairHourData.marketWorthUSD.div(
+    pairHourData.totalSupply
+  );
   pairHourData.save();
   return pairHourData as PairHourData;
 }
