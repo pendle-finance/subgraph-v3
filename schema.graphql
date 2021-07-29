@@ -405,8 +405,10 @@ type SushiswapPair @entity {
   pendleIncentives: BigDecimal! # per week
   marketWorthUSD: BigDecimal
   baseTokenBalance: BigDecimal
+  baseTokenPrice: BigDecimal
   otBalance: BigDecimal
   otPrice: BigDecimal
+
 
   isOtToken0: Boolean!
   aprPercentage: BigDecimal
@@ -418,6 +420,7 @@ type SushiswapPairHourData @entity {
   hourStartUnix: Int!
   otAddress: String!
   tradingVolumeUSD: BigDecimal!
+  poolAddress: String!
 }
 
 type SushiswapPairToOt @entity {

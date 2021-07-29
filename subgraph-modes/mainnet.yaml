@@ -249,7 +249,7 @@ templates:
           file: ./abis/uniswap/pool.json
       eventHandlers:
         - event: Swap(indexed address,uint256,uint256,uint256,uint256,indexed address)
-          handler: handleUpdateSushiswap
+          handler: handleSwapSushiswap
         - event: Mint(indexed address,uint256,uint256)
           handler: handleUpdateSushiswap
         - event: Burn(indexed address,uint256,uint256,indexed address)

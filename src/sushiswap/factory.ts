@@ -94,6 +94,7 @@ export function updateSushiswapPair(
   let marketWorth = baseTokenPrice.times(baseTokenBalance).times(TWO_BD);
 
   let otPrice = marketWorth.div(TWO_BD).div(otBalance);
+  pair.baseTokenPrice = baseTokenPrice;
   pair.updatedAt = timestamp;
   pair.marketWorthUSD = marketWorth;
   pair.baseTokenBalance = baseTokenBalance;
@@ -174,6 +175,7 @@ export function handleSwapSushiswap(event: SwapEvent): void {
     sushiswapPairHourData.otAddress = pair.id;
     sushiswapPairHourData.tradingVolumeUSD = ZERO_BD;
     sushiswapPairHourData.hourStartUnix = hourStartUnix;
+    sushiswapPairHourData.poolAddress = pair.poolAddress;
   }
 
   sushiswapPairHourData.tradingVolumeUSD = sushiswapPairHourData.tradingVolumeUSD.plus(
@@ -187,5 +189,6 @@ export function handleUpdateSushiswap(event: SwapEvent): void {
   let otMap = SushiswapPairToOt.load(event.address.toHexString());
   let otAddress = Address.fromHexString(otMap.otAddress);
   let pair = updateSushiswapPair(otAddress as Address, event.block.timestamp);
+  printDebug("Sushiswap update", "sushiswap");
   return;
 }

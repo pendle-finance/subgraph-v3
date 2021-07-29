@@ -62,7 +62,8 @@ import {
   createLiquidityPosition,
   createLiquiditySnapshot,
   calcLpPrice,
-  printDebug
+  printDebug,
+  calcMarketWorthUSD
 } from "./utils/helpers";
 
 import {
@@ -839,6 +840,8 @@ export function handleSync(event: SyncEvent): void {
   token1.totalLiquidity = token1.totalLiquidity.plus(pair.reserve1);
 
   // save entities
+
+  pair.reserveUSD = calcMarketWorthUSD(pair as Pair);
   pair.save();
   token0.save();
   token1.save();
