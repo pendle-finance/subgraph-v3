@@ -135,6 +135,11 @@ export function getPendleIncentives(poolAddress: Address): BigDecimal {
   ) {
     return BigDecimal.fromString("10000");
   }
+  if (
+    poolAddress.toHexString() == "0x2c80d72af9ab0bb9d98f607c817c6f512dd647e6"
+  ) {
+    return BigDecimal.fromString("7000")
+  }
   return BigDecimal.fromString("0");
 }
 
