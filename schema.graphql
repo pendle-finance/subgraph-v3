@@ -408,6 +408,7 @@ type SushiswapPair @entity {
   baseTokenPrice: BigDecimal
   otBalance: BigDecimal
   otPrice: BigDecimal
+  totalTradingUSD: BigDecimal!
 
 
   isOtToken0: Boolean!

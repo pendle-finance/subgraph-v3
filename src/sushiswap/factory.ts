@@ -61,6 +61,7 @@ export function handleNewSushiswapPair(event: SushiswapPairCreatedEvent): void {
 
     otMarket.isOtToken0 = isOwnershipToken(event.params.token0);
 
+    otMarket.totalTradingUSD = ZERO_BD;
     otMarket.poolAddress = event.params.pair.toHexString();
     otMarket.pendleIncentives = getPendleIncentives(
       Address.fromHexString(otMarket.poolAddress) as Address
@@ -183,9 +184,11 @@ export function handleSwapSushiswap(event: SwapEvent): void {
     sushiswapPairHourData.poolAddress = pair.poolAddress;
   }
 
+  pair.totalTradingUSD = pair.totalTradingUSD.plus(tradingValue);
   sushiswapPairHourData.tradingVolumeUSD = sushiswapPairHourData.tradingVolumeUSD.plus(
     tradingValue
   );
+  pair.save();
   sushiswapPairHourData.save();
   return;
 }
