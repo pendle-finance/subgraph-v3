@@ -3,7 +3,8 @@ import {
   Address,
   ByteArray,
   BigDecimal,
-  log
+  log,
+  ethereum
 } from "@graphprotocol/graph-ts";
 import {
   SwapEvent,

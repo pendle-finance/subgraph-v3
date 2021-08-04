@@ -51,7 +51,7 @@ dataSources:
           handler: handleExitLiquidityPool
         - event: MarketCreated(bytes32,indexed address,indexed address,indexed address)
           handler: handleMarketCreated
-      file: ./src/mapping.ts
+      file: ./src/pendle/router.ts
   - kind: ethereum/contract
     name: PendleData
     network: kovan
@@ -83,7 +83,7 @@ dataSources:
           handler: handleNewMarketFactory
         - event: MarketFeesSet(uint256,uint256)
           handler: handleMarketFeesSet
-      file: ./src/mapping.ts
+      file: ./src/pendle/data.ts
   - kind: ethereum/contract
     name: UniswapFactory
     network: kovan
@@ -155,7 +155,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ./src/pendle/forge.ts
       entities:
         - Token
         - MintYieldToken
@@ -194,7 +194,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ./src/pendle/market.ts
       entities:
         - PendleData
         - UniswapPool

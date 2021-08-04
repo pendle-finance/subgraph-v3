@@ -185,7 +185,7 @@ type Pair @entity {
   expiry: BigInt!
 
   pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
-
+  liquidityMining: String
 }
 
 type Swap @entity {
@@ -218,6 +218,10 @@ type User @entity {
   id: ID!
   liquidityPositions: [LiquidityPosition!] @derivedFrom(field: "user")
   usdSwapped: BigDecimal!
+}
+
+type LiquidityMining @entity {
+  id: ID! # for v1, id will be LiqMining's address, for V2, it should be ERC20's address
 }
 
 type LiquidityPosition @entity {

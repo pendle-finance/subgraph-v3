@@ -17,7 +17,8 @@ import {
   LiquidityPosition,
   LiquidityPositionSnapshot,
   Pair,
-  DebugLog
+  DebugLog,
+  PendleData
 } from "../../generated/schema";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
 import { ONE_BD, ONE_BI, RONE, RONE_BD, ZERO_BD, ZERO_BI } from "./consts";
@@ -366,4 +367,17 @@ export function printDebug(message: string, type: string): void {
   debugInstance.save();
 
   log.debug("{} | {}", [type, message]);
+}
+
+export function loadPendleData(): PendleData {
+  let pendleData = PendleData.load("1");
+  if (pendleData === null) {
+    pendleData = new PendleData("1");
+    pendleData.protocolSwapFee = ZERO_BD;
+    pendleData.swapFee = ZERO_BD;
+    pendleData.exitFee = ZERO_BD;
+  }
+
+  pendleData.save();
+  return pendleData as PendleData;
 }
