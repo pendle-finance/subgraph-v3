@@ -201,6 +201,10 @@ templates:
         - DebugLog
         - SushiswapPair
       abis:
+        - name: LiquidityMiningProxy
+          file: ./abis/PendleLiquidityMiningProxy.json
+        - name: PendleLiquidityMiningV1
+          file: ./abis/PendleLiquidityMiningV1.json
         - name: PendleMarket
           file: ./abis/PendleMarket.json
         - name: ERC20

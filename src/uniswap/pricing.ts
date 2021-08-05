@@ -36,7 +36,6 @@ export function getPoolPrice(
 ): BigDecimal {
   let tryPrice = kovanHardcodedPrice(poolAddress);
   if (tryPrice.gt(ZERO_BD)) {
-    printDebug("Using hardcoded price", "price");
     return tryPrice;
   }
 

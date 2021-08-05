@@ -91,7 +91,6 @@ export function updateSushiswapPair(
     pairAddress as Address
   );
   let baseTokenPrice = getUniswapAddressPrice(baseTokenAddress as Address);
-  printDebug(baseTokenPrice.toString(), "token-price");
   let marketWorth = baseTokenPrice.times(baseTokenBalance).times(TWO_BD);
 
   let otPrice = marketWorth.div(TWO_BD).div(otBalance);
@@ -109,7 +108,6 @@ export function updateSushiswapPair(
     .times(BigDecimal.fromString("100"));
   pair.save();
 
-  printDebug(getPendlePrice().toString(), "pendle-price");
   return pair as SushiswapPair;
 }
 
@@ -197,6 +195,5 @@ export function handleUpdateSushiswap(event: SwapEvent): void {
   let otMap = SushiswapPairToOt.load(event.address.toHexString());
   let otAddress = Address.fromHexString(otMap.otAddress);
   let pair = updateSushiswapPair(otAddress as Address, event.block.timestamp);
-  printDebug("Sushiswap update", "sushiswap");
   return;
 }

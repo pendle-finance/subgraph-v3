@@ -185,7 +185,10 @@ type Pair @entity {
   expiry: BigInt!
 
   pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
-  liquidityMining: String
+  liquidityMining: String!
+  lpAPR: BigDecimal
+  pendleIncentives: BigDecimal
+  reward: BigInt
 }
 
 type Swap @entity {

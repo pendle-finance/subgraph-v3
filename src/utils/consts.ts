@@ -46,3 +46,8 @@ export const ERROR_COMPOUND_MARKET =
   "0x73a62de3b35126ae8f6a4547b9cbc170bc852001";
 export const ERROR_COMPOUND_SUSHISWAP_PAIR =
   "0x1e790169999eb3bf4bcd41c650ab417faa53138d";
+
+export const LIQUIDITY_MINING_PROXY = "0x70e649eb230dbaee72303ac14fa817b81dedcf0b";
+export let LM_PROXY_START_BLOCK = BigInt.fromI32(12925093);
+export let LM_ALLOC_DENOM = BigInt.fromI32(1000000000);
+export let DAYS_PER_WEEK_BD = BigDecimal.fromString("7");

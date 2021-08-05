@@ -5,7 +5,7 @@ import {
   Sync as SyncEvent
 } from "../../generated/templates/PendleMarket/PendleMarket";
 import { ONE_BD, RONE, ZERO_BD } from "../utils/consts";
-import { calcMarketWorthUSD, convertTokenToDecimal } from "../utils/helpers";
+import { calcMarketWorthUSD, convertTokenToDecimal, updateMarketLiquidityMiningApr } from "../utils/helpers";
 
 export function handleSync(event: SyncEvent): void {
   let pair = Pair.load(event.address.toHex());
@@ -62,6 +62,9 @@ export function handleSync(event: SyncEvent): void {
 
   pair.reserveUSD = calcMarketWorthUSD(pair as Pair);
   pair.save();
+  updateMarketLiquidityMiningApr(event.address, event.block.timestamp);
+  // pair.save();
+
   token0.save();
   token1.save();
 }
