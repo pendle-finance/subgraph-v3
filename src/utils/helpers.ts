@@ -425,7 +425,13 @@ export function updateMarketLiquidityMiningApr(marketAddress: Address, timestamp
     }
     let pendlePerLp = actualReward.div(totalStakeLp);
     let pendlePerLpBD = convertTokenToDecimal(pendlePerLp, pendleToken.decimals);
-    let apw = pendlePerLpBD.times(getPendlePrice()).div(getLpPrice(pair));
+    
+    let lpPrice = getLpPrice(pair);
+    if (lpPrice.equals(ZERO_BD)) {
+      return;
+    }
+
+    let apw = pendlePerLpBD.times(getPendlePrice()).div(lpPrice);
     pair.lpAPR = apw.times(DAYS_PER_YEAR_BD).div(DAYS_PER_WEEK_BD);
     pair.save();
     return;

@@ -233,6 +233,7 @@ templates:
       language: wasm/assemblyscript
       file: ./src/sushiswap/factory.ts
       entities:
+        - LiquidityMiningV1
         - SushiswapPair
         - Token
         - UniswapPool
@@ -258,3 +259,30 @@ templates:
           handler: handleUpdateSushiswap
         - event: Burn(indexed address,uint256,uint256,indexed address)
           handler: handleUpdateSushiswap
+  - kind: ethereum/contract
+    name: PendleLiquidityMiningV1
+    network: kovan
+    source:
+      abi: PendleLiquidityMiningV1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/pendle/liquidity-mining-v1.ts
+      entities:
+        - LiquidityMiningV1
+        - Pair
+        - Token
+        - DebugLog
+      abis:
+        - name: PendleMarket
+          file: ./abis/PendleMarket.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: PendleLiquidityMiningV1
+          file: ./abis/PendleLiquidityMiningV1.json
+      eventHandlers:
+        - event: Staked(uint256,address,uint256)
+          handler: handleStake
+        - event: Withdrawn(uint256,address,uint256)
+          handler: handleWithdrawn
