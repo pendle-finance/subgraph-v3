@@ -1,11 +1,51 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { Pair, Token } from "../../generated/schema";
+import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import {
   PendleMarket as PendleMarketContract,
-  Sync as SyncEvent
+  Sync as SyncEvent,
+  Transfer as TransferEvent
 } from "../../generated/templates/PendleMarket/PendleMarket";
-import { ONE_BD, RONE, ZERO_BD } from "../utils/consts";
-import { calcMarketWorthUSD, convertTokenToDecimal, updateMarketLiquidityMiningApr } from "../utils/helpers";
+import { getPendlePrice } from "../sushiswap/factory";
+import {
+  ADDRESS_ZERO,
+  DAYS_PER_WEEK_BD,
+  DAYS_PER_YEAR_BD,
+  LM_ALLOC_DENOM,
+  ONE_BD,
+  ONE_BI,
+  PENDLE_TOKEN_ADDRESS,
+  RONE,
+  ZERO_BD,
+  ZERO_BI
+} from "../utils/consts";
+import {
+  calcMarketWorthUSD,
+  convertTokenToDecimal,
+  getLpPrice,
+  isMarketLiquidityMiningV2,
+  loadToken
+} from "../utils/helpers";
+
+export function handleTransfer(event: TransferEvent): void {
+  let market = Pair.load(event.address.toHexString());
+  let from = event.params.from.toHexString();
+  let to = event.params.to.toHexString();
+
+  if (from == ADDRESS_ZERO) { 
+    // Mint
+
+  } else if (to == ADDRESS_ZERO) { 
+    // Burn
+  } else if (from == market.yieldTokenHolderAddress || to == market.yieldTokenHolderAddress) { 
+    // Stake & Withdraw
+    // Leave user's lp balance 
+
+  } else { 
+    // Normal Transfer
+
+  }
+}
 
 export function handleSync(event: SyncEvent): void {
   let pair = Pair.load(event.address.toHex());
@@ -59,12 +99,88 @@ export function handleSync(event: SyncEvent): void {
   token1.totalLiquidity = token1.totalLiquidity.plus(pair.reserve1);
 
   // save entities
-
   pair.reserveUSD = calcMarketWorthUSD(pair as Pair);
+  pair.save();
+  pair.lpPriceUSD = getLpPrice(pair as Pair);
   pair.save();
   updateMarketLiquidityMiningApr(event.address, event.block.timestamp);
   // pair.save();
 
   token0.save();
   token1.save();
+}
+
+function updateMarketLiquidityMiningApr(
+  marketAddress: Address,
+  timestamp: BigInt
+): void {
+  let pair = Pair.load(marketAddress.toHexString()) as Pair;
+  let lm = Address.fromHexString(pair.liquidityMining) as Address;
+  if (!isMarketLiquidityMiningV2(marketAddress)) {
+    let lmContract = PendleLm1Contract.bind(lm);
+    let pendleToken = loadToken(PENDLE_TOKEN_ADDRESS);
+
+    // see if Liquidity Mining is deployed?
+    let tryContract = lmContract.try_startTime();
+    if (tryContract.reverted) {
+      return;
+    }
+
+    if (pair.yieldTokenHolderAddress == null) {
+      pair.yieldTokenHolderAddress = lmContract
+        .readExpiryData(pair.expiry)
+        .value3.toHexString();
+    }
+
+    let lpPrice = pair.lpPriceUSD;
+    if (lpPrice.equals(ZERO_BD)) {
+      return;
+    }
+
+    let currentEpoch = ZERO_BI;
+    let t = timestamp;
+    let startTime = lmContract.startTime();
+    let epochDuration = lmContract.epochDuration();
+    if (t.ge(startTime)) {
+      currentEpoch = t
+        .minus(startTime)
+        .div(epochDuration)
+        .plus(ONE_BI);
+    }
+
+    let epochData = lmContract.readEpochData(currentEpoch);
+    let totalReward = epochData.value1;
+    let settingId = epochData.value0;
+
+    if (settingId.equals(ZERO_BI)) {
+      settingId = lmContract.latestSetting().value0;
+    }
+    let alloc = lmContract.allocationSettings(settingId, pair.expiry);
+    let actualReward = totalReward.times(alloc).div(LM_ALLOC_DENOM);
+    let totalStakeLp = lmContract.readExpiryData(pair.expiry).value0;
+    if (totalStakeLp.equals(ZERO_BI)) {
+      return;
+    }
+
+    pair.lpStaked = totalStakeLp.toBigDecimal();
+    pair.lpStakedUSD = pair.lpPriceUSD.times(pair.lpStaked);
+
+    let pendlePerLp = actualReward.div(totalStakeLp);
+    let pendlePerLpBD = convertTokenToDecimal(
+      pendlePerLp,
+      pendleToken.decimals
+    );
+
+    let apw = pendlePerLpBD.times(getPendlePrice()).div(lpPrice);
+    pair.lpAPR = apw.times(DAYS_PER_YEAR_BD).div(DAYS_PER_WEEK_BD);
+    pair.save();
+    return;
+  }
+
+  if (pair.yieldTokenHolderAddress == null) {
+    pair.yieldTokenHolderAddress = pair.liquidityMining;
+    pair.save();
+  }
+
+  return;
 }

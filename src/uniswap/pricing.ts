@@ -11,7 +11,9 @@ import {
   UNISWAP_Q192,
   ONE_BD,
   STABLE_USD_TOKENS,
-  ZERO_BD
+  ZERO_BD,
+  isMainnet,
+  PENDLE_TOKEN_ADDRESS
 } from "../utils/consts";
 
 // @TODO: move these things to compound folder
@@ -65,6 +67,9 @@ export function getEthPrice(): BigDecimal {
 }
 
 export function getUnderlyingPrice(tokenAddress: Address): BigDecimal {
+  if (!isMainnet) {
+    return getKovanTokenPrice(loadToken(tokenAddress) as Token);
+  }
   let poolAddress = getUniswapPoolAddress(tokenAddress, WETH_ADDRESS);
   if (poolAddress) {
     // tokenPrice = token/eth * eth price
@@ -114,6 +119,25 @@ export function kovanHardcodedPrice(pool: Address): BigDecimal {
   }
   if (pool.toHexString() == "0xbaca9d50c2ae0cd5b9a457e7dbe38c673197caa3") {
     return BigDecimal.fromString("2000");
+  }
+  return BigDecimal.fromString("0");
+}
+
+export function getKovanTokenPrice(token: Token): BigDecimal {
+  if(token.id == "0xd0a1e359811322d97991e03f863a0c30c2cf029c") {
+    return BigDecimal.fromString("2000");
+  }
+  if (token.id == "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa") {
+    return ONE_BD;
+  }
+  if (token.id == "0xe22da380ee6b445bb8273c81944adeb6e8450422") {
+    return ONE_BD;
+  }
+  if (token.id == "0x13512979ade267ab5100878e2e0f485b568328a4") {
+    return ONE_BD;
+  }
+  if (token.id == PENDLE_TOKEN_ADDRESS.toHexString()) {
+    return ONE_BD;
   }
   return BigDecimal.fromString("0");
 }

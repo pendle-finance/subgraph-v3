@@ -50,3 +50,4 @@ export const ERROR_COMPOUND_SUSHISWAP_PAIR =
   "0x1e790169999eb3bf4bcd41c650ab417faa53138d";
 
 export let LM_ALLOC_DENOM = BigInt.fromI32(1000000000);
+export const isMainnet = false;

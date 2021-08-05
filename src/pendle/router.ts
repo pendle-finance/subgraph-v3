@@ -451,6 +451,9 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
   // pair.untrackedVolumeUSD = ZERO_BD;
   pair.token0Price = ZERO_BD;
   pair.token1Price = ZERO_BD;
+  pair.lpStaked = ZERO_BD;
+  pair.lpPriceUSD = ZERO_BD;
+  pair.lpStakedUSD = ZERO_BD;
 
   let lm = getLiquidityMining(event.params.market);
 

@@ -184,11 +184,15 @@ type Pair @entity {
 
   expiry: BigInt!
 
+  lpPriceUSD: BigDecimal!
+  lpStaked: BigDecimal!
+  lpStakedUSD: BigDecimal!
+
   pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
+
   liquidityMining: String!
   lpAPR: BigDecimal
-  pendleIncentives: BigDecimal
-  reward: BigInt
+  yieldTokenHolderAddress: String
 }
 
 type Swap @entity {
@@ -445,4 +449,28 @@ type DebugLog @entity {
   message: String!
   type: String!
   length: BigInt
+}
+
+############## NFT PROGRAM ######################
+type UserA @entity {
+  id: ID! # user address
+  box: Int!
+
+  # LP variables
+  lpMinThisWeek: BigDecimal!
+  lpHolding: BigDecimal!
+  updatedAt: Int!
+
+  # action value
+  actionThisWeek: Int!
+}
+
+type UserB @entity {
+  id: ID! # user address
+  box: Int!
+  
+  # LP variables
+  lpMinToday: BigDecimal!
+  lpHolding: BigDecimal!
+  updatedAt: Int!
 }

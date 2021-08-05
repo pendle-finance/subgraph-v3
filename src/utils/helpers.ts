@@ -22,7 +22,18 @@ import {
   LiquidityMining
 } from "../../generated/schema";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
-import { DAYS_PER_WEEK_BD, DAYS_PER_YEAR_BD, LM_ALLOC_DENOM, ONE_BD, ONE_BI, PENDLE_TOKEN_ADDRESS, RONE, RONE_BD, ZERO_BD, ZERO_BI } from "./consts";
+import {
+  DAYS_PER_WEEK_BD,
+  DAYS_PER_YEAR_BD,
+  LM_ALLOC_DENOM,
+  ONE_BD,
+  ONE_BI,
+  PENDLE_TOKEN_ADDRESS,
+  RONE,
+  RONE_BD,
+  ZERO_BD,
+  ZERO_BI
+} from "./consts";
 import { getUniswapTokenPrice } from "../uniswap/pricing";
 import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import { getPendlePrice } from "../sushiswap/factory";
@@ -385,61 +396,6 @@ export function loadPendleData(): PendleData {
   return pendleData as PendleData;
 }
 
-export function updateMarketLiquidityMiningApr(marketAddress: Address, timestamp: BigInt): void {
-  let pair = Pair.load(marketAddress.toHexString()) as Pair;
-  let lm = Address.fromHexString(pair.liquidityMining) as Address;
-
-  if (!isMarketLiquidityMiningV2(marketAddress)) {
-    let lmContract = PendleLm1Contract.bind(lm);
-    let pendleToken = loadToken(PENDLE_TOKEN_ADDRESS);
-    
-    // see if Liquidity Mining is deployed?
-    let tryContract = lmContract.try_startTime();
-    if (tryContract.reverted) {
-      return;
-    }
-    let currentEpoch = ZERO_BI;
-    let t = timestamp;
-    let startTime = lmContract.startTime();
-    let epochDuration = lmContract.epochDuration();
-    if (t.ge(startTime)) {
-      currentEpoch = (t.minus(startTime)).div(epochDuration).plus(ONE_BI);
-    }
-
-    let epochData = lmContract.readEpochData(currentEpoch);
-    let totalReward = epochData.value1;
-    let settingId = epochData.value0;
-
-    if (settingId.equals(ZERO_BI)) {
-      settingId = lmContract.latestSetting().value0;
-    }
-    let alloc = lmContract.allocationSettings(settingId, pair.expiry);
-    let actualReward = totalReward.times(alloc).div(LM_ALLOC_DENOM);
-
-    pair.reward = actualReward;
-    pair.pendleIncentives = convertTokenToDecimal(actualReward, pendleToken.decimals);
-    pair.save();
-    let totalStakeLp = lmContract.readExpiryData(pair.expiry).value0;
-    if (totalStakeLp.equals(ZERO_BI)) {
-      return;
-    }
-    let pendlePerLp = actualReward.div(totalStakeLp);
-    let pendlePerLpBD = convertTokenToDecimal(pendlePerLp, pendleToken.decimals);
-    
-    let lpPrice = getLpPrice(pair);
-    if (lpPrice.equals(ZERO_BD)) {
-      return;
-    }
-
-    let apw = pendlePerLpBD.times(getPendlePrice()).div(lpPrice);
-    pair.lpAPR = apw.times(DAYS_PER_YEAR_BD).div(DAYS_PER_WEEK_BD);
-    pair.save();
-    return;
-  }
-
-  return;
-}
-
 export function isMarketLiquidityMiningV2(marketAddress: Address): boolean {
   let lm = LiquidityMining.load(marketAddress.toHexString());
   if (lm == null) return false;
@@ -448,7 +404,7 @@ export function isMarketLiquidityMiningV2(marketAddress: Address): boolean {
 
 export function quickPowBD(x: BigDecimal, y: number): BigDecimal {
   let ans = ONE_BD;
-  while(y > 0) {
+  while (y > 0) {
     if (y % 2 == 1) ans = ans.times(x);
     x = x.times(x);
     x = x.truncate(-100);
@@ -459,5 +415,6 @@ export function quickPowBD(x: BigDecimal, y: number): BigDecimal {
 }
 
 export function getLpPrice(market: Pair): BigDecimal {
+  return market.reserveUSD.div(market.totalSupply);
   return calcMarketWorthUSD(market).div(market.totalSupply);
 }

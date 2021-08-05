@@ -14,6 +14,8 @@ import {
 } from "../uniswap/pricing";
 import {
   ERROR_COMPOUND_SUSHISWAP_PAIR,
+  isMainnet,
+  ONE_BD,
   ONE_HOUR,
   PENDLE_ETH_SUSHISWAP,
   PENDLE_TOKEN_ADDRESS,
@@ -112,6 +114,7 @@ export function updateSushiswapPair(
 }
 
 export function getPendlePrice(): BigDecimal {
+  if (!isMainnet) return ONE_BD;
   let pendleBalance = getBalanceOf(PENDLE_TOKEN_ADDRESS, PENDLE_ETH_SUSHISWAP);
   let wethBalance = getBalanceOf(WETH_ADDRESS, PENDLE_ETH_SUSHISWAP);
   let wethPrice = getEthPrice();

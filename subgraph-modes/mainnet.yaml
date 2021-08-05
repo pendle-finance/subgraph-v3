@@ -220,8 +220,8 @@ templates:
       eventHandlers:
         - event: Sync(uint256,uint256,uint256)
           handler: handleSync
-        # - event: Transfer(indexed address,indexed address,uint256)
-        #   handler: handleTransfer
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
         # - event: Mint(indexed address,uint256,uint256)
         #   handler: handleMint
   - kind: ethereum/contract
