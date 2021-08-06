@@ -474,3 +474,12 @@ type UserB @entity {
   lpHolding: BigDecimal!
   updatedAt: Int!
 }
+
+
+type UserMarketData @entity {
+  id: ID!
+  user: String!
+  market: String!
+  lpHolding: BigInt!
+  recordedUSDValue: BigDecimal!
+}

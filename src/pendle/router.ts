@@ -457,8 +457,7 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
 
   let lm = getLiquidityMining(event.params.market);
 
-  if (lm != null)
-    pair.liquidityMining = lm.id;
+  if (lm != null) pair.liquidityMining = lm.id;
 
   // create the tracked contract based on the template
   PendleMarketTemplate.create(event.params.market);

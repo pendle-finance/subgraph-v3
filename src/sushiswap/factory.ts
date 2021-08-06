@@ -95,6 +95,9 @@ export function updateSushiswapPair(
   let baseTokenPrice = getUniswapAddressPrice(baseTokenAddress as Address);
   let marketWorth = baseTokenPrice.times(baseTokenBalance).times(TWO_BD);
 
+  if (otBalance.equals(ZERO_BD) || marketWorth.equals(ZERO_BD))
+    return pair as SushiswapPair;
+
   let otPrice = marketWorth.div(TWO_BD).div(otBalance);
   pair.baseTokenPrice = baseTokenPrice;
   pair.updatedAt = timestamp;

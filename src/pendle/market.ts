@@ -1,5 +1,11 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { Pair, Token } from "../../generated/schema";
+import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import {
+  Pair,
+  Token,
+  UserA,
+  UserB,
+  UserMarketData
+} from "../../generated/schema";
 import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import {
   PendleMarket as PendleMarketContract,
@@ -19,6 +25,7 @@ import {
   ZERO_BD,
   ZERO_BI
 } from "../utils/consts";
+
 import {
   calcMarketWorthUSD,
   convertTokenToDecimal,
@@ -26,25 +33,72 @@ import {
   isMarketLiquidityMiningV2,
   loadToken
 } from "../utils/helpers";
+import { updateNFTData } from "../utils/nft";
 
 export function handleTransfer(event: TransferEvent): void {
-  let market = Pair.load(event.address.toHexString());
+  let market = Pair.load(event.address.toHexString()) as Pair;
   let from = event.params.from.toHexString();
   let to = event.params.to.toHexString();
+  let fromBalanceChange = ZERO_BI;
+  let toBalanceChange = ZERO_BI;
 
-  if (from == ADDRESS_ZERO) { 
-    // Mint
-
-  } else if (to == ADDRESS_ZERO) { 
-    // Burn
-  } else if (from == market.yieldTokenHolderAddress || to == market.yieldTokenHolderAddress) { 
+  if (
+    from == market.yieldTokenHolderAddress ||
+    to == market.yieldTokenHolderAddress
+  ) {
     // Stake & Withdraw
-    // Leave user's lp balance 
-
-  } else { 
+    // Leave user's lp balance
+  } else {
     // Normal Transfer
-
+    fromBalanceChange = event.params.value.times(BigInt.fromI32(-1));
+    toBalanceChange = event.params.value;
   }
+  updateUserMarketData(
+    event.params.from,
+    event.address,
+    fromBalanceChange,
+    event.block.timestamp.toI32()
+  );
+  updateUserMarketData(
+    event.params.to,
+    event.address,
+    toBalanceChange,
+    event.block.timestamp.toI32()
+  );
+}
+
+function loadUserMarketData(user: Address, market: Address): UserMarketData {
+  let id = user.toHexString() + "-" + market.toHexString();
+  let ins = UserMarketData.load(id);
+  if (ins != null) {
+    return ins as UserMarketData;
+  }
+  ins = new UserMarketData(id);
+  ins.user = user.toHexString();
+  ins.market = market.toHexString();
+  ins.lpHolding = ZERO_BI;
+  ins.recordedUSDValue = ZERO_BD;
+  ins.save();
+  return ins as UserMarketData;
+}
+
+function updateUserMarketData(
+  user: Address,
+  market: Address,
+  change: BigInt,
+  timestamp: number
+): void {
+  let pair = Pair.load(market.toHexString()) as Pair;
+  let ins = loadUserMarketData(user, market);
+  let lpPrice = getLpPrice(pair);
+
+  ins.lpHolding = ins.lpHolding.plus(change);
+  let usdChange = lpPrice
+    .times(ins.lpHolding.toBigDecimal())
+    .minus(ins.recordedUSDValue);
+  ins.recordedUSDValue = lpPrice.times(ins.lpHolding.toBigDecimal());
+  ins.save();
+  updateNFTData(user, usdChange, timestamp);
 }
 
 export function handleSync(event: SyncEvent): void {
@@ -181,6 +235,5 @@ function updateMarketLiquidityMiningApr(
     pair.yieldTokenHolderAddress = pair.liquidityMining;
     pair.save();
   }
-
   return;
 }

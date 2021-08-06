@@ -124,7 +124,7 @@ export function kovanHardcodedPrice(pool: Address): BigDecimal {
 }
 
 export function getKovanTokenPrice(token: Token): BigDecimal {
-  if(token.id == "0xd0a1e359811322d97991e03f863a0c30c2cf029c") {
+  if (token.id == "0xd0a1e359811322d97991e03f863a0c30c2cf029c") {
     return BigDecimal.fromString("2000");
   }
   if (token.id == "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa") {
