@@ -5,14 +5,15 @@ import {
   ethereum,
   log
 } from "@graphprotocol/graph-ts";
-import { Pair, PairHourData, Token } from "../generated/schema";
+import { Pair, PairHourData, Token, PairDailyData } from "../generated/schema";
 import { getUniswapTokenPrice } from "./uniswap/pricing";
 import {
   DAYS_PER_YEAR_BD,
   ONE_BD,
   ONE_DAY,
   ONE_HOUR,
-  ZERO_BD
+  ZERO_BD,
+  ZERO_BI
 } from "./utils/consts";
 import {
   calcMarketWorthUSD,
@@ -93,4 +94,80 @@ export function updatePairHourData(
   );
   pairHourData.save();
   return pairHourData as PairHourData;
+}
+
+export function updatePairDailyData(
+  event: ethereum.Event,
+  market: Pair
+): PairDailyData {
+  let timestamp = event.block.timestamp.toI32();
+  let dayID = timestamp / 86400;
+  let dayStartUnix = dayID * 86400;
+  let dayPairID = market.id
+    .concat("-")
+    .concat(BigInt.fromI32(dayID).toString());
+
+  let currentYieldTokenPrice = calcYieldTokenPrice(market);
+
+  let pairDayData = PairDailyData.load(dayPairID);
+  if (pairDayData == null) {
+    pairDayData = new PairDailyData(dayPairID);
+    pairDayData.dayStartUnix = dayStartUnix;
+    pairDayData.pair = market.id;
+    pairDayData.dailyVolumeToken0 = ZERO_BD;
+    pairDayData.dailyVolumeToken1 = ZERO_BD;
+    pairDayData.dailyVolumeUSD = ZERO_BD;
+    pairDayData.dailyTxns = ZERO_BI;
+
+    // Yield TOKEN PRICE
+    pairDayData.yieldTokenPrice_low = currentYieldTokenPrice;
+    pairDayData.yieldTokenPrice_high = currentYieldTokenPrice;
+    pairDayData.yieldTokenPrice_open = currentYieldTokenPrice;
+
+    // Base Token price
+    let baseToken = Token.load(market.token1);
+    pairDayData.baseTokenPrice = getUniswapTokenPrice(baseToken as Token);
+
+    // Underlying price
+    let yieldToken = Token.load(market.token0);
+    let yieldBearingToken = Token.load(yieldToken.underlyingAsset);
+    pairDayData.yieldBearingAssetPrice = getUniswapTokenPrice(
+      yieldBearingToken as Token
+    );
+  }
+
+  // update yield token prices
+  if (currentYieldTokenPrice.gt(pairDayData.yieldTokenPrice_high)) {
+    pairDayData.yieldTokenPrice_high = currentYieldTokenPrice;
+  }
+  if (currentYieldTokenPrice.lt(pairDayData.yieldTokenPrice_low)) {
+    pairDayData.yieldTokenPrice_low = currentYieldTokenPrice;
+  }
+  pairDayData.yieldTokenPrice_close = currentYieldTokenPrice;
+
+  // calculate annual yield percentage
+  let yieldTokenPriceUSD = currentYieldTokenPrice.times(
+    pairDayData.baseTokenPrice
+  );
+
+  let daysUntilExpiry = market.expiry
+    .toBigDecimal()
+    .minus(event.block.timestamp.toBigDecimal())
+    .div(ONE_DAY);
+
+  let impliedYieldPercentage = yieldTokenPriceUSD
+    .div(pairDayData.yieldBearingAssetPrice.minus(yieldTokenPriceUSD))
+    .div(daysUntilExpiry)
+    .times(DAYS_PER_YEAR_BD);
+
+  pairDayData.impliedYield = impliedYieldPercentage;
+  pairDayData.reserve0 = market.reserve0;
+  pairDayData.reserve1 = market.reserve1;
+  pairDayData.marketWorthUSD = calcMarketWorthUSD(market);
+  pairDayData.totalSupply = market.totalSupply;
+  pairDayData.lpTokenPrice = pairDayData.marketWorthUSD.div(
+    pairDayData.totalSupply
+  );
+  pairDayData.save();
+  return pairDayData as PairDailyData;
 }

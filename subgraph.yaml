@@ -24,6 +24,7 @@ dataSources:
         - DebugLog
         - SushiswapPair
         - LiquidityMiningV1
+        - PairDailyData
       abis:
         - name: PendleRouter
           file: ./abis/PendleRouter.json
@@ -203,6 +204,7 @@ templates:
         - SushiswapPair
         - LiquidityMiningV1
         - UserMarketData
+        - PairDailyData
       abis:
         - name: LiquidityMiningProxy
           file: ./abis/PendleLiquidityMiningProxy.json

@@ -47,50 +47,53 @@ export function updateNFTData(
     let thisWeek = timestamp / week;
 
     if (thisWeek > updatedWeek) {
-			if (user.lpHolding.ge(boxAmountX)) {
-				user.box = (user.box + getNumWeek(updatedWeek + 1, thisWeek - 1)) as i32;
-			}
-			if (user.lpHolding.ge(boxAmountY)) {
-				user.box = (user.box + getNumWeek(updatedWeek + 1, thisWeek - 1)) as i32;
-			}
-			if (user.lpMinThisWeek.ge(boxAmountX)) {
-				user.box = (user.box + 1) as i32;
-			}
-			if (user.lpMinThisWeek.ge(boxAmountY)) {
-				user.box = (user.box + 1) as i32;
-			}
+      if (user.lpHolding.ge(boxAmountX)) {
+        user.box = (user.box +
+          getNumWeek(updatedWeek + 1, thisWeek - 1)) as i32;
+      }
+      if (user.lpHolding.ge(boxAmountY)) {
+        user.box = (user.box +
+          getNumWeek(updatedWeek + 1, thisWeek - 1)) as i32;
+      }
+      if (user.lpMinThisWeek.ge(boxAmountX)) {
+        user.box = (user.box + 1) as i32;
+      }
+      if (user.lpMinThisWeek.ge(boxAmountY)) {
+        user.box = (user.box + 1) as i32;
+      }
     }
-		user.lpHolding = user.lpHolding.plus(change);
-		if (user.lpHolding.lt(user.lpMinThisWeek)) {
-			user.lpMinThisWeek = user.lpHolding;
-		}
-		user.updatedAt = timestamp as i32;
-		user.save();
+    user.lpHolding = user.lpHolding.plus(change);
+    if (user.lpHolding.lt(user.lpMinThisWeek)) {
+      user.lpMinThisWeek = user.lpHolding;
+    }
+    user.updatedAt = timestamp as i32;
+    user.save();
   } else {
     // Mystery Box B
-		let user = loadUserB(_user);
-		let updatedWeek = user.updatedAt / week;
+    let user = loadUserB(_user);
+    let updatedWeek = user.updatedAt / week;
     let thisWeek = timestamp / week;
 
-		if (thisWeek > updatedWeek) {
-			if (user.lpHolding.ge(boxAmountY)) {
-				user.box = (user.box + getNumWeek(updatedWeek + 1, thisWeek - 1)) as i32;
-			}
-			if (user.lpMinToday.ge(boxAmountY)) {
-				user.box = (user.box + 1) as i32;
-			}
+    if (thisWeek > updatedWeek) {
+      if (user.lpHolding.ge(boxAmountY)) {
+        user.box = (user.box +
+          getNumWeek(updatedWeek + 1, thisWeek - 1)) as i32;
+      }
+      if (user.lpMinToday.ge(boxAmountY)) {
+        user.box = (user.box + 1) as i32;
+      }
     }
-		user.lpHolding = user.lpHolding.plus(change);
-		if (user.lpHolding.lt(user.lpMinToday)) {
-			user.lpMinToday = user.lpHolding;
-		}
-		user.updatedAt = timestamp as i32;
-		user.save();
+    user.lpHolding = user.lpHolding.plus(change);
+    if (user.lpHolding.lt(user.lpMinToday)) {
+      user.lpMinToday = user.lpHolding;
+    }
+    user.updatedAt = timestamp as i32;
+    user.save();
   }
 }
 
 function getNumWeek(l: number, r: number): number {
-	if (startWeekId > l) l = startWeekId;
-	if (l > r) return 0;
-	return r - l + 1;
+  if (startWeekId > l) l = startWeekId;
+  if (l > r) return 0;
+  return r - l + 1;
 }

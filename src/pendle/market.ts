@@ -1,11 +1,5 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
-import {
-  Pair,
-  Token,
-  UserA,
-  UserB,
-  UserMarketData
-} from "../../generated/schema";
+import { Pair, Token, UserMarketData } from "../../generated/schema";
 import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import {
   PendleMarket as PendleMarketContract,
@@ -14,7 +8,6 @@ import {
 } from "../../generated/templates/PendleMarket/PendleMarket";
 import { getPendlePrice } from "../sushiswap/factory";
 import {
-  ADDRESS_ZERO,
   DAYS_PER_WEEK_BD,
   DAYS_PER_YEAR_BD,
   LM_ALLOC_DENOM,
@@ -33,7 +26,6 @@ import {
   isMarketLiquidityMiningV2,
   loadToken
 } from "../utils/helpers";
-import { updateNFTData } from "../utils/nft";
 
 export function handleTransfer(event: TransferEvent): void {
   let market = Pair.load(event.address.toHexString()) as Pair;
@@ -98,7 +90,6 @@ function updateUserMarketData(
     .minus(ins.recordedUSDValue);
   ins.recordedUSDValue = lpPrice.times(ins.lpHolding.toBigDecimal());
   ins.save();
-  updateNFTData(user, usdChange, timestamp);
 }
 
 export function handleSync(event: SyncEvent): void {
