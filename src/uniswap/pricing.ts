@@ -136,6 +136,9 @@ export function getKovanTokenPrice(token: Token): BigDecimal {
   if (token.id == "0x13512979ade267ab5100878e2e0f485b568328a4") {
     return ONE_BD;
   }
+  if (token.id == "0xb7a4f3e9097c08da09517b5ab877f7a917224ede") {
+    return ONE_BD;
+  }
   if (token.id == PENDLE_TOKEN_ADDRESS.toHexString()) {
     return ONE_BD;
   }

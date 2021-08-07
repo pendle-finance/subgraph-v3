@@ -1,10 +1,11 @@
 import { Address, BigDecimal } from "@graphprotocol/graph-ts";
 import { UserA, UserB } from "../../generated/schema";
-import { ZERO_BD } from "./consts";
+import { ADDRESS_ZERO, ZERO_BD } from "./consts";
 
 let startWeekId = -1;
 let boxAmountX = BigDecimal.fromString("160");
 let boxAmountY = BigDecimal.fromString("800");
+let INF_BD = BigDecimal.fromString("100000000000000");
 
 function loadUserA(user: Address): UserA {
   let user_a = UserA.load(user.toHexString());
@@ -12,8 +13,8 @@ function loadUserA(user: Address): UserA {
 
   user_a = new UserA(user.toHexString());
   user_a.box = 0;
-  user_a.lpMinThisWeek = ZERO_BD;
   user_a.lpHolding = ZERO_BD;
+  user_a.lpMinThisWeek = INF_BD;
   user_a.updatedAt = 0;
   user_a.actionThisWeek = 0;
   user_a.save();
@@ -27,7 +28,7 @@ function loadUserB(user: Address): UserB {
   user_b = new UserB(user.toHexString());
   user_b.box = 0;
   user_b.lpHolding = ZERO_BD;
-  user_b.lpMinToday = ZERO_BD;
+  user_b.lpMinToday = INF_BD;
   user_b.updatedAt = 0;
   user_b.save();
   return user_b as UserB;
@@ -38,6 +39,9 @@ export function updateNFTData(
   change: BigDecimal,
   timestamp: number
 ): void {
+	if (_user.toHexString() == ADDRESS_ZERO || change.equals(ZERO_BD)) {
+		return;
+	}
   let isBoxB = false;
   let week = 86400 * 7;
   if (!isBoxB) {

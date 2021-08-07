@@ -1,5 +1,6 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import {
+  LpTransferEvent,
   Pair,
   Token,
   UserA,
@@ -53,6 +54,21 @@ export function handleTransfer(event: TransferEvent): void {
     fromBalanceChange = event.params.value.times(BigInt.fromI32(-1));
     toBalanceChange = event.params.value;
   }
+
+  if (fromBalanceChange.plus(toBalanceChange).equals(ZERO_BI)) {
+    return;
+  }
+
+  let transferEvent = new LpTransferEvent(event.transaction.hash.toHexString());
+  transferEvent.from = from;
+  transferEvent.to = to;
+  transferEvent.market = market.id;
+  transferEvent.lpPrice = getLpPrice(market);
+  transferEvent.amount = event.params.value;
+  transferEvent.timestamp = event.block.timestamp;
+  transferEvent.block = event.block.number;
+  transferEvent.save();
+
   updateUserMarketData(
     event.params.from,
     event.address,

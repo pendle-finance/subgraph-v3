@@ -483,3 +483,14 @@ type UserMarketData @entity {
   lpHolding: BigInt!
   recordedUSDValue: BigDecimal!
 }
+
+type LpTransferEvent @entity {
+  id: ID! # txn hash
+  from: String!
+  to: String!
+  market: String!
+  lpPrice: BigDecimal!
+  amount: BigInt!
+  timestamp: BigInt!
+  block: BigInt!
+}
