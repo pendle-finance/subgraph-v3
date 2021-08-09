@@ -32,7 +32,8 @@ import {
   convertTokenToDecimal,
   getLpPrice,
   isMarketLiquidityMiningV2,
-  loadToken
+  loadToken,
+  printDebug
 } from "../utils/helpers";
 import { updateNFTData } from "../utils/nft";
 
@@ -55,7 +56,7 @@ export function handleTransfer(event: TransferEvent): void {
     toBalanceChange = event.params.value;
   }
 
-  if (fromBalanceChange.plus(toBalanceChange).equals(ZERO_BI)) {
+  if (fromBalanceChange.equals(ZERO_BI) && toBalanceChange.equals(ZERO_BI)) {
     return;
   }
 
@@ -109,8 +110,8 @@ function updateUserMarketData(
   let lpPrice = getLpPrice(pair);
 
   ins.lpHolding = ins.lpHolding.plus(change);
-  let usdChange = lpPrice
-    .times(ins.lpHolding.toBigDecimal())
+  let usdChange = (lpPrice
+    .times(ins.lpHolding.toBigDecimal()))
     .minus(ins.recordedUSDValue);
   ins.recordedUSDValue = lpPrice.times(ins.lpHolding.toBigDecimal());
   ins.save();

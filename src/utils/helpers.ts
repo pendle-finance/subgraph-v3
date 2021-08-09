@@ -416,5 +416,4 @@ export function quickPowBD(x: BigDecimal, y: number): BigDecimal {
 
 export function getLpPrice(market: Pair): BigDecimal {
   return market.reserveUSD.div(market.totalSupply);
-  return calcMarketWorthUSD(market).div(market.totalSupply);
 }
