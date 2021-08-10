@@ -38,6 +38,9 @@ import {
 import { updateNFTData } from "../utils/nft";
 
 export function handleTransfer(event: TransferEvent): void {
+  // To make sure that theres lp holder
+  updateMarketLiquidityMiningApr(event.address, event.block.timestamp);
+
   let market = Pair.load(event.address.toHexString()) as Pair;
   let from = event.params.from.toHexString();
   let to = event.params.to.toHexString();
@@ -55,12 +58,11 @@ export function handleTransfer(event: TransferEvent): void {
     fromBalanceChange = event.params.value.times(BigInt.fromI32(-1));
     toBalanceChange = event.params.value;
   }
-
   if (fromBalanceChange.equals(ZERO_BI) && toBalanceChange.equals(ZERO_BI)) {
     return;
   }
 
-  let transferEvent = new LpTransferEvent(event.transaction.hash.toHexString());
+  let transferEvent = new LpTransferEvent(event.transaction.hash.toHexString() + "-" + from + "-" + to);
   transferEvent.from = from;
   transferEvent.to = to;
   transferEvent.market = market.id;

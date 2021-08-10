@@ -17,7 +17,8 @@
     "deploy:mainnet": "yarn mode:mainnet && yarn codegen && graph deploy ngfam/pendle --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
     "deploy:kovan": "yarn mode:kovan && yarn codegen && graph deploy ngfam/pendle-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
     "deploy:test": "yarn mode:mainnet && yarn codegen && graph deploy ngfam/pendle-mainnet2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
-    "deploy:nft": "yarn mode:mainnet && yarn codegen && graph deploy ngfam/pendle-nft --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261"
+    "deploy:nft": "yarn mode:mainnet && yarn codegen && graph deploy ngfam/pendle-nft --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
+    "deploy:nft2": "yarn mode:mainnet && yarn codegen && graph deploy ngfam/pendle-nft2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261" 
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.19.0",

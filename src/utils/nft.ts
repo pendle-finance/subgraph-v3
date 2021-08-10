@@ -69,7 +69,7 @@ export function updateNFTData(
       if (updatedWeek >= startWeekId && user.lpMinThisWeek.ge(boxAmountY)) {
         user.box = (user.box + 1) as i32;
       }
-	  user.lpMinThisWeek = INF_BD;
+	  user.lpMinThisWeek = user.lpHolding;
 	}
     user.lpHolding = user.lpHolding.plus(change);
     if (user.lpHolding.lt(user.lpMinThisWeek)) {
@@ -91,7 +91,7 @@ export function updateNFTData(
       if (user.lpMinToday.ge(boxAmountY)) {
         user.box = (user.box + 1) as i32;
       }
-	  user.lpMinToday = INF_BD;
+	  user.lpMinToday = user.lpHolding;
     }
     user.lpHolding = user.lpHolding.plus(change);
     if (user.lpHolding.lt(user.lpMinToday)) {
