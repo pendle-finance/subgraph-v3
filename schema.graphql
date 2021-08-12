@@ -229,6 +229,7 @@ type User @entity {
 
 type LiquidityMining @entity {
   id: ID! # for v1, id will be LiqMining's address, for V2, it should be ERC20's address
+  lmAddress: String
 }
 
 type LiquidityPosition @entity {
@@ -421,6 +422,10 @@ type SushiswapPair @entity {
   otPrice: BigDecimal
   totalTradingUSD: BigDecimal!
 
+  totalStaked: BigInt
+  totalReward: BigInt
+  lpPrice: BigDecimal
+
 
   isOtToken0: Boolean!
   aprPercentage: BigDecimal
@@ -450,31 +455,6 @@ type DebugLog @entity {
   type: String!
   length: BigInt
 }
-
-############## NFT PROGRAM ######################
-type UserA @entity {
-  id: ID! # user address
-  box: Int!
-
-  # LP variables
-  lpMinThisWeek: BigDecimal!
-  lpHolding: BigDecimal!
-  updatedAt: Int!
-
-  # action value
-  actionThisWeek: Int!
-}
-
-type UserB @entity {
-  id: ID! # user address
-  box: Int!
-  
-  # LP variables
-  lpMinToday: BigDecimal!
-  lpHolding: BigDecimal!
-  updatedAt: Int!
-}
-
 
 type UserMarketData @entity {
   id: ID!

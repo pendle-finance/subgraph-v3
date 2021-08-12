@@ -3,8 +3,6 @@ import {
   LpTransferEvent,
   Pair,
   Token,
-  UserA,
-  UserB,
   UserMarketData
 } from "../../generated/schema";
 import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
@@ -35,7 +33,6 @@ import {
   loadToken,
   printDebug
 } from "../utils/helpers";
-import { updateNFTData } from "../utils/nft";
 
 export function handleTransfer(event: TransferEvent): void {
   // To make sure that theres lp holder
@@ -62,7 +59,9 @@ export function handleTransfer(event: TransferEvent): void {
     return;
   }
 
-  let transferEvent = new LpTransferEvent(event.transaction.hash.toHexString() + "-" + from + "-" + to);
+  let transferEvent = new LpTransferEvent(
+    event.transaction.hash.toHexString() + "-" + from + "-" + to
+  );
   transferEvent.from = from;
   transferEvent.to = to;
   transferEvent.market = market.id;
@@ -112,12 +111,11 @@ function updateUserMarketData(
   let lpPrice = getLpPrice(pair);
 
   ins.lpHolding = ins.lpHolding.plus(change);
-  let usdChange = (lpPrice
-    .times(ins.lpHolding.toBigDecimal()))
+  let usdChange = lpPrice
+    .times(ins.lpHolding.toBigDecimal())
     .minus(ins.recordedUSDValue);
   ins.recordedUSDValue = lpPrice.times(ins.lpHolding.toBigDecimal());
   ins.save();
-  updateNFTData(user, usdChange, timestamp);
 }
 
 export function handleSync(event: SyncEvent): void {
