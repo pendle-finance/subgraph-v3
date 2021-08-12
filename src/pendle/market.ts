@@ -13,7 +13,6 @@ import {
 } from "../../generated/templates/PendleMarket/PendleMarket";
 import { getPendlePrice } from "../sushiswap/factory";
 import {
-  ADDRESS_ZERO,
   DAYS_PER_WEEK_BD,
   DAYS_PER_YEAR_BD,
   LM_ALLOC_DENOM,

@@ -9,9 +9,10 @@ import { LiquidityPool, Pair, Swap, Token } from "../../generated/schema";
 import { PendleMarket as PendleMarketTemplate } from "../../generated/templates";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
 import { getUniswapTokenPrice } from "../uniswap/pricing";
-import { updatePairHourData } from "../updates";
+import { updatePairDailyData, updatePairHourData } from "../updates";
 import {
   ERROR_COMPOUND_MARKET,
+  ONE_BD,
   ONE_BI,
   RONE,
   RONE_BD,
@@ -109,19 +110,39 @@ export function handleSwap(event: SwapEvent): void {
 
   swap.save();
   let pairHourData = updatePairHourData(event, pair as Pair);
+  let pairDayData = updatePairDailyData(event, pair as Pair);
   if (inToken.underlyingAsset != "") {
     // inToken is YT
+
+    /// HOURLY
     pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
       amountIn
     );
     pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
       amountOut
     );
+    
+    /// DAILY
+    pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
+      amountIn
+    );
+    pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
+      amountOut
+    );
   } else {
+    /// HOURLY
     pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
       amountOut
     );
     pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
+      amountIn
+    );
+
+    /// DAILY
+    pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
+      amountOut
+    );
+    pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
       amountIn
     );
   }
@@ -129,7 +150,14 @@ export function handleSwap(event: SwapEvent): void {
     derivedAmountUSD
   );
   pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
+
+  pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(
+    derivedAmountUSD
+  );
+  pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
+
   pairHourData.save();
+  pairDayData.save();
 }
 
 export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
@@ -189,6 +217,10 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
   pairHourData.save();
 
+  let pairDayData = updatePairDailyData(event, pair as Pair);
+  pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
+  pairDayData.save();
+
   //Calculating swap fees for add single liq only
   if (
     event.params.token0Amount.notEqual(ZERO_BI) &&
@@ -244,14 +276,13 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
     let lpOut = event.params.exactOutLp.toBigDecimal();
     let totalLp = pair.totalSupply;
     let token0Weight = pair.token0WeightRaw.toBigDecimal().div(RONE_BD);
-
     let token0Lp = lpOut.times(token0Weight);
     let token1Lp = lpOut.minus(token0Lp);
-
-    let token0Amount = pair.reserve0.times(token0Lp).div(totalLp);
-    let token1Amount = pair.reserve1.times(token1Lp).div(totalLp);
-
+    let token0Amount = pair.reserve0.times(token0Lp).div(totalLp.times(token0Weight));
+    let token1Amount = pair.reserve1.times(token1Lp).div(totalLp.times(ONE_BD.minus(token0Weight)));
     let volumeUSD = token1Amount.times(getUniswapTokenPrice(inToken1 as Token));
+
+    /// HOURLY
     pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
       token0Amount
     );
@@ -259,8 +290,18 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
       token1Amount
     );
     pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(volumeUSD);
+
+    /// DAILY
+    pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
+      token0Amount
+    );
+    pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
+      token1Amount
+    );
+    pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(volumeUSD);
   }
   pairHourData.save();
+  pairDayData.save();
 }
 
 export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
@@ -319,6 +360,10 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   let pairHourData = updatePairHourData(event, pair as Pair);
   pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
   pairHourData.save();
+
+  let pairDayData = updatePairDailyData(event, pair as Pair);
+  pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
+  pairDayData.save();
 
   if (
     event.params.token0Amount.notEqual(ZERO_BI) &&
@@ -381,12 +426,14 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
     let token0Weight = pair.token0WeightRaw.toBigDecimal().div(RONE_BD);
     let token0Lp = lpIn.times(token0Weight);
     let token1Lp = lpIn.minus(token0Lp);
-    let token0Amount = reserve0.times(token0Lp).div(totalLp);
-    let token1Amount = reserve1.times(token1Lp).div(totalLp);
+    let token0Amount = reserve0.times((token0Lp).div(totalLp.times(token0Weight)));
+    let token1Amount = reserve1.times((token1Lp).div(totalLp.times(ONE_BD.minus(token0Weight))));
 
     let volumeUSD = token1Amount.times(
       getUniswapTokenPrice(outToken1 as Token)
     );
+    
+    /// HOURLY
     pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
       token0Amount
     );
@@ -394,8 +441,17 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
       token1Amount
     );
     pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(volumeUSD);
-  }
 
+    /// DAILY
+    pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
+      token0Amount
+    );
+    pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
+      token1Amount
+    );
+    pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(volumeUSD);
+  }
+  pairDayData.save();
   pairHourData.save();
 }
 

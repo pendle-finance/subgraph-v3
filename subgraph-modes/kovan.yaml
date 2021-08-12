@@ -23,6 +23,7 @@ dataSources:
         - UniswapPool
         - DebugLog
         - SushiswapPair
+        - PairDailyData
       abis:
         - name: PendleRouter
           file: ./abis/PendleRouter.json
@@ -227,6 +228,7 @@ templates:
         - UniswapPool
         - DebugLog
         - SushiswapPair
+        - PairDailyData
       abis:
         - name: LiquidityMiningProxy
           file: ./abis/PendleLiquidityMiningProxy.json

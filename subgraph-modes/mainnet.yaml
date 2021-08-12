@@ -23,7 +23,12 @@ dataSources:
         - UniswapPool
         - DebugLog
         - SushiswapPair
+<<<<<<< HEAD
         - LiquidityMining
+=======
+        - LiquidityMiningV1
+        - PairDailyData
+>>>>>>> refractor-codebase
       abis:
         - name: PendleRouter
           file: ./abis/PendleRouter.json
@@ -229,6 +234,7 @@ templates:
         - SushiswapPair
         - LiquidityMining
         - UserMarketData
+        - PairDailyData
       abis:
         - name: LiquidityMiningProxy
           file: ./abis/PendleLiquidityMiningProxy.json
