@@ -341,9 +341,10 @@ templates:
           file: ./abis/PendleLiquidityMiningV2.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
       eventHandlers:
         - event: Staked(address,uint256)
           handler: handleStake
         - event: Withdrawn(address,uint256)
           handler: handleWithdrawn
-        
