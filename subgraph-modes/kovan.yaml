@@ -317,3 +317,37 @@ templates:
           handler: handleStake
         - event: Withdrawn(uint256,address,uint256)
           handler: handleWithdrawn
+  - kind: ethereum/contract
+    name: PendleLiquidityMiningV2
+    network: kovan
+    source:
+      abi: PendleLiquidityMiningV2
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/pendle/liquidity-mining-v2.ts
+      entities:
+        - LiquidityMining
+        - Pair
+        - Token
+        - DebugLog
+        - SushiswapPair
+      abis:
+        - name: UniswapPool
+          file: ./abis/uniswap/pool.json
+        - name: PendleMarket
+          file: ./abis/PendleMarket.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: PendleLiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
+        - name: SushiswapPair
+          file: ./abis/sushiswap/pair.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
+      eventHandlers:
+        - event: Staked(address,uint256)
+          handler: handleStake
+        - event: Withdrawn(address,uint256)
+          handler: handleWithdrawn

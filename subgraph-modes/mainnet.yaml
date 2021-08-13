@@ -335,6 +335,8 @@ templates:
         - DebugLog
         - SushiswapPair
       abis:
+        - name: UniswapPool
+          file: ./abis/uniswap/pool.json
         - name: PendleMarket
           file: ./abis/PendleMarket.json
         - name: ERC20

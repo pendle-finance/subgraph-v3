@@ -190,7 +190,7 @@ type Pair @entity {
 
   pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
 
-  liquidityMining: String!
+  liquidityMining: String
   lpAPR: BigDecimal
   yieldTokenHolderAddress: String
 }
