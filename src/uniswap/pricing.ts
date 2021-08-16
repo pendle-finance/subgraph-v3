@@ -75,7 +75,6 @@ export function getUnderlyingPrice(tokenAddress: Address): BigDecimal {
     // tokenPrice = token/eth * eth price
     return getPoolPrice(poolAddress, tokenAddress).times(getEthPrice());
   } else {
-    // try find a pool with stable usd coin
     for (let i = 0; i < STABLE_USD_TOKENS.length; ++i) {
       let usdToken = STABLE_USD_TOKENS[i];
       let poolAddress = getUniswapPoolAddress(tokenAddress, usdToken);
@@ -124,10 +123,10 @@ export function kovanHardcodedPrice(pool: Address): BigDecimal {
 }
 
 export function getKovanTokenPrice(token: Token): BigDecimal {
-  if (token.id == "0xd0a1e359811322d97991e03f863a0c30c2cf029c") {
+  if (token.id == "0xd0a1e359811322d97991e03f863a0c30c2cf029c") { // ethereum
     return BigDecimal.fromString("2000");
   }
-  if (token.id == "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa") {
+  if (token.id == "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa") { // USD DAI
     return ONE_BD;
   }
   if (token.id == "0xe22da380ee6b445bb8273c81944adeb6e8450422") {
@@ -139,7 +138,7 @@ export function getKovanTokenPrice(token: Token): BigDecimal {
   if (token.id == "0xb7a4f3e9097c08da09517b5ab877f7a917224ede") {
     return ONE_BD;
   }
-  if (token.id == PENDLE_TOKEN_ADDRESS.toHexString()) {
+  if (token.id == PENDLE_TOKEN_ADDRESS.toHexString()) { /// PENDLE
     return ONE_BD;
   }
   return BigDecimal.fromString("0");

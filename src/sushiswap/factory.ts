@@ -2,7 +2,6 @@ import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
   SushiswapPair,
   Token,
-  SushiswapPairToOt,
   SushiswapPairHourData,
   LiquidityMining
 } from "../../generated/schema";
@@ -66,34 +65,26 @@ export function handleNewSushiswapPair(event: SushiswapPairCreatedEvent): void {
   if (id != "") {
     // OT Market found
     SushiswapPairTemplate.create(event.params.pair);
-    let otMarket = new SushiswapPair(id);
+    let otMarket = new SushiswapPair(event.params.pair.toHexString());
+    otMarket.otToken = id;
     otMarket.baseToken = baseToken;
-
     otMarket.isOtToken0 = isOwnershipToken(event.params.token0);
 
     otMarket.totalTradingUSD = ZERO_BD;
-    otMarket.poolAddress = event.params.pair.toHexString();
-    otMarket.pendleIncentives = getPendleIncentives(
-      Address.fromHexString(otMarket.poolAddress) as Address
-    );
     otMarket.save();
     updateSushiswapPair(
       Address.fromHexString(otMarket.id) as Address,
       event.block.timestamp
     );
-
-    let otMap = new SushiswapPairToOt(otMarket.poolAddress);
-    otMap.otAddress = otMarket.id;
-    otMap.save();
   }
 }
 
 export function updateSushiswapPair(
-  otAddress: Address,
+  pairAddress: Address,
   timestamp: BigInt
 ): SushiswapPair {
-  let pair = SushiswapPair.load(otAddress.toHexString());
-  let pairAddress = Address.fromHexString(pair.poolAddress);
+  let pair = SushiswapPair.load(pairAddress.toHexString());
+  let otAddress = Address.fromHexString(pair.otToken);
   let baseTokenAddress = Address.fromHexString(pair.baseToken);
   let otBalance = getBalanceOf(otAddress as Address, pairAddress as Address);
   let baseTokenBalance = getBalanceOf(
@@ -113,12 +104,6 @@ export function updateSushiswapPair(
   pair.baseTokenBalance = baseTokenBalance;
   pair.otBalance = otBalance;
   pair.otPrice = otPrice;
-  pair.aprPercentage = pair.pendleIncentives
-    .times(getPendlePrice())
-    .div(marketWorth)
-    .div(BigDecimal.fromString("7")) // ONE WEEK
-    .times(BigDecimal.fromString("365")) // ONE YEAR
-    .times(BigDecimal.fromString("100"));
   pair.lpPrice = ONE_BD;
   pair.totalStaked = ZERO_BI;
   pair.aprPercentage = ZERO_BD;
@@ -129,13 +114,13 @@ export function updateSushiswapPair(
 }
 
 export function getOtApr(pair: SushiswapPair, timestamp: BigInt): void {
-  let lmInstance = LiquidityMining.load(pair.poolAddress);
+  let lmInstance = LiquidityMining.load(pair.id);
   if (lmInstance == null) return;
   let lmContract = LiquidityMiningV2.bind(
     Address.fromHexString(lmInstance.lmAddress) as Address
   );
   let pairContract = SushiswapPairContract.bind(
-    Address.fromHexString(pair.poolAddress) as Address
+    Address.fromHexString(pair.id) as Address
   );
   let totalSupply = pairContract.totalSupply();
 
@@ -157,9 +142,6 @@ export function getOtApr(pair: SushiswapPair, timestamp: BigInt): void {
   );
   let totalStaked = lmContract.totalStake();
   let totalReward = epochData.value1;
-
-  printDebug(currentEpoch.toString(), "bug");
-  printDebug("Redeploy message", "caching");
 
   if (totalStaked.equals(ZERO_BI)) return;
 
@@ -190,34 +172,8 @@ export function getPendlePrice(): BigDecimal {
   return wethPrice.times(wethBalance).div(pendleBalance);
 }
 
-export function getPendleIncentives(poolAddress: Address): BigDecimal {
-  if (
-    poolAddress.toHexString() == "0x0d8a21f2ea15269b7470c347083ee1f85e6a723b"
-  ) {
-    return BigDecimal.fromString("90000");
-  }
-  if (
-    poolAddress.toHexString() == "0x4556c4488cc16d5e9552cc1a99a529c1392e4fe9"
-  ) {
-    return BigDecimal.fromString("90000");
-  }
-  if (
-    poolAddress.toHexString() == "0x8b758d7fd0fc58fca8caa5e53af2c7da5f5f8de1"
-  ) {
-    return BigDecimal.fromString("10000");
-  }
-  if (
-    poolAddress.toHexString() == "0x2c80d72af9ab0bb9d98f607c817c6f512dd647e6"
-  ) {
-    return BigDecimal.fromString("7000");
-  }
-  return BigDecimal.fromString("0");
-}
-
 export function handleSwapSushiswap(event: SwapEvent): void {
-  let otMap = SushiswapPairToOt.load(event.address.toHexString());
-  let otAddress = Address.fromHexString(otMap.otAddress);
-  let pair = updateSushiswapPair(otAddress as Address, event.block.timestamp);
+  let pair = updateSushiswapPair(event.address, event.block.timestamp);
   let baseToken = loadToken(
     Address.fromHexString(pair.baseToken) as Address
   ) as Token;
@@ -251,7 +207,6 @@ export function handleSwapSushiswap(event: SwapEvent): void {
     sushiswapPairHourData.otAddress = pair.id;
     sushiswapPairHourData.tradingVolumeUSD = ZERO_BD;
     sushiswapPairHourData.hourStartUnix = hourStartUnix;
-    sushiswapPairHourData.poolAddress = pair.poolAddress;
   }
 
   pair.totalTradingUSD = pair.totalTradingUSD.plus(tradingValue);
@@ -264,8 +219,6 @@ export function handleSwapSushiswap(event: SwapEvent): void {
 }
 
 export function handleUpdateSushiswap(event: SwapEvent): void {
-  let otMap = SushiswapPairToOt.load(event.address.toHexString());
-  let otAddress = Address.fromHexString(otMap.otAddress);
-  let pair = updateSushiswapPair(otAddress as Address, event.block.timestamp);
+  let pair = updateSushiswapPair(event.address, event.block.timestamp);
   return;
 }

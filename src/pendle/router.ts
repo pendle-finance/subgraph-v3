@@ -121,7 +121,6 @@ export function handleSwap(event: SwapEvent): void {
     pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
       amountOut
     );
-    
     /// DAILY
     pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
       amountIn
@@ -278,8 +277,12 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
     let token0Weight = pair.token0WeightRaw.toBigDecimal().div(RONE_BD);
     let token0Lp = lpOut.times(token0Weight);
     let token1Lp = lpOut.minus(token0Lp);
-    let token0Amount = pair.reserve0.times(token0Lp).div(totalLp.times(token0Weight));
-    let token1Amount = pair.reserve1.times(token1Lp).div(totalLp.times(ONE_BD.minus(token0Weight)));
+    let token0Amount = pair.reserve0
+      .times(token0Lp)
+      .div(totalLp.times(token0Weight));
+    let token1Amount = pair.reserve1
+      .times(token1Lp)
+      .div(totalLp.times(ONE_BD.minus(token0Weight)));
     let volumeUSD = token1Amount.times(getUniswapTokenPrice(inToken1 as Token));
 
     /// HOURLY
@@ -426,13 +429,17 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
     let token0Weight = pair.token0WeightRaw.toBigDecimal().div(RONE_BD);
     let token0Lp = lpIn.times(token0Weight);
     let token1Lp = lpIn.minus(token0Lp);
-    let token0Amount = reserve0.times((token0Lp).div(totalLp.times(token0Weight)));
-    let token1Amount = reserve1.times((token1Lp).div(totalLp.times(ONE_BD.minus(token0Weight))));
+    let token0Amount = reserve0.times(
+      token0Lp.div(totalLp.times(token0Weight))
+    );
+    let token1Amount = reserve1.times(
+      token1Lp.div(totalLp.times(ONE_BD.minus(token0Weight)))
+    );
 
     let volumeUSD = token1Amount.times(
       getUniswapTokenPrice(outToken1 as Token)
     );
-    
+
     /// HOURLY
     pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
       token0Amount
