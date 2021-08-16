@@ -445,9 +445,8 @@ type UniswapTokenPrice @entity {
 
 type SushiswapPair @entity {
   id: ID! # OT Address
-  poolAddress: String!
-  baseToken: String!
-  pendleIncentives: BigDecimal! # per week
+  otToken: Token!
+  baseToken: Token!
   marketWorthUSD: BigDecimal
   baseTokenBalance: BigDecimal
   baseTokenPrice: BigDecimal
@@ -470,12 +469,6 @@ type SushiswapPairHourData @entity {
   hourStartUnix: Int!
   otAddress: String!
   tradingVolumeUSD: BigDecimal!
-  poolAddress: String!
-}
-
-type SushiswapPairToOt @entity {
-  id: ID!
-  otAddress: String!
 }
 
 ############## DEBUG ############################

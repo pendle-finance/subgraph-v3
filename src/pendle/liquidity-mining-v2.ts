@@ -1,4 +1,4 @@
-import { SushiswapPair, SushiswapPairToOt } from "../../generated/schema";
+import { SushiswapPair } from "../../generated/schema";
 import {
   PendleLiquidityMiningV2 as LMv2Contract,
   Staked as StakeEvent,
@@ -10,9 +10,7 @@ import { getOtApr } from "../sushiswap/factory";
 export function handleStake(event: StakeEvent): void {
   let lmContract = LMv2Contract.bind(event.address);
   let poolAddress = lmContract.stakeToken();
-  let otMap = SushiswapPairToOt.load(poolAddress.toHexString());
-  if (otMap == null) return;
-  let pair = SushiswapPair.load(otMap.otAddress);
+  let pair = SushiswapPair.load(poolAddress.toHexString());
   if (pair == null) return;
   getOtApr(pair as SushiswapPair, event.block.timestamp);
 }
@@ -20,9 +18,7 @@ export function handleStake(event: StakeEvent): void {
 export function handleWithdrawn(event: WithdrawnEvent): void {
   let lmContract = LMv2Contract.bind(event.address);
   let poolAddress = lmContract.stakeToken();
-  let otMap = SushiswapPairToOt.load(poolAddress.toHexString());
-  if (otMap == null) return;
-  let pair = SushiswapPair.load(otMap.otAddress);
+  let pair = SushiswapPair.load(poolAddress.toHexString());
   if (pair == null) return;
   getOtApr(pair as SushiswapPair, event.block.timestamp);
 }
