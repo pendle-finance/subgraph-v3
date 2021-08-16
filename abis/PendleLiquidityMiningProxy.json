@@ -1,0 +1,168 @@
+[
+    {
+      "inputs": [
+        {
+          "internalType": "contract PendleLiquidityMiningBase",
+          "name": "liqMining",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "expiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "redeemAndCalculateAccruing",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "userStakeUnits",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "userStake",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalStakeUnits",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalStake",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "userTentativeReward",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract PendleLiquidityMiningBaseV2",
+          "name": "liqMiningV2",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "redeemAndCalculateAccruingV2",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "userStakeUnits",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "userStake",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalStakeUnits",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalStake",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "userTentativeReward",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract PendleLiquidityMiningBase",
+          "name": "liqMiningContract",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "expiries",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "redeemAndCalculateVested",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "rewards",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "vestedRewards",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "currentEpoch",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract PendleLiquidityMiningBaseV2",
+          "name": "liqMiningContractV2",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "redeemAndCalculateVestedV2",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "rewards",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "vestedRewards",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "currentEpoch",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]

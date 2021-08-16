@@ -8,27 +8,35 @@ import {
 import {
   ERC20,
   Transfer as TransferEvent
-} from "../generated/templates/PendleMarket/ERC20";
-import { ERC20SymbolBytes } from "../generated/templates/IPendleForge/ERC20SymbolBytes";
-import { ERC20NameBytes } from "../generated/templates/IPendleForge/ERC20NameBytes";
+} from "../../generated/templates/PendleMarket/ERC20";
+import { ERC20SymbolBytes } from "../../generated/templates/IPendleForge/ERC20SymbolBytes";
+import { ERC20NameBytes } from "../../generated/templates/IPendleForge/ERC20NameBytes";
 import {
   Token,
   User,
   LiquidityPosition,
   LiquidityPositionSnapshot,
   Pair,
-  UniswapPool
-} from "../generated/schema";
-import { PendleMarket as PendleMarketContract } from "../generated/templates/PendleMarket/PendleMarket";
-
-export let ZERO_BI = BigInt.fromI32(0);
-export let ONE_BI = BigInt.fromI32(1);
-export let ZERO_BD = BigDecimal.fromString("0");
-export let ONE_BD = BigDecimal.fromString("1");
-export let BI_18 = BigInt.fromI32(18);
-export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-export let RONE = BigInt.fromI32(2).pow(40); // 2^40
-export let RONE_BD = RONE.toBigDecimal();
+  DebugLog,
+  PendleData,
+  LiquidityMining
+} from "../../generated/schema";
+import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
+import {
+  DAYS_PER_WEEK_BD,
+  DAYS_PER_YEAR_BD,
+  LM_ALLOC_DENOM,
+  ONE_BD,
+  ONE_BI,
+  PENDLE_TOKEN_ADDRESS,
+  RONE,
+  RONE_BD,
+  ZERO_BD,
+  ZERO_BI
+} from "./consts";
+import { getUniswapTokenPrice } from "../uniswap/pricing";
+import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
+import { getPendlePrice } from "../sushiswap/factory";
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
   let bd = BigDecimal.fromString("1");
@@ -152,14 +160,8 @@ export function fetchTokenDecimals(tokenAddress: Address): BigInt {
   return BigInt.fromI32(decimalValue as i32);
 }
 
-export function generateNewToken(
-  tokenAddress: Address,
-  underlyingAsset: string = "",
-  forgeId: string = ""
-): Token | null {
+export function generateNewToken(tokenAddress: Address): Token | null {
   let token: Token = new Token(tokenAddress.toHexString());
-  token.forgeId = forgeId;
-  token.underlyingAsset = underlyingAsset;
 
   token.symbol = fetchTokenSymbol(tokenAddress);
   token.name = fetchTokenName(tokenAddress);
@@ -296,15 +298,7 @@ export function calcLpPrice(
 ): BigDecimal {
   let marketContract = PendleMarketContract.bind(marketAddress);
   let baseToken = Token.load(baseTokenAddress);
-
-  log.debug("baseToken: {}, decimal: {}", [
-    baseToken.symbol,
-    baseToken.decimals.toString()
-  ]);
-
   let reserves = marketContract.getReserves();
-  let xytBalance = reserves.value0;
-  let xytWeight = reserves.value1;
   let tokenBalance = reserves.value2;
   let tokenWeight = reserves.value3;
 
@@ -319,18 +313,107 @@ export function calcLpPrice(
   }
 
   //@TODO Fetch proper base token price
-  let priceOfBaseToken = BigInt.fromI32(1);
+  let priceOfBaseToken = getUniswapTokenPrice(baseToken as Token);
   let totalValueOfBaseToken = priceOfBaseToken
-    .times(tokenBalance)
-    .div(BigInt.fromI32(10).pow(baseToken.decimals.toI32() as u8))
-    .toBigDecimal();
+    .times(tokenBalance.toBigDecimal())
+    .div(exponentToBigDecimal(baseToken.decimals));
   let baseTokenWeight = tokenWeight.toBigDecimal().div(RONE.toBigDecimal());
-
   let lpPrice = totalValueOfBaseToken.div(baseTokenWeight).div(totalLpSupply);
-
-  log.debug("lpPrice: {}", [lpPrice.toString()]);
-
   return lpPrice;
 }
 
+export function calcMarketWorthUSD(market: Pair): BigDecimal {
+  let baseToken = Token.load(market.token1);
+  let baseTokenWeight = market.token1WeightRaw.toBigDecimal().div(RONE_BD);
+  let baseTokenBalance = market.reserve1;
+  let baseTokenPrice = getUniswapTokenPrice(baseToken as Token);
+  let marketWorthUSD = baseTokenBalance
+    .times(baseTokenPrice)
+    .div(baseTokenWeight);
+  return marketWorthUSD;
+}
 
+export function calcYieldTokenPrice(market: Pair): BigDecimal {
+  // Load 2 tokens
+  let yieldToken = Token.load(market.token0);
+  let baseToken = Token.load(market.token1);
+  // Token weights
+  let baseTokenWeight = market.token1WeightRaw.toBigDecimal().div(RONE_BD);
+  let yieldTokenWeight = ONE_BD.minus(baseTokenWeight);
+  // Token balances
+  let baseTokenBalance = market.reserve1;
+  let yieldTokenBalance = market.reserve0;
+  // Finalize answer
+  let marketWorth = baseTokenBalance.div(baseTokenWeight);
+  let yieldTokenPrice = marketWorth
+    .times(yieldTokenWeight)
+    .div(yieldTokenBalance);
+  return yieldTokenPrice;
+}
+
+export function getBalanceOf(
+  tokenAddress: Address,
+  ofAddress: Address
+): BigDecimal {
+  let token = loadToken(tokenAddress);
+  let tokenContract = ERC20.bind(tokenAddress);
+  return convertTokenToDecimal(
+    tokenContract.balanceOf(ofAddress),
+    token.decimals
+  );
+}
+
+export function printDebug(message: string, type: string): void {
+  let id = "";
+  let root = DebugLog.load("0");
+  if (root == null) {
+    id = "0";
+  } else {
+    root.length = root.length.plus(ONE_BI);
+    root.save();
+    id = root.length.toString();
+  }
+
+  let debugInstance = new DebugLog(id);
+  debugInstance.message = message;
+  debugInstance.type = type;
+  debugInstance.length = ZERO_BI;
+  debugInstance.save();
+
+  log.debug("{} | {}", [type, message]);
+}
+
+export function loadPendleData(): PendleData {
+  let pendleData = PendleData.load("1");
+  if (pendleData === null) {
+    pendleData = new PendleData("1");
+    pendleData.protocolSwapFee = ZERO_BD;
+    pendleData.swapFee = ZERO_BD;
+    pendleData.exitFee = ZERO_BD;
+  }
+
+  pendleData.save();
+  return pendleData as PendleData;
+}
+
+export function isMarketLiquidityMiningV2(marketAddress: Address): boolean {
+  let lm = LiquidityMining.load(marketAddress.toHexString());
+  if (lm == null) return false;
+  return true;
+}
+
+export function quickPowBD(x: BigDecimal, y: number): BigDecimal {
+  let ans = ONE_BD;
+  while (y > 0) {
+    if (y % 2 == 1) ans = ans.times(x);
+    x = x.times(x);
+    x = x.truncate(-100);
+    ans = ans.truncate(-100);
+    y = y / 2;
+  }
+  return ans;
+}
+
+export function getLpPrice(market: Pair): BigDecimal {
+  return market.reserveUSD.div(market.totalSupply);
+}

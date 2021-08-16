@@ -8,6 +8,9 @@ type MarketFactory @entity {
   address: String! #Market Factory ID
 }
 
+# @DONE: Add total value locked
+# @TODO: And snapshot for it (priority: 2)
+
 type YieldContract @entity {
   #Forge ID + underlying asset + expiry
   id: ID!
@@ -29,9 +32,16 @@ type YieldContract @entity {
   # Total interest settled transactions
   interestSettledTxCount: BigInt!
 
-  #Volume
+  # Volume
+  lockedVolume: BigDecimal!
   mintVolume: BigDecimal!
   redeemVolume: BigDecimal!
+
+  # Volume USD
+  lockedVolumeUSD: BigDecimal!
+  mintVolumeUSD: BigDecimal!
+  redeemVolumeUSD: BigDecimal
+
   interestSettledVolume: BigDecimal!
   yieldBearingAsset: Token!
 }
@@ -46,18 +56,20 @@ type Token @entity {
   decimals: BigInt!
 
   # underlying information (for yield bearing token and pendle tokens only)
-  forgeId: String!
-  underlyingAsset: String!
+  forgeId: String
+  underlyingAsset: String
 
   # used for other stats like marketcap
   totalSupply: BigInt!
 
-  # token specific volume
+  # token specific volume (@note: No use?)
   tradeVolume: BigDecimal!
   tradeVolumeUSD: BigDecimal!
 
+  # (@note: No use?)
   mintVolume: BigDecimal!
   mintVolumeUSD: BigDecimal!
+
 
   redeemVolume: BigDecimal!
   redeemVolumeUSD: BigDecimal!
@@ -65,9 +77,9 @@ type Token @entity {
   # transactions across all pairs
   txCount: BigInt!
 
-  # liquidity across all pairs
+  # liquidity across all pairs (markets)
   totalLiquidity: BigDecimal!
-  type: String # yt | swapBase
+  type: String # yt | ot | yieldBearing | swapBase
 }
 
 type MintYieldToken @entity {
@@ -90,6 +102,8 @@ type MintYieldToken @entity {
   mintedValueUSD: BigDecimal!
 }
 
+# @TODO: Stake and Unstake events
+
 type RedeemYieldToken @entity {
   # transaction hash
   id: ID!
@@ -110,6 +124,17 @@ type RedeemYieldToken @entity {
   redeemedValueUSD: BigDecimal!
 }
 
+# @TODO: Modify entity name to Market or PendleMarket
+#        Add APR (Simple interest)
+#            1. Interest from YT (interest rate from Aave)
+#            2. Swap fee? -> Rolling 24h
+#            3. APR from staking
+# 
+# Hour and 24 hours (priority: 1)
+#  + open close high low
+#  + volumes
+#  + implied yield
+#  + users
 type Pair @entity {
   # pair address
   id: ID!
@@ -126,6 +151,8 @@ type Pair @entity {
   # derived liquidity
   reserveUSD: BigDecimal!
   # Price in terms of the asset pair
+  # @TODO: This might be calculated wrongly
+  # Exchange rate between token0 and token1
   token0Price: BigDecimal!
   token1Price: BigDecimal!
 
@@ -135,9 +162,11 @@ type Pair @entity {
   volumeToken1: BigDecimal!
   volumeUSD: BigDecimal!
   txCount: BigInt!
+
+  # Single add, removal?
   feesToken0: BigDecimal!
   feesToken1: BigDecimal!
-  feesUSD: BigDecimal
+  feesUSD: BigDecimal!
 
   # creation stats
   createdAtTimestamp: BigInt!
@@ -152,6 +181,18 @@ type Pair @entity {
   # mints: [Mint!]! @derivedFrom(field: "pair")
   # burns: [Burn!]! @derivedFrom(field: "pair")
   # swaps: [Swap!]! @derivedFrom(field: "pair")
+
+  expiry: BigInt!
+
+  lpPriceUSD: BigDecimal!
+  lpStaked: BigDecimal!
+  lpStakedUSD: BigDecimal!
+
+  pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
+
+  liquidityMining: String
+  lpAPR: BigDecimal
+  yieldTokenHolderAddress: String
 }
 
 type Swap @entity {
@@ -177,10 +218,18 @@ type Swap @entity {
   amountUSD: BigDecimal!
 }
 
+# @TODO: Check snapshot mechanism from uniswap
+# Not now?
+
 type User @entity {
   id: ID!
   liquidityPositions: [LiquidityPosition!] @derivedFrom(field: "user")
   usdSwapped: BigDecimal!
+}
+
+type LiquidityMining @entity {
+  id: ID! # for v1, id will be LiqMining's address, for V2, it should be ERC20's address
+  lmAddress: String
 }
 
 type LiquidityPosition @entity {
@@ -276,12 +325,16 @@ type BurnLPToken @entity {
   feeLiquidity: BigDecimal
 }
 
+# @TODO: Add Settings from protocols?
+
 type PendleData @entity {
   id: ID!
   protocolSwapFee: BigDecimal!
   swapFee: BigDecimal!
   exitFee: BigDecimal!
 }
+
+# @TODO & Note: this schema definition of LiquidityPool is wrong. Relation with pair should be 1-N instead of 1-1
 
 type LiquidityPool @entity {
   # transaction hash
@@ -301,15 +354,149 @@ type LiquidityPool @entity {
   swapVolumeUSD: BigDecimal!
   lpAmount: BigDecimal!
 
+  # @TODO: Add TVL - (total value locked)
+
   # derived info
   amountUSD: BigDecimal!
 }
 
+############## SNAPSHOT DATA ######################
+
+type PairHourData @entity {
+  id: ID!
+  hourStartUnix: Int!
+  
+  pair: Pair!
+
+  # reserves
+  totalSupply: BigDecimal!
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  marketWorthUSD: BigDecimal!
+
+  # volume stats
+  hourlyVolumeToken0: BigDecimal!
+  hourlyVolumeToken1: BigDecimal!
+  hourlyVolumeUSD: BigDecimal!
+  hourlyTxns: BigInt!
+
+  # price
+  yieldTokenPrice_open: BigDecimal!
+  yieldTokenPrice_close: BigDecimal!
+  yieldTokenPrice_high: BigDecimal!
+  yieldTokenPrice_low: BigDecimal!
+
+  lpTokenPrice: BigDecimal!
+
+  baseTokenPrice: BigDecimal!
+  yieldBearingAssetPrice: BigDecimal!
+
+  # Statistics
+  impliedYield: BigDecimal!
+}
+
+type PairDailyData @entity {
+  id: ID!
+  dayStartUnix: Int!
+
+  pair: Pair!
+
+  # reserves
+  totalSupply: BigDecimal!
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  marketWorthUSD: BigDecimal!
+
+  # volume stats
+  dailyVolumeToken0: BigDecimal!
+  dailyVolumeToken1: BigDecimal!
+  dailyVolumeUSD: BigDecimal!
+  dailyTxns: BigInt!
+
+  # price
+  yieldTokenPrice_open: BigDecimal!
+  yieldTokenPrice_close: BigDecimal!
+  yieldTokenPrice_high: BigDecimal!
+  yieldTokenPrice_low: BigDecimal!
+
+  lpTokenPrice: BigDecimal!
+
+  baseTokenPrice: BigDecimal!
+  yieldBearingAssetPrice: BigDecimal!
+
+  # Statistics
+  impliedYield: BigDecimal!
+}
+
+############## THIRD PARTY PACKAGE ################
+
 type UniswapPool @entity {
   id: ID!
-
   poolAddress: String!
   token0Address: String!
   token1Address: String!
   hasBeenUsed: Boolean!
+}
+
+type UniswapTokenPrice @entity {
+  id: ID!
+  price: BigDecimal!
+}
+
+type SushiswapPair @entity {
+  id: ID! # OT Address
+  otToken: Token!
+  baseToken: Token!
+  marketWorthUSD: BigDecimal
+  baseTokenBalance: BigDecimal
+  baseTokenPrice: BigDecimal
+  otBalance: BigDecimal
+  otPrice: BigDecimal
+  totalTradingUSD: BigDecimal!
+
+  totalStaked: BigInt
+  totalReward: BigInt
+  lpPrice: BigDecimal
+
+
+  isOtToken0: Boolean!
+  aprPercentage: BigDecimal
+  updatedAt: BigInt
+}
+
+type SushiswapPairHourData @entity {
+  id: ID!
+  hourStartUnix: Int!
+  otAddress: String!
+  tradingVolumeUSD: BigDecimal!
+}
+
+############## DEBUG ############################
+
+
+type DebugLog @entity {
+  # The instance with id "0" is the root of the entity set. It stores the number of the instances (using for generating the id-s)
+  id: ID!
+  message: String!
+  type: String!
+  length: BigInt
+}
+
+type UserMarketData @entity {
+  id: ID!
+  user: String!
+  market: String!
+  lpHolding: BigInt!
+  recordedUSDValue: BigDecimal!
+}
+
+type LpTransferEvent @entity {
+  id: ID! # txn hash
+  from: String!
+  to: String!
+  market: String!
+  lpPrice: BigDecimal!
+  amount: BigInt!
+  timestamp: BigInt!
+  block: BigInt!
 }
