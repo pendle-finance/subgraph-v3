@@ -462,6 +462,7 @@ type UserA @entity {
   updatedAt: Int!
 
   # action value
+  actionUpdatedAt: Int!
   actionThisWeek: Int!
 }
 

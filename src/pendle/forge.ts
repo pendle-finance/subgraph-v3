@@ -17,6 +17,7 @@ import {
   fetchTokenTotalSupply,
   generateNewToken
 } from "../utils/helpers";
+import { mintActionNFT } from "../utils/nft";
 
 export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   let forgeId = event.params.forgeId.toString();
@@ -145,6 +146,13 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   mintYieldToken.xytAsset = xytToken.id;
   mintYieldToken.otAsset = otToken.id;
   mintYieldToken.save();
+
+  mintActionNFT(
+    event.params.user,
+    event.params.underlyingAsset,
+    newMintVolumeUSD,
+    event.block.timestamp.toI32()
+  );
 }
 
 export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {

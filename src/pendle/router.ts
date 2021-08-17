@@ -25,6 +25,7 @@ import {
   loadPendleData,
   printDebug
 } from "../utils/helpers";
+import { swapActionNFT } from "../utils/nft";
 import { getLiquidityMining } from "./liquidity-mining-v1";
 
 export function handleSwap(event: SwapEvent): void {
@@ -130,6 +131,13 @@ export function handleSwap(event: SwapEvent): void {
   );
   pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
   pairHourData.save();
+
+  swapActionNFT(
+    event.params.trader,
+    event.params.market,
+    derivedAmountUSD,
+    event.block.timestamp.toI32()
+  );
 }
 
 export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
