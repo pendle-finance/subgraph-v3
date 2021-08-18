@@ -2,7 +2,7 @@ import { Address, BigDecimal, log } from "@graphprotocol/graph-ts";
 import { Token } from "../../generated/schema";
 import { ICToken as ICTokenContract } from "../../generated/templates/IPendleForge/ICToken";
 import { UniswapPool as UniswapPoolContract } from "../../generated/UniswapFactory/UniswapPool";
-import { exponentToBigDecimal, loadToken, printDebug } from "../utils/helpers";
+import { exponentToBigDecimal, getSushiLpPrice, loadToken, printDebug } from "../utils/helpers";
 import { getUniswapPoolAddress } from "./factory";
 import {
   COMPOUND_EXCHANGE_RATE_DECIMAL,
@@ -13,8 +13,10 @@ import {
   STABLE_USD_TOKENS,
   ZERO_BD,
   isMainnet,
-  PENDLE_TOKEN_ADDRESS
+  PENDLE_TOKEN_ADDRESS,
+  TWO_BD
 } from "../utils/consts";
+import { getPendlePrice } from "../sushiswap/factory";
 
 // @TODO: move these things to compound folder
 export function getCTokenCurrentRate(token: Token | null): BigDecimal {
@@ -87,6 +89,11 @@ export function getUnderlyingPrice(tokenAddress: Address): BigDecimal {
 }
 
 export function getUniswapTokenPrice(token: Token): BigDecimal {
+  if (token.id == PENDLE_TOKEN_ADDRESS.toHexString()) return getPendlePrice();
+  if (token.underlyingAsset != null && token.forgeId.startsWith("Sushi")) {
+    return getSushiLpPrice(Address.fromHexString(token.id) as Address);
+  }
+
   let isYieldBearingToken = token.underlyingAsset != null;
   let tokenHexString = isYieldBearingToken ? token.underlyingAsset : token.id;
   let tokenAddress = Address.fromHexString(tokenHexString) as Address;
@@ -123,10 +130,12 @@ export function kovanHardcodedPrice(pool: Address): BigDecimal {
 }
 
 export function getKovanTokenPrice(token: Token): BigDecimal {
-  if (token.id == "0xd0a1e359811322d97991e03f863a0c30c2cf029c") { // ethereum
+  if (token.id == "0xd0a1e359811322d97991e03f863a0c30c2cf029c") {
+    // ethereum
     return BigDecimal.fromString("2000");
   }
-  if (token.id == "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa") { // USD DAI
+  if (token.id == "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa") {
+    // USD DAI
     return ONE_BD;
   }
   if (token.id == "0xe22da380ee6b445bb8273c81944adeb6e8450422") {
@@ -138,7 +147,8 @@ export function getKovanTokenPrice(token: Token): BigDecimal {
   if (token.id == "0xb7a4f3e9097c08da09517b5ab877f7a917224ede") {
     return ONE_BD;
   }
-  if (token.id == PENDLE_TOKEN_ADDRESS.toHexString()) { /// PENDLE
+  if (token.id == PENDLE_TOKEN_ADDRESS.toHexString()) {
+    /// PENDLE
     return ONE_BD;
   }
   return BigDecimal.fromString("0");

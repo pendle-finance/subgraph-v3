@@ -31,12 +31,14 @@ import {
   PENDLE_TOKEN_ADDRESS,
   RONE,
   RONE_BD,
+  TWO_BD,
   ZERO_BD,
   ZERO_BI
 } from "./consts";
 import { getUniswapTokenPrice } from "../uniswap/pricing";
 import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import { getPendlePrice } from "../sushiswap/factory";
+import { SushiswapPair } from "../../generated/templates/SushiswapPair/SushiswapPair";
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
   let bd = BigDecimal.fromString("1");
@@ -416,4 +418,19 @@ export function quickPowBD(x: BigDecimal, y: number): BigDecimal {
 
 export function getLpPrice(market: Pair): BigDecimal {
   return market.reserveUSD.div(market.totalSupply);
+}
+
+export function getSushiLpPrice(lpAddress: Address): BigDecimal {
+  let sushiContract = SushiswapPair.bind(lpAddress);
+  let totalSupply = sushiContract.totalSupply().toBigDecimal();
+  let token = loadToken(sushiContract.token0());
+  let tokenPrice = getUniswapTokenPrice(token as Token);
+  let tokenBalance = convertTokenToDecimal(
+    sushiContract.getReserves().value0,
+    token.decimals
+  );
+  return tokenBalance
+    .times(tokenPrice)
+    .times(TWO_BD)
+    .div(totalSupply);
 }

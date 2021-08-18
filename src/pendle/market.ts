@@ -173,6 +173,12 @@ export function handleSync(event: SyncEvent): void {
   pair.save();
   pair.lpPriceUSD = getLpPrice(pair as Pair);
   pair.save();
+
+  pair.lpStaked = ZERO_BD;
+  pair.lpStakedUSD = ZERO_BD;
+  pair.lpAPR = ZERO_BD;
+  pair.save();
+
   updateMarketLiquidityMiningApr(event.address, event.block.timestamp);
   // pair.save();
 
@@ -185,6 +191,8 @@ function updateMarketLiquidityMiningApr(
   timestamp: BigInt
 ): void {
   let pair = Pair.load(marketAddress.toHexString()) as Pair;
+  if (pair.liquidityMining == null) return;
+
   let lm = Address.fromHexString(pair.liquidityMining) as Address;
   if (!isMarketLiquidityMiningV2(marketAddress)) {
     let lmContract = PendleLm1Contract.bind(lm);
