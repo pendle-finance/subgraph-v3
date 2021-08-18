@@ -1,5 +1,6 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import {
+  LiquidityMining,
   LpTransferEvent,
   Pair,
   Token,
@@ -13,6 +14,7 @@ import {
 } from "../../generated/templates/PendleMarket/PendleMarket";
 import { getPendlePrice } from "../sushiswap/factory";
 import {
+  ADDRESS_ZERO,
   DAYS_PER_WEEK_BD,
   DAYS_PER_YEAR_BD,
   LM_ALLOC_DENOM,
@@ -23,6 +25,7 @@ import {
   ZERO_BD,
   ZERO_BI
 } from "../utils/consts";
+import { LiquidityMiningV2 as LM2Contract } from "../../generated/Directory/LiquidityMiningV2";
 
 import {
   calcMarketWorthUSD,
@@ -186,15 +189,16 @@ export function handleSync(event: SyncEvent): void {
   token1.save();
 }
 
-function updateMarketLiquidityMiningApr(
+export function updateMarketLiquidityMiningApr(
   marketAddress: Address,
   timestamp: BigInt
 ): void {
   let pair = Pair.load(marketAddress.toHexString()) as Pair;
-  if (pair.liquidityMining == null) return;
+  if (!isMarketLiquidityMiningV2(marketAddress)) { /// LMV2 not found from directory contract
+    if (pair.liquidityMining == null) return; /// LMV1 not found as well
 
-  let lm = Address.fromHexString(pair.liquidityMining) as Address;
-  if (!isMarketLiquidityMiningV2(marketAddress)) {
+    /// LMV1
+    let lm = Address.fromHexString(pair.liquidityMining) as Address;
     let lmContract = PendleLm1Contract.bind(lm);
     let pendleToken = loadToken(PENDLE_TOKEN_ADDRESS);
 
@@ -253,11 +257,52 @@ function updateMarketLiquidityMiningApr(
     pair.lpAPR = apw.times(DAYS_PER_YEAR_BD).div(DAYS_PER_WEEK_BD);
     pair.save();
     return;
-  }
+  } else {
+    if (pair.liquidityMining == null) {
+      let lmInstance = LiquidityMining.load(marketAddress.toHexString());
+      pair.liquidityMining = lmInstance.lmAddress;
+      pair.yieldTokenHolderAddress = pair.liquidityMining;
+      pair.save();
+    }
 
-  if (pair.yieldTokenHolderAddress == null) {
-    pair.yieldTokenHolderAddress = pair.liquidityMining;
+    let lmAddress = Address.fromHexString(pair.liquidityMining) as Address;
+    let lmContract = LM2Contract.bind(lmAddress);
+    
+    let startTime = lmContract.startTime();
+    let epochDuration = lmContract.epochDuration();
+    let currentEpoch = ZERO_BI;
+
+    if (timestamp.ge(startTime)) {
+      currentEpoch = timestamp
+        .minus(startTime)
+        .div(epochDuration)
+        .plus(ONE_BI);
+    }
+
+    let epochData = lmContract.readEpochData(
+      currentEpoch,
+      Address.fromHexString(ADDRESS_ZERO) as Address
+    );
+    let totalStaked = lmContract.totalStake();
+    let totalReward = epochData.value1;
+    
+    pair.lpStaked = totalStaked.toBigDecimal();
+    pair.lpStakedUSD = pair.lpStaked.times(pair.lpPriceUSD);
+    
+    let pendleToken = loadToken(PENDLE_TOKEN_ADDRESS);
+    let pendlePerLp = convertTokenToDecimal(
+      totalReward,
+      pendleToken.decimals
+    ).div(totalStaked.toBigDecimal());
+    
+    let apw = pendlePerLp.times(getPendlePrice()).div(pair.lpPriceUSD);
+    pair.lpAPR = apw
+    .times(DAYS_PER_YEAR_BD)
+    .div(DAYS_PER_WEEK_BD)
+    .times(BigDecimal.fromString("100"));
     pair.save();
   }
+
+
   return;
 }
