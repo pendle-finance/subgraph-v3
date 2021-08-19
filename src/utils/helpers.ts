@@ -345,7 +345,9 @@ export function calcYieldTokenPrice(market: Pair): BigDecimal {
   let baseTokenBalance = market.reserve1;
   let yieldTokenBalance = market.reserve0;
   // Finalize answer
-  let marketWorth = baseTokenBalance.times(getUniswapTokenPrice(baseToken as Token)).div(baseTokenWeight);
+  let marketWorth = baseTokenBalance
+    .times(getUniswapTokenPrice(baseToken as Token))
+    .div(baseTokenWeight);
   let yieldTokenPrice = marketWorth
     .times(yieldTokenWeight)
     .div(yieldTokenBalance);
