@@ -190,7 +190,7 @@ type Pair @entity {
 
   pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
 
-  liquidityMining: String!
+  liquidityMining: String
   lpAPR: BigDecimal
   yieldTokenHolderAddress: String
 }
@@ -229,6 +229,7 @@ type User @entity {
 
 type LiquidityMining @entity {
   id: ID! # for v1, id will be LiqMining's address, for V2, it should be ERC20's address
+  lmAddress: String
 }
 
 type LiquidityPosition @entity {
@@ -394,6 +395,39 @@ type PairHourData @entity {
   impliedYield: BigDecimal!
 }
 
+type PairDailyData @entity {
+  id: ID!
+  dayStartUnix: Int!
+
+  pair: Pair!
+
+  # reserves
+  totalSupply: BigDecimal!
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  marketWorthUSD: BigDecimal!
+
+  # volume stats
+  dailyVolumeToken0: BigDecimal!
+  dailyVolumeToken1: BigDecimal!
+  dailyVolumeUSD: BigDecimal!
+  dailyTxns: BigInt!
+
+  # price
+  yieldTokenPrice_open: BigDecimal!
+  yieldTokenPrice_close: BigDecimal!
+  yieldTokenPrice_high: BigDecimal!
+  yieldTokenPrice_low: BigDecimal!
+
+  lpTokenPrice: BigDecimal!
+
+  baseTokenPrice: BigDecimal!
+  yieldBearingAssetPrice: BigDecimal!
+
+  # Statistics
+  impliedYield: BigDecimal!
+}
+
 ############## THIRD PARTY PACKAGE ################
 
 type UniswapPool @entity {
@@ -411,15 +445,18 @@ type UniswapTokenPrice @entity {
 
 type SushiswapPair @entity {
   id: ID! # OT Address
-  poolAddress: String!
-  baseToken: String!
-  pendleIncentives: BigDecimal! # per week
+  otToken: Token!
+  baseToken: Token!
   marketWorthUSD: BigDecimal
   baseTokenBalance: BigDecimal
   baseTokenPrice: BigDecimal
   otBalance: BigDecimal
   otPrice: BigDecimal
   totalTradingUSD: BigDecimal!
+
+  totalStaked: BigInt
+  totalReward: BigInt
+  lpPrice: BigDecimal
 
 
   isOtToken0: Boolean!
@@ -432,12 +469,6 @@ type SushiswapPairHourData @entity {
   hourStartUnix: Int!
   otAddress: String!
   tradingVolumeUSD: BigDecimal!
-  poolAddress: String!
-}
-
-type SushiswapPairToOt @entity {
-  id: ID!
-  otAddress: String!
 }
 
 ############## DEBUG ############################

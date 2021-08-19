@@ -15,7 +15,8 @@ import { ONE_BI, ZERO_BD, ZERO_BI } from "../utils/consts";
 import {
   convertTokenToDecimal,
   fetchTokenTotalSupply,
-  generateNewToken
+  generateNewToken,
+  printDebug
 } from "../utils/helpers";
 import { mintActionNFT } from "../utils/nft";
 
@@ -82,6 +83,7 @@ export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
 }
 
 export function handleMintYieldToken(event: MintYieldTokenEvent): void {
+  printDebug(event.block.number.toString(), "mint");
   let underlyingToken = Token.load(event.params.underlyingAsset.toHexString());
   let forgeId = event.params.forgeId.toString();
   let yieldContractid =

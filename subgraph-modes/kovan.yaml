@@ -23,6 +23,7 @@ dataSources:
         - UniswapPool
         - DebugLog
         - SushiswapPair
+        - PairDailyData
       abis:
         - name: PendleRouter
           file: ./abis/PendleRouter.json
@@ -128,6 +129,7 @@ dataSources:
         - SushiswapPair
         - Token
         - DebugLog
+        - LiquidityMining
       abis:
         - name: ERC20
           file: ./abis/ERC20.json
@@ -141,10 +143,36 @@ dataSources:
           file: ./abis/sushiswap/pair.json
         - name: UniswapPool
           file: ./abis/uniswap/pool.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
       eventHandlers:
         - event: PairCreated(indexed address,indexed address,address,uint256)
           handler: handleNewSushiswapPair
       file: ./src/sushiswap/factory.ts
+
+  - kind: ethereum/contract
+    name: Directory
+    network: kovan
+    source:
+      address: "0xcA804DD4F4aE5E7d200AA5F0eeE0e6a02Ab2498a"
+      abi: Directory
+      startBlock: 26641019
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityMining
+      abis:
+        - name: Directory
+          file: ./abis/Directory.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
+      eventHandlers:
+        - event: NewAddress(bytes32,address)
+          handler: handleNewContractAddress
+      file: ./src/pendle/directory.ts
+
 templates:
   - kind: ethereum/contract
     name: IPendleForge
@@ -200,6 +228,7 @@ templates:
         - UniswapPool
         - DebugLog
         - SushiswapPair
+        - PairDailyData
       abis:
         - name: LiquidityMiningProxy
           file: ./abis/PendleLiquidityMiningProxy.json
@@ -233,8 +262,8 @@ templates:
       language: wasm/assemblyscript
       file: ./src/sushiswap/factory.ts
       entities:
-        - LiquidityMiningV1
         - SushiswapPair
+        - LiquidityMining
         - Token
         - UniswapPool
         - DebugLog
@@ -252,6 +281,8 @@ templates:
           file: ./abis/ICToken.json
         - name: UniswapPool
           file: ./abis/uniswap/pool.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
       eventHandlers:
         - event: Swap(indexed address,uint256,uint256,uint256,uint256,indexed address)
           handler: handleSwapSushiswap
@@ -270,7 +301,7 @@ templates:
       language: wasm/assemblyscript
       file: ./src/pendle/liquidity-mining-v1.ts
       entities:
-        - LiquidityMiningV1
+        - LiquidityMining
         - Pair
         - Token
         - DebugLog
@@ -285,4 +316,38 @@ templates:
         - event: Staked(uint256,address,uint256)
           handler: handleStake
         - event: Withdrawn(uint256,address,uint256)
+          handler: handleWithdrawn
+  - kind: ethereum/contract
+    name: PendleLiquidityMiningV2
+    network: kovan
+    source:
+      abi: PendleLiquidityMiningV2
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/pendle/liquidity-mining-v2.ts
+      entities:
+        - LiquidityMining
+        - Pair
+        - Token
+        - DebugLog
+        - SushiswapPair
+      abis:
+        - name: UniswapPool
+          file: ./abis/uniswap/pool.json
+        - name: PendleMarket
+          file: ./abis/PendleMarket.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: PendleLiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
+        - name: SushiswapPair
+          file: ./abis/sushiswap/pair.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
+      eventHandlers:
+        - event: Staked(address,uint256)
+          handler: handleStake
+        - event: Withdrawn(address,uint256)
           handler: handleWithdrawn
