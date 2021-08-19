@@ -35,6 +35,7 @@ import {
   loadToken,
   printDebug
 } from "../utils/helpers";
+import { updateNFTData } from "../utils/nft";
 
 export function handleTransfer(event: TransferEvent): void {
   // To make sure that theres lp holder
