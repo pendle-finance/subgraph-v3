@@ -337,7 +337,6 @@ export function calcMarketWorthUSD(market: Pair): BigDecimal {
 
 export function calcYieldTokenPrice(market: Pair): BigDecimal {
   // Load 2 tokens
-  let yieldToken = Token.load(market.token0);
   let baseToken = Token.load(market.token1);
   // Token weights
   let baseTokenWeight = market.token1WeightRaw.toBigDecimal().div(RONE_BD);
@@ -346,7 +345,7 @@ export function calcYieldTokenPrice(market: Pair): BigDecimal {
   let baseTokenBalance = market.reserve1;
   let yieldTokenBalance = market.reserve0;
   // Finalize answer
-  let marketWorth = baseTokenBalance.div(baseTokenWeight);
+  let marketWorth = baseTokenBalance.times(getUniswapTokenPrice(baseToken as Token)).div(baseTokenWeight);
   let yieldTokenPrice = marketWorth
     .times(yieldTokenWeight)
     .div(yieldTokenBalance);
@@ -422,7 +421,10 @@ export function getLpPrice(market: Pair): BigDecimal {
 
 export function getSushiLpPrice(lpAddress: Address): BigDecimal {
   let sushiContract = SushiswapPair.bind(lpAddress);
-  let totalSupply = sushiContract.totalSupply().toBigDecimal();
+  let totalSupply = convertTokenToDecimal(
+    sushiContract.totalSupply(),
+    loadToken(lpAddress).decimals
+  );
   let token = loadToken(sushiContract.token0());
   let tokenPrice = getUniswapTokenPrice(token as Token);
   let tokenBalance = convertTokenToDecimal(

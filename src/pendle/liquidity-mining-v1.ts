@@ -38,6 +38,26 @@ export function hardcodedLiquidityMining(
   let str = marketAddress.toHexString();
   let lmAddress = "";
 
+  // kovan eth-usdc slp - usdc
+  if (str == "0x68fc791abd6339c064146ddc9506774aa142efbe") {
+    lmAddress = "0x63faa1e8faebafa0209e8a9fb4c418828485de85";
+  }
+
+  // mainnet eth-usdc slp - usdc
+  if (str == "0x79c05da47dc20ff9376b2f7dbf8ae0c994c3a0d0") {
+    lmAddress = "0xa78029ab5235b9a83ec45ed036042db26c6e4300";
+  }
+
+  // mainnet pendle-eth slp
+  if (str == "0x685d32f394a5f03e78a1a0f6a91b4e2bf6f52cfe") {
+    lmAddress = "0x0f3bccbfef1dc227f33a11d7a51cd02dead208c8";
+  }
+
+  // kovan pendle-eth slp
+  if (str == "0x4835f1f01102ea3c033ae193ec6ec63961863335") {
+    lmAddress = "0x5fdbb48fced67425ab0598544de1aa63c220ea9d";
+  }
+ 
   // mainnet cdai
   if (
     str == "0xb26c86330fc7f97533051f2f8cd0a90c2e82b5ee" ||

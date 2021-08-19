@@ -2,7 +2,12 @@ import { Address, BigDecimal, log } from "@graphprotocol/graph-ts";
 import { Token } from "../../generated/schema";
 import { ICToken as ICTokenContract } from "../../generated/templates/IPendleForge/ICToken";
 import { UniswapPool as UniswapPoolContract } from "../../generated/UniswapFactory/UniswapPool";
-import { exponentToBigDecimal, getSushiLpPrice, loadToken, printDebug } from "../utils/helpers";
+import {
+  exponentToBigDecimal,
+  getSushiLpPrice,
+  loadToken,
+  printDebug
+} from "../utils/helpers";
 import { getUniswapPoolAddress } from "./factory";
 import {
   COMPOUND_EXCHANGE_RATE_DECIMAL,

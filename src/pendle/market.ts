@@ -194,7 +194,8 @@ export function updateMarketLiquidityMiningApr(
   timestamp: BigInt
 ): void {
   let pair = Pair.load(marketAddress.toHexString()) as Pair;
-  if (!isMarketLiquidityMiningV2(marketAddress)) { /// LMV2 not found from directory contract
+  if (!isMarketLiquidityMiningV2(marketAddress)) {
+    /// LMV2 not found from directory contract
     if (pair.liquidityMining == null) return; /// LMV1 not found as well
 
     /// LMV1
@@ -267,7 +268,7 @@ export function updateMarketLiquidityMiningApr(
 
     let lmAddress = Address.fromHexString(pair.liquidityMining) as Address;
     let lmContract = LM2Contract.bind(lmAddress);
-    
+
     let startTime = lmContract.startTime();
     let epochDuration = lmContract.epochDuration();
     let currentEpoch = ZERO_BI;
@@ -285,24 +286,23 @@ export function updateMarketLiquidityMiningApr(
     );
     let totalStaked = lmContract.totalStake();
     let totalReward = epochData.value1;
-    
+
     pair.lpStaked = totalStaked.toBigDecimal();
     pair.lpStakedUSD = pair.lpStaked.times(pair.lpPriceUSD);
-    
+
     let pendleToken = loadToken(PENDLE_TOKEN_ADDRESS);
     let pendlePerLp = convertTokenToDecimal(
       totalReward,
       pendleToken.decimals
     ).div(totalStaked.toBigDecimal());
-    
+
     let apw = pendlePerLp.times(getPendlePrice()).div(pair.lpPriceUSD);
     pair.lpAPR = apw
-    .times(DAYS_PER_YEAR_BD)
-    .div(DAYS_PER_WEEK_BD)
-    .times(BigDecimal.fromString("100"));
+      .times(DAYS_PER_YEAR_BD)
+      .div(DAYS_PER_WEEK_BD)
+      .times(BigDecimal.fromString("100"));
     pair.save();
   }
-
 
   return;
 }
