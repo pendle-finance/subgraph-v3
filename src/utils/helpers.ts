@@ -21,7 +21,7 @@ import {
   PendleData,
   LiquidityMining
 } from "../../generated/schema";
-import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
+import { PendleMarket, PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
 import {
   DAYS_PER_WEEK_BD,
   DAYS_PER_YEAR_BD,
@@ -163,6 +163,9 @@ export function fetchTokenDecimals(tokenAddress: Address): BigInt {
 }
 
 export function generateNewToken(tokenAddress: Address): Token | null {
+  let oldToken = Token.load(tokenAddress.toHexString());
+  if (oldToken != null) return oldToken;
+
   let token: Token = new Token(tokenAddress.toHexString());
 
   token.symbol = fetchTokenSymbol(tokenAddress);
@@ -417,8 +420,19 @@ export function quickPowBD(x: BigDecimal, y: number): BigDecimal {
   return ans;
 }
 
-export function getLpPrice(market: Pair): BigDecimal {
-  return market.reserveUSD.div(market.totalSupply);
+export function getLpPrice(market: Pair): BigDecimal { 
+  let marketContract = PendleMarket.bind(Address.fromHexString(market.id) as Address);
+  let totalSupply = marketContract.totalSupply();
+  let token = loadToken(Address.fromHexString(market.token1) as Address);
+  let reserves = marketContract.getReserves();
+  let tokenBalanceRaw = reserves.value2;
+  let tokenWeightRaw = reserves.value3;
+  let tokenBalance = convertTokenToDecimal(tokenBalanceRaw, token.decimals);
+  let tokenWeight = tokenWeightRaw.toBigDecimal().div(RONE_BD);
+  let tokenPrice = getUniswapTokenPrice(token as Token);
+  let reserveUSD = tokenBalance.times(tokenPrice).div(tokenWeight);
+  let lpPrice = reserveUSD.div(totalSupply.toBigDecimal());
+  return lpPrice;
 }
 
 export function getSushiLpPrice(lpAddress: Address): BigDecimal {

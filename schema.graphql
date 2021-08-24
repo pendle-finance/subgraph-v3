@@ -485,9 +485,11 @@ type DebugLog @entity {
 type UserMarketData @entity {
   id: ID!
   user: String!
-  market: String!
+  market: Pair!
   lpHolding: BigInt!
   recordedUSDValue: BigDecimal!
+  yieldClaimedUsd: BigDecimal!
+  yieldClaimedRaw: BigDecimal!
 }
 
 type LpTransferEvent @entity {
@@ -499,4 +501,14 @@ type LpTransferEvent @entity {
   amount: BigInt!
   timestamp: BigInt!
   block: BigInt!
+}
+
+type LpHolder @entity {
+  # This includes market addresses, lpHolders from liquidity mining v1 and v2
+  id: ID!
+  market: Pair!
+}
+
+type LiquidityMiningEndPoint @entity {
+  id: ID!
 }

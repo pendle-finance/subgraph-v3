@@ -45,12 +45,12 @@ dataSources:
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
       eventHandlers:
-        - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
-          handler: handleSwap
-        - event: Join(indexed address,uint256,uint256,address,uint256)
-          handler: handleJoinLiquidityPool
-        - event: Exit(indexed address,uint256,uint256,address,uint256)
-          handler: handleExitLiquidityPool
+        # - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
+        #   handler: handleSwap
+        # - event: Join(indexed address,uint256,uint256,address,uint256)
+        #   handler: handleJoinLiquidityPool
+        # - event: Exit(indexed address,uint256,uint256,address,uint256)
+        #   handler: handleExitLiquidityPool
         - event: MarketCreated(bytes32,indexed address,indexed address,indexed address)
           handler: handleMarketCreated
       file: ./src/pendle/router.ts
@@ -115,41 +115,41 @@ dataSources:
         - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
           handler: handleUniswapPoolCreated
       file: ./src/uniswap/factory.ts
-  - kind: ethereum/contract
-    name: SushiswapFactory
-    network: mainnet
-    source:
-      address: "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac"
-      abi: SushiswapFactory
-      startBlock: 12638048
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - SushiswapPair
-        - Token
-        - DebugLog
-        - LiquidityMining
-      abis:
-        - name: ERC20
-          file: ./abis/ERC20.json
-        - name: ERC20SymbolBytes
-          file: ./abis/ERC20SymbolBytes.json
-        - name: ERC20NameBytes
-          file: ./abis/ERC20NameBytes.json
-        - name: SushiswapFactory
-          file: ./abis/SushiswapFactory.json
-        - name: SushiswapPair
-          file: ./abis/sushiswap/pair.json
-        - name: UniswapPool
-          file: ./abis/uniswap/pool.json
-        - name: LiquidityMiningV2
-          file: ./abis/PendleLiquidityMiningV2.json
-      eventHandlers:
-        - event: PairCreated(indexed address,indexed address,address,uint256)
-          handler: handleNewSushiswapPair
-      file: ./src/sushiswap/factory.ts
+  # - kind: ethereum/contract
+  #   name: SushiswapFactory
+  #   network: mainnet
+  #   source:
+  #     address: "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac"
+  #     abi: SushiswapFactory
+  #     startBlock: 12638048
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.4
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - SushiswapPair
+  #       - Token
+  #       - DebugLog
+  #       - LiquidityMining
+  #     abis:
+  #       - name: ERC20
+  #         file: ./abis/ERC20.json
+  #       - name: ERC20SymbolBytes
+  #         file: ./abis/ERC20SymbolBytes.json
+  #       - name: ERC20NameBytes
+  #         file: ./abis/ERC20NameBytes.json
+  #       - name: SushiswapFactory
+  #         file: ./abis/SushiswapFactory.json
+  #       - name: SushiswapPair
+  #         file: ./abis/sushiswap/pair.json
+  #       - name: UniswapPool
+  #         file: ./abis/uniswap/pool.json
+  #       - name: LiquidityMiningV2
+  #         file: ./abis/PendleLiquidityMiningV2.json
+  #     eventHandlers:
+  #       - event: PairCreated(indexed address,indexed address,address,uint256)
+  #         handler: handleNewSushiswapPair
+  #     file: ./src/sushiswap/factory.ts
   - kind: ethereum/contract
     name: Directory
     network: mainnet
@@ -209,10 +209,10 @@ templates:
       eventHandlers:
         - event: NewYieldContracts(bytes32,indexed address,indexed uint256,address,address,address)
           handler: handleNewYieldContracts
-        - event: MintYieldTokens(bytes32,indexed address,indexed uint256,uint256,uint256,indexed address)
-          handler: handleMintYieldToken
-        - event: RedeemYieldToken(bytes32,indexed address,indexed uint256,uint256,uint256,indexed address)
-          handler: handleRedeemYieldContracts
+        # - event: MintYieldTokens(bytes32,indexed address,indexed uint256,uint256,uint256,indexed address)
+        #   handler: handleMintYieldToken
+        # - event: RedeemYieldToken(bytes32,indexed address,indexed uint256,uint256,uint256,indexed address)
+        #   handler: handleRedeemYieldContracts
   - kind: ethereum/contract
     name: PendleMarket
     network: mainnet
@@ -231,6 +231,7 @@ templates:
         - LiquidityMining
         - UserMarketData
         - PairDailyData
+        - LpHolder
       abis:
         - name: LiquidityMiningProxy
           file: ./abis/PendleLiquidityMiningProxy.json
@@ -246,13 +247,17 @@ templates:
           file: ./abis/ICToken.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
+      blockHandlers:
+        - handler: handleBlock
+          filter:
+            kind: call
       eventHandlers:
-        - event: Sync(uint256,uint256,uint256)
-          handler: handleSync
+      #   - event: Sync(uint256,uint256,uint256)
+      #     handler: handleSync
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-        # - event: Mint(indexed address,uint256,uint256)
-        #   handler: handleMint
+      #   - event: Mint(indexed address,uint256,uint256)
+      #     handler: handleMint
   - kind: ethereum/contract
     name: SushiswapPair
     network: mainnet
@@ -284,13 +289,13 @@ templates:
           file: ./abis/uniswap/pool.json
         - name: LiquidityMiningV2
           file: ./abis/PendleLiquidityMiningV2.json
-      eventHandlers:
-        - event: Swap(indexed address,uint256,uint256,uint256,uint256,indexed address)
-          handler: handleSwapSushiswap
-        - event: Mint(indexed address,uint256,uint256)
-          handler: handleUpdateSushiswap
-        - event: Burn(indexed address,uint256,uint256,indexed address)
-          handler: handleUpdateSushiswap
+      # eventHandlers:
+      #   - event: Swap(indexed address,uint256,uint256,uint256,uint256,indexed address)
+      #     handler: handleSwapSushiswap
+      #   - event: Mint(indexed address,uint256,uint256)
+      #     handler: handleUpdateSushiswap
+      #   - event: Burn(indexed address,uint256,uint256,indexed address)
+      #     handler: handleUpdateSushiswap
   - kind: ethereum/contract
     name: PendleLiquidityMiningV1
     network: mainnet
@@ -313,11 +318,11 @@ templates:
           file: ./abis/ERC20.json
         - name: PendleLiquidityMiningV1
           file: ./abis/PendleLiquidityMiningV1.json
-      eventHandlers:
-        - event: Staked(uint256,address,uint256)
-          handler: handleStake
-        - event: Withdrawn(uint256,address,uint256)
-          handler: handleWithdrawn
+      # eventHandlers:
+      #   - event: Staked(uint256,address,uint256)
+      #     handler: handleStake
+      #   - event: Withdrawn(uint256,address,uint256)
+      #     handler: handleWithdrawn
   - kind: ethereum/contract
     name: PendleLiquidityMiningV2
     network: mainnet
@@ -347,8 +352,38 @@ templates:
           file: ./abis/sushiswap/pair.json
         - name: LiquidityMiningV2
           file: ./abis/PendleLiquidityMiningV2.json
+      # eventHandlers:
+      #   - event: Staked(address,uint256)
+      #     handler: handleStake
+      #   - event: Withdrawn(address,uint256)
+      #     handler: handleWithdrawn
+  - kind: ethereum/contract
+    name: ERC20
+    network: mainnet
+    source:
+      abi: ERC20
+    mapping:
+      kind: ethereums/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/erc20/mapping.ts
+      entities:
+        - Token
+        - Pair
+        - DebugLog
+        - LiquidityMining
+        - LpHolder
+        - UserMarketData
+      abis:
+        - name: ICToken
+          file: ./abis/ICToken.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: PendleMarket
+          file: ./abis/PendleMarket.json
+        - name: UniswapPool
+          file: ./abis/uniswap/pool.json
       eventHandlers:
-        - event: Staked(address,uint256)
-          handler: handleStake
-        - event: Withdrawn(address,uint256)
-          handler: handleWithdrawn
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferProxy
+        
