@@ -5,6 +5,32 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
+    name: Pendle
+    network: mainnet
+    source:
+      address: "0x808507121b80c02388fad14726482e061b8da827"
+      abi: ERC20
+      startBlock: 12320098
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/pendle/pendle.ts
+      entities:
+        - LiquidityMiningEndPoint
+        - PendleHolder
+        - User
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: SushiswapPair
+          file: ./abis/sushiswap/pair.json
+        - name: UniswapPool
+          file: ./abis/uniswap/pool.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+  - kind: ethereum/contract
     name: PendleRouter
     network: mainnet
     source:
@@ -163,6 +189,7 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - LiquidityMining
+        - PendleHolder
       abis:
         - name: Directory
           file: ./abis/Directory.json
@@ -232,6 +259,7 @@ templates:
         - UserMarketData
         - PairDailyData
         - LpHolder
+        - PendleHolder
       abis:
         - name: LiquidityMiningProxy
           file: ./abis/PendleLiquidityMiningProxy.json

@@ -36,7 +36,8 @@ export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   otToken.underlyingAsset = yieldBearingToken.id;
   otToken.type = "ot";
 
-  if (yieldBearingToken.forgeId == null) { /// newly created
+  if (yieldBearingToken.forgeId == null) {
+    /// newly created
     ERC20.create(event.params.yieldBearingAsset);
   }
 

@@ -225,6 +225,9 @@ type User @entity {
   id: ID!
   liquidityPositions: [LiquidityPosition!] @derivedFrom(field: "user")
   usdSwapped: BigDecimal!
+
+  pendleClaimed: BigDecimal!
+  pendleClaimedUSD: BigDecimal!
 }
 
 type LiquidityMining @entity {
@@ -509,6 +512,6 @@ type LpHolder @entity {
   market: Pair!
 }
 
-type LiquidityMiningEndPoint @entity {
+type PendleHolder @entity {
   id: ID!
 }

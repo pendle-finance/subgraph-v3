@@ -21,7 +21,10 @@ import {
   PendleData,
   LiquidityMining
 } from "../../generated/schema";
-import { PendleMarket, PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
+import {
+  PendleMarket,
+  PendleMarket as PendleMarketContract
+} from "../../generated/templates/PendleMarket/PendleMarket";
 import {
   DAYS_PER_WEEK_BD,
   DAYS_PER_YEAR_BD,
@@ -214,6 +217,8 @@ export function loadUser(address: Address): User {
   if (user === null) {
     user = new User(address.toHexString());
     user.usdSwapped = ZERO_BD;
+    user.pendleClaimed = ZERO_BD;
+    user.pendleClaimedUSD = ZERO_BD;
     user.save();
   }
 
@@ -420,8 +425,10 @@ export function quickPowBD(x: BigDecimal, y: number): BigDecimal {
   return ans;
 }
 
-export function getLpPrice(market: Pair): BigDecimal { 
-  let marketContract = PendleMarket.bind(Address.fromHexString(market.id) as Address);
+export function getLpPrice(market: Pair): BigDecimal {
+  let marketContract = PendleMarket.bind(
+    Address.fromHexString(market.id) as Address
+  );
   let totalSupply = marketContract.totalSupply();
   let token = loadToken(Address.fromHexString(market.token1) as Address);
   let reserves = marketContract.getReserves();

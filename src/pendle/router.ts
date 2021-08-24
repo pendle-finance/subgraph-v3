@@ -5,8 +5,17 @@ import {
   Exit as ExitLiquidityPoolEvent,
   MarketCreated as MarketCreatedEvent
 } from "../../generated/PendleRouter/PendleRouter";
-import { LiquidityPool, Pair, Swap, Token, LpHolder } from "../../generated/schema";
-import { PendleMarket as PendleMarketTemplate, ERC20 as ERC20Template } from "../../generated/templates";
+import {
+  LiquidityPool,
+  Pair,
+  Swap,
+  Token,
+  LpHolder
+} from "../../generated/schema";
+import {
+  PendleMarket as PendleMarketTemplate,
+  ERC20 as ERC20Template
+} from "../../generated/templates";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
 import { getUniswapTokenPrice } from "../uniswap/pricing";
 import { updatePairDailyData, updatePairHourData } from "../updates";

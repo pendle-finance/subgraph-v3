@@ -5,13 +5,14 @@ import {
   LpTransferEvent,
   Pair,
   Token,
-  UserMarketData
+  UserMarketData,
+  PendleHolder
 } from "../../generated/schema";
 import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import {
   PendleMarket as PendleMarketContract,
   Sync as SyncEvent,
-  Transfer as TransferEvent,
+  Transfer as TransferEvent
 } from "../../generated/templates/PendleMarket/PendleMarket";
 import { getPendlePrice } from "../sushiswap/factory";
 import {
@@ -28,13 +29,16 @@ import {
 } from "../utils/consts";
 import { LiquidityMiningV2 as LM2Contract } from "../../generated/Directory/LiquidityMiningV2";
 
-import {
-  isMarketLiquidityMiningV2,
-  printDebug
-} from "../utils/helpers";
+import { isMarketLiquidityMiningV2, printDebug } from "../utils/helpers";
 
-export function loadUserMarketData(user: Address, market: Address): UserMarketData {
-  let id = user.toHexString().concat("-").concat(market.toHexString());
+export function loadUserMarketData(
+  user: Address,
+  market: Address
+): UserMarketData {
+  let id = user
+    .toHexString()
+    .concat("-")
+    .concat(market.toHexString());
   let userInfo = UserMarketData.load(id);
   if (userInfo != null) return userInfo as UserMarketData;
 
@@ -49,9 +53,7 @@ export function loadUserMarketData(user: Address, market: Address): UserMarketDa
   return userInfo as UserMarketData;
 }
 
-export function updateLpHolder(
-  marketAddress: Address,
-): void {
+export function updateLpHolder(marketAddress: Address): void {
   let pair = Pair.load(marketAddress.toHexString()) as Pair;
   if (!isMarketLiquidityMiningV2(marketAddress)) {
     /// LMV2 not found from directory contract
@@ -71,11 +73,11 @@ export function updateLpHolder(
       pair.yieldTokenHolderAddress = lmContract
         .readExpiryData(pair.expiry)
         .value3.toHexString();
-      
+
       let lpHolder = new LpHolder(pair.yieldTokenHolderAddress);
       lpHolder.market = pair.id;
       lpHolder.save();
-    } 
+    }
   }
   return;
 }
@@ -84,4 +86,12 @@ export function handleTransfer(event: TransferEvent): void {
   let pair = Pair.load(event.address.toHexString());
   if (pair.yieldTokenHolderAddress != null) return;
   updateLpHolder(event.address);
+
+  if (pair.liquidityMining != null) {
+    let holder = PendleHolder.load(pair.liquidityMining);
+    if (holder == null) {
+      holder = new PendleHolder(pair.liquidityMining);
+      holder.save();
+    }
+  }
 }
