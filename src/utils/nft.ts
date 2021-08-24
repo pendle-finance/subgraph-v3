@@ -1,16 +1,16 @@
-import { Address, BigDecimal } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { UserA, UserB } from "../../generated/schema";
-import { ADDRESS_ZERO, ZERO_BD } from "./consts";
+import { ADDRESS_ZERO, isBoxAAddress, ZERO_BD } from "./consts";
 import { printDebug } from "./helpers";
 
-let startWeekId = -1;
-let startDayId = -1;
+let startWeekId = 2695;
+let startDayId = 18865;
 
 let actionPerWeek = 5;
-let swapAmount = BigDecimal.fromString("190");
-let mintAmount = BigDecimal.fromString("450");
-let boxAmountX = BigDecimal.fromString("160");
-let boxAmountY = BigDecimal.fromString("800");
+let swapAmount = BigDecimal.fromString("180");
+let mintAmount = BigDecimal.fromString("360");
+let boxAmountX = BigDecimal.fromString("400");
+let boxAmountY = BigDecimal.fromString("1600");
 
 let INF_BD = BigDecimal.fromString("100000000000000");
 
@@ -51,13 +51,16 @@ export function updateNFTData(
   if (_user.toHexString() == ADDRESS_ZERO || change.equals(ZERO_BD)) {
     return;
   }
-  let isBoxA = true;
+  let isBoxA = isBoxAAddress(market);
   let day = 86400;
   let week = day * 7;
 
   if (isBoxA) {
     // Mystery Box A
     let user = loadUserA(_user);
+    if (user.id == "0x17d96151c806eea5a1bad43365c4405be341fc6c") {
+      printDebug(timestamp.toString() + " " + BigInt.fromI32(user.box).toString() + " " + user.lpHolding.toString(), "userA");
+    }
     let updatedWeek = Math.floor(user.updatedAt / week);
     let thisWeek = Math.floor(timestamp / week);
 
@@ -119,8 +122,8 @@ export function increaseActionBox(_user: Address, timestamp: number): void {
   }
   user.save();
   if (user.actionThisWeek == actionPerWeek) return;
-  user.box = user.box + 1;
-  user.actionThisWeek = user.actionThisWeek + 1;
+  user.box = user.box + getNumWeek(thisWeek, thisWeek) as i32;
+  user.actionThisWeek = user.actionThisWeek + getNumWeek(thisWeek, thisWeek) as i32;
   user.save();
 }
 
@@ -130,7 +133,7 @@ export function swapActionNFT(
   amount: BigDecimal,
   timestamp: number
 ): void {
-  let isBoxA = true;
+  let isBoxA = isBoxAAddress(market);
   if (!isBoxA || amount.lt(swapAmount)) return;
   increaseActionBox(_user, timestamp);
 }
@@ -141,7 +144,7 @@ export function mintActionNFT(
   amount: BigDecimal,
   timestamp: number
 ): void {
-  let isBoxA = true;
+  let isBoxA = isBoxAAddress(underlyingAsset);
   if (!isBoxA || amount.lt(mintAmount)) return;
   increaseActionBox(_user, timestamp);
 }

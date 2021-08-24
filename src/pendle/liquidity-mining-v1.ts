@@ -57,7 +57,7 @@ export function hardcodedLiquidityMining(
   if (str == "0x4835f1f01102ea3c033ae193ec6ec63961863335") {
     lmAddress = "0x5fdbb48fced67425ab0598544de1aa63c220ea9d";
   }
- 
+
   // mainnet cdai
   if (
     str == "0xb26c86330fc7f97533051f2f8cd0a90c2e82b5ee" ||

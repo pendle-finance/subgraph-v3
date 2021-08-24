@@ -53,3 +53,17 @@ export const LIQUIDITY_MINING_PROXY =
   "0x70e649eb230dbaee72303ac14fa817b81dedcf0b";
 export let LM_ALLOC_DENOM = BigInt.fromI32(1000000000);
 export const isMainnet = true;
+
+let PEP_MARKET = Address.fromString(
+  "0x685d32f394a5f03e78a1a0f6a91b4e2bf6f52cfe"
+);
+let PEP_UNDERLYING = Address.fromString(
+  "0x37922c69b08babcceae735a31235c81f1d1e8e43"
+);
+
+export function isBoxAAddress(sAddr: Address): boolean {
+  return (
+    sAddr.toHexString() != PEP_MARKET.toHexString() &&
+    sAddr.toHexString() != PEP_UNDERLYING.toHexString()
+  );
+}

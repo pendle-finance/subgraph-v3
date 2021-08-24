@@ -35,7 +35,7 @@ import {
   ZERO_BD,
   ZERO_BI
 } from "./consts";
-import { getUniswapTokenPrice } from "../uniswap/pricing";
+import { getTokenPrice } from "../uniswap/pricing";
 import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import { getPendlePrice } from "../sushiswap/factory";
 import { SushiswapPair } from "../../generated/templates/SushiswapPair/SushiswapPair";
@@ -315,7 +315,7 @@ export function calcLpPrice(
   }
 
   //@TODO Fetch proper base token price
-  let priceOfBaseToken = getUniswapTokenPrice(baseToken as Token);
+  let priceOfBaseToken = getTokenPrice(baseToken as Token);
   let totalValueOfBaseToken = priceOfBaseToken
     .times(tokenBalance.toBigDecimal())
     .div(exponentToBigDecimal(baseToken.decimals));
@@ -328,7 +328,7 @@ export function calcMarketWorthUSD(market: Pair): BigDecimal {
   let baseToken = Token.load(market.token1);
   let baseTokenWeight = market.token1WeightRaw.toBigDecimal().div(RONE_BD);
   let baseTokenBalance = market.reserve1;
-  let baseTokenPrice = getUniswapTokenPrice(baseToken as Token);
+  let baseTokenPrice = getTokenPrice(baseToken as Token);
   let marketWorthUSD = baseTokenBalance
     .times(baseTokenPrice)
     .div(baseTokenWeight);
@@ -345,7 +345,9 @@ export function calcYieldTokenPrice(market: Pair): BigDecimal {
   let baseTokenBalance = market.reserve1;
   let yieldTokenBalance = market.reserve0;
   // Finalize answer
-  let marketWorth = baseTokenBalance.times(getUniswapTokenPrice(baseToken as Token)).div(baseTokenWeight);
+  let marketWorth = baseTokenBalance
+    .times(getTokenPrice(baseToken as Token))
+    .div(baseTokenWeight);
   let yieldTokenPrice = marketWorth
     .times(yieldTokenWeight)
     .div(yieldTokenBalance);
@@ -426,7 +428,7 @@ export function getSushiLpPrice(lpAddress: Address): BigDecimal {
     loadToken(lpAddress).decimals
   );
   let token = loadToken(sushiContract.token0());
-  let tokenPrice = getUniswapTokenPrice(token as Token);
+  let tokenPrice = getTokenPrice(token as Token);
   let tokenBalance = convertTokenToDecimal(
     sushiContract.getReserves().value0,
     token.decimals

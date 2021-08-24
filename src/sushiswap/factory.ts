@@ -10,7 +10,7 @@ import { Swap as SwapEvent } from "../../generated/SushiswapFactory/SushiswapPai
 import {
   getEthPrice,
   getUniswapAddressPrice,
-  getUniswapTokenPrice
+  getTokenPrice
 } from "../uniswap/pricing";
 import {
   ADDRESS_ZERO,
@@ -191,7 +191,7 @@ export function handleSwapSushiswap(event: SwapEvent): void {
     );
   }
 
-  tradingValue = tradingValue.times(getUniswapTokenPrice(baseToken));
+  tradingValue = tradingValue.times(getTokenPrice(baseToken));
 
   let timestamp = event.block.timestamp.toI32();
   let hourID = timestamp / ONE_HOUR;

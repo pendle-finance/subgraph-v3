@@ -6,7 +6,7 @@ import {
   log
 } from "@graphprotocol/graph-ts";
 import { Pair, PairHourData, Token, PairDailyData } from "../generated/schema";
-import { getUniswapTokenPrice } from "./uniswap/pricing";
+import { getTokenPrice } from "./uniswap/pricing";
 import {
   DAYS_PER_YEAR_BD,
   ONE_BD,
@@ -50,12 +50,12 @@ export function updatePairHourData(
 
     // BASE TOKEN price
     let baseToken = Token.load(market.token1);
-    pairHourData.baseTokenPrice = getUniswapTokenPrice(baseToken as Token);
+    pairHourData.baseTokenPrice = getTokenPrice(baseToken as Token);
 
     // Underlying price
     let yieldToken = Token.load(market.token0);
     let yieldBearingToken = Token.load(yieldToken.underlyingAsset);
-    pairHourData.yieldBearingAssetPrice = getUniswapTokenPrice(
+    pairHourData.yieldBearingAssetPrice = getTokenPrice(
       yieldBearingToken as Token
     );
   }
@@ -126,12 +126,12 @@ export function updatePairDailyData(
 
     // Base Token price
     let baseToken = Token.load(market.token1);
-    pairDayData.baseTokenPrice = getUniswapTokenPrice(baseToken as Token);
+    pairDayData.baseTokenPrice = getTokenPrice(baseToken as Token);
 
     // Underlying price
     let yieldToken = Token.load(market.token0);
     let yieldBearingToken = Token.load(yieldToken.underlyingAsset);
-    pairDayData.yieldBearingAssetPrice = getUniswapTokenPrice(
+    pairDayData.yieldBearingAssetPrice = getTokenPrice(
       yieldBearingToken as Token
     );
   }

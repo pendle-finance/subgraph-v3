@@ -10,7 +10,7 @@ import {
   MintYieldTokens as MintYieldTokenEvent,
   RedeemYieldToken as RedeemYieldTokenEvent
 } from "../../generated/templates/IPendleForge/IPendleForge";
-import { getUniswapTokenPrice } from "../uniswap/pricing";
+import { getTokenPrice } from "../uniswap/pricing";
 import { ONE_BI, ZERO_BD, ZERO_BI } from "../utils/consts";
 import {
   convertTokenToDecimal,
@@ -92,7 +92,7 @@ export function handleMintYieldToken(event: MintYieldTokenEvent): void {
   let xytToken = Token.load(yieldContract.xyt);
   let otToken = Token.load(yieldContract.ot);
   let yieldBearingToken = Token.load(yieldContract.yieldBearingAsset);
-  let yieldTokenPrice = getUniswapTokenPrice(yieldBearingToken as Token);
+  let yieldTokenPrice = getTokenPrice(yieldBearingToken as Token);
 
   // Getting the mint volume
   let newMintVolume = convertTokenToDecimal(
@@ -171,7 +171,7 @@ export function handleRedeemYieldContracts(event: RedeemYieldTokenEvent): void {
     yieldBearingToken.decimals
   );
 
-  let yieldTokenPrice = getUniswapTokenPrice(yieldBearingToken as Token);
+  let yieldTokenPrice = getTokenPrice(yieldBearingToken as Token);
   let newRedeenVolumeUSD = newRedeenVolume.times(yieldTokenPrice);
 
   yieldContract.redeemVolume = yieldContract.redeemVolume.plus(newRedeenVolume);

@@ -93,7 +93,7 @@ export function getUnderlyingPrice(tokenAddress: Address): BigDecimal {
   return BigDecimal.fromString("0");
 }
 
-export function getUniswapTokenPrice(token: Token): BigDecimal {
+export function getTokenPrice(token: Token): BigDecimal {
   if (token.id == PENDLE_TOKEN_ADDRESS.toHexString()) return getPendlePrice();
   if (token.underlyingAsset != null && token.forgeId.startsWith("Sushi")) {
     return getSushiLpPrice(Address.fromHexString(token.id) as Address);
@@ -118,7 +118,7 @@ export function getUniswapTokenPrice(token: Token): BigDecimal {
 
 export function getUniswapAddressPrice(tokenAddress: Address): BigDecimal {
   let token = loadToken(tokenAddress);
-  return getUniswapTokenPrice(token as Token);
+  return getTokenPrice(token as Token);
 }
 
 export function kovanHardcodedPrice(pool: Address): BigDecimal {
