@@ -58,9 +58,6 @@ export function updateNFTData(
   if (isBoxA) {
     // Mystery Box A
     let user = loadUserA(_user);
-    if (user.id == "0x17d96151c806eea5a1bad43365c4405be341fc6c") {
-      printDebug(timestamp.toString() + " " + BigInt.fromI32(user.box).toString() + " " + user.lpHolding.toString(), "userA");
-    }
     let updatedWeek = Math.floor(user.updatedAt / week);
     let thisWeek = Math.floor(timestamp / week);
 
