@@ -248,11 +248,10 @@ export function updateMarketLiquidityMiningApr(
     pair.lpStaked = totalStakeLp.toBigDecimal();
     pair.lpStakedUSD = pair.lpPriceUSD.times(pair.lpStaked);
 
-    let pendlePerLp = actualReward.div(totalStakeLp);
     let pendlePerLpBD = convertTokenToDecimal(
-      pendlePerLp,
+      actualReward,
       pendleToken.decimals
-    );
+    ).div(totalStakeLp.toBigDecimal());
 
     let apw = pendlePerLpBD.times(getPendlePrice()).div(lpPrice);
     pair.lpAPR = apw.times(DAYS_PER_YEAR_BD).div(DAYS_PER_WEEK_BD);
