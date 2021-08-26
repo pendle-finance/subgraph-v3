@@ -245,17 +245,24 @@ export function updateMarketLiquidityMiningApr(
       return;
     }
 
+
     pair.lpStaked = totalStakeLp.toBigDecimal();
     pair.lpStakedUSD = pair.lpPriceUSD.times(pair.lpStaked);
 
     let pendlePerLpBD = convertTokenToDecimal(
       actualReward,
       pendleToken.decimals
-    ).div(totalStakeLp.toBigDecimal());
+    ).div(pair.lpStakedUSD);
 
-    let apw = pendlePerLpBD.times(getPendlePrice()).div(lpPrice);
+    let apw = pendlePerLpBD.times(getPendlePrice());
     pair.lpAPR = apw.times(DAYS_PER_YEAR_BD).div(DAYS_PER_WEEK_BD);
     pair.save();
+
+
+    printDebug(pendlePerLpBD.toString(), pair.id.concat("pendleperLpBD"));
+    printDebug(apw.toString(), pair.id.concat("pendleperLpBD"));
+
+
     return;
   } else {
     if (pair.liquidityMining == null) {
@@ -294,6 +301,7 @@ export function updateMarketLiquidityMiningApr(
       totalReward,
       pendleToken.decimals
     ).div(totalStaked.toBigDecimal());
+
 
     let apw = pendlePerLp.times(getPendlePrice()).div(pair.lpPriceUSD);
     pair.lpAPR = apw
