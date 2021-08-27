@@ -484,10 +484,12 @@ type DebugLog @entity {
 
 type UserMarketData @entity {
   id: ID!
-  user: String!
-  market: String!
+  user: User!
+  market: Pair!
   lpHolding: BigInt!
   recordedUSDValue: BigDecimal!
+  capitalProvided: BigDecimal!
+  capitalWithdrawn: BigDecimal!
 }
 
 type LpTransferEvent @entity {

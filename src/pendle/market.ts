@@ -33,8 +33,10 @@ import {
   getLpPrice,
   isMarketLiquidityMiningV2,
   loadToken,
+  loadUser,
   printDebug
 } from "../utils/helpers";
+import { getEthPrice } from "../uniswap/pricing";
 
 export function handleTransfer(event: TransferEvent): void {
   // To make sure that theres lp holder
@@ -45,7 +47,6 @@ export function handleTransfer(event: TransferEvent): void {
   let to = event.params.to.toHexString();
   let fromBalanceChange = ZERO_BI;
   let toBalanceChange = ZERO_BI;
-
   if (
     from == market.yieldTokenHolderAddress ||
     to == market.yieldTokenHolderAddress
@@ -94,10 +95,12 @@ function loadUserMarketData(user: Address, market: Address): UserMarketData {
     return ins as UserMarketData;
   }
   ins = new UserMarketData(id);
-  ins.user = user.toHexString();
+  ins.user = loadUser(user).id;
   ins.market = market.toHexString();
   ins.lpHolding = ZERO_BI;
   ins.recordedUSDValue = ZERO_BD;
+  ins.capitalProvided = ZERO_BD;
+  ins.capitalWithdrawn = ZERO_BD;
   ins.save();
   return ins as UserMarketData;
 }
@@ -113,10 +116,18 @@ function updateUserMarketData(
   let lpPrice = getLpPrice(pair);
 
   ins.lpHolding = ins.lpHolding.plus(change);
-  let usdChange = lpPrice
-    .times(ins.lpHolding.toBigDecimal())
-    .minus(ins.recordedUSDValue);
   ins.recordedUSDValue = lpPrice.times(ins.lpHolding.toBigDecimal());
+
+  if (change.lt(ZERO_BI)) {
+    ins.capitalWithdrawn = ins.capitalWithdrawn.plus(
+      change.toBigDecimal().times(lpPrice)
+    );
+  } else {
+    ins.capitalProvided = ins.capitalProvided.plus(
+      change.toBigDecimal().times(lpPrice)
+    );
+  }
+
   ins.save();
 }
 
@@ -257,12 +268,6 @@ export function updateMarketLiquidityMiningApr(
     let apw = pendlePerLpBD.times(getPendlePrice());
     pair.lpAPR = apw.times(DAYS_PER_YEAR_BD).div(DAYS_PER_WEEK_BD);
     pair.save();
-
-
-    printDebug(pendlePerLpBD.toString(), pair.id.concat("pendleperLpBD"));
-    printDebug(apw.toString(), pair.id.concat("pendleperLpBD"));
-
-
     return;
   } else {
     if (pair.liquidityMining == null) {
