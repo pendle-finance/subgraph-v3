@@ -69,7 +69,6 @@ export function handleNewSushiswapPair(event: SushiswapPairCreatedEvent): void {
     otMarket.otToken = id;
     otMarket.baseToken = baseToken;
     otMarket.isOtToken0 = isOwnershipToken(event.params.token0);
-
     otMarket.totalTradingUSD = ZERO_BD;
     otMarket.save();
     updateSushiswapPair(

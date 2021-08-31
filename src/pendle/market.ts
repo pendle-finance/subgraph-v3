@@ -40,9 +40,9 @@ import { getEthPrice } from "../uniswap/pricing";
 
 export function handleTransfer(event: TransferEvent): void {
   // To make sure that theres lp holder
-  updateMarketLiquidityMiningApr(event.address, event.block.timestamp);
 
   let market = Pair.load(event.address.toHexString()) as Pair;
+  updateMarketLiquidityMiningApr(event.block.timestamp, market as Pair);
   let from = event.params.from.toHexString();
   let to = event.params.to.toHexString();
   let fromBalanceChange = ZERO_BI;
@@ -193,7 +193,7 @@ export function handleSync(event: SyncEvent): void {
   pair.lpAPR = ZERO_BD;
   pair.save();
 
-  updateMarketLiquidityMiningApr(event.address, event.block.timestamp);
+  updateMarketLiquidityMiningApr(event.block.timestamp, pair as Pair);
   // pair.save();
 
   token0.save();
@@ -201,10 +201,10 @@ export function handleSync(event: SyncEvent): void {
 }
 
 export function updateMarketLiquidityMiningApr(
-  marketAddress: Address,
-  timestamp: BigInt
+  timestamp: BigInt,
+  pair: Pair
 ): void {
-  let pair = Pair.load(marketAddress.toHexString()) as Pair;
+  let marketAddress = Address.fromHexString(pair.id) as Address;
   if (!isMarketLiquidityMiningV2(marketAddress)) {
     /// LMV2 not found from directory contract
     if (pair.liquidityMining == null) return; /// LMV1 not found as well
@@ -256,7 +256,6 @@ export function updateMarketLiquidityMiningApr(
       return;
     }
 
-
     pair.lpStaked = totalStakeLp.toBigDecimal();
     pair.lpStakedUSD = pair.lpPriceUSD.times(pair.lpStaked);
 
@@ -306,7 +305,6 @@ export function updateMarketLiquidityMiningApr(
       totalReward,
       pendleToken.decimals
     ).div(totalStaked.toBigDecimal());
-
 
     let apw = pendlePerLp.times(getPendlePrice()).div(pair.lpPriceUSD);
     pair.lpAPR = apw

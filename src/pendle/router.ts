@@ -1,4 +1,4 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
   SwapEvent,
   Join as JoinLiquidityPoolEvent,
@@ -24,9 +24,9 @@ import {
   convertTokenToDecimal,
   generateNewToken,
   loadPendleData,
-  printDebug
 } from "../utils/helpers";
 import { getLiquidityMining } from "./liquidity-mining-v1";
+import { updateMarketLiquidityMiningApr } from "./market";
 
 export function handleSwap(event: SwapEvent): void {
   let pair = Pair.load(event.params.market.toHexString());
@@ -109,8 +109,8 @@ export function handleSwap(event: SwapEvent): void {
   swap.amountUSD = derivedAmountUSD;
 
   swap.save();
-  let pairHourData = updatePairHourData(event, pair as Pair);
-  let pairDayData = updatePairDailyData(event, pair as Pair);
+  let pairHourData = updatePairHourData(event.block.timestamp, pair as Pair);
+  let pairDayData = updatePairDailyData(event.block.timestamp, pair as Pair);
   if (inToken.underlyingAsset != "") {
     // inToken is YT
 
@@ -212,11 +212,11 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
 
   liquidityPool.save();
 
-  let pairHourData = updatePairHourData(event, pair as Pair);
+  let pairHourData = updatePairHourData(event.block.timestamp, pair as Pair);
   pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
   pairHourData.save();
 
-  let pairDayData = updatePairDailyData(event, pair as Pair);
+  let pairDayData = updatePairDailyData(event.block.timestamp, pair as Pair);
   pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
   pairDayData.save();
 
@@ -360,11 +360,11 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   );
 
   liquidityPool.save();
-  let pairHourData = updatePairHourData(event, pair as Pair);
+  let pairHourData = updatePairHourData(event.block.timestamp, pair as Pair);
   pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
   pairHourData.save();
 
-  let pairDayData = updatePairDailyData(event, pair as Pair);
+  let pairDayData = updatePairDailyData(event.block.timestamp, pair as Pair);
   pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
   pairDayData.save();
 

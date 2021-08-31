@@ -502,3 +502,4 @@ type LpTransferEvent @entity {
   timestamp: BigInt!
   block: BigInt!
 }
+

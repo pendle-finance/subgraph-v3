@@ -13,8 +13,9 @@ export function handleStake(event: StakeEvent): void {
   let otpair = SushiswapPair.load(poolAddress.toHexString());
   let ytpair = Pair.load(poolAddress.toHexString());
   if (otpair != null) getOtApr(otpair as SushiswapPair, event.block.timestamp);
-  if (ytpair != null)
-    updateMarketLiquidityMiningApr(poolAddress, event.block.timestamp);
+  if (ytpair != null) {
+    updateMarketLiquidityMiningApr(event.block.timestamp, ytpair as Pair);
+  }
 }
 
 export function handleWithdrawn(event: WithdrawnEvent): void {
@@ -23,6 +24,7 @@ export function handleWithdrawn(event: WithdrawnEvent): void {
   let otpair = SushiswapPair.load(poolAddress.toHexString());
   let ytpair = Pair.load(poolAddress.toHexString());
   if (otpair != null) getOtApr(otpair as SushiswapPair, event.block.timestamp);
-  if (ytpair != null)
-    updateMarketLiquidityMiningApr(poolAddress, event.block.timestamp);
+  if (ytpair != null) {
+    updateMarketLiquidityMiningApr(event.block.timestamp, ytpair as Pair);
+  }
 }

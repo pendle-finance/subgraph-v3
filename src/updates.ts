@@ -22,10 +22,10 @@ import {
 } from "./utils/helpers";
 
 export function updatePairHourData(
-  event: ethereum.Event,
+  _timestamp: BigInt,
   market: Pair
 ): PairHourData {
-  let timestamp = event.block.timestamp.toI32();
+  let timestamp = _timestamp.toI32();
   let hourID = timestamp / ONE_HOUR;
   let hourStartUnix = hourID * ONE_HOUR;
   let hourPairID = market.id
@@ -76,7 +76,7 @@ export function updatePairHourData(
 
   let daysUntilExpiry = market.expiry
     .toBigDecimal()
-    .minus(event.block.timestamp.toBigDecimal())
+    .minus(_timestamp.toBigDecimal())
     .div(ONE_DAY);
 
   let impliedYieldPercentage = yieldTokenPriceUSD
@@ -97,10 +97,10 @@ export function updatePairHourData(
 }
 
 export function updatePairDailyData(
-  event: ethereum.Event,
+  _timestamp: BigInt,
   market: Pair
 ): PairDailyData {
-  let timestamp = event.block.timestamp.toI32();
+  let timestamp = _timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartUnix = dayID * 86400;
   let dayPairID = market.id
@@ -152,7 +152,7 @@ export function updatePairDailyData(
 
   let daysUntilExpiry = market.expiry
     .toBigDecimal()
-    .minus(event.block.timestamp.toBigDecimal())
+    .minus(_timestamp.toBigDecimal())
     .div(ONE_DAY);
 
   let impliedYieldPercentage = yieldTokenPriceUSD

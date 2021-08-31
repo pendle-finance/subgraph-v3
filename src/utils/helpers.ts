@@ -19,7 +19,7 @@ import {
   Pair,
   DebugLog,
   PendleData,
-  LiquidityMining
+  LiquidityMining,
 } from "../../generated/schema";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
 import {
