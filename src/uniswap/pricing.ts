@@ -5,7 +5,6 @@ import { UniswapPool as UniswapPoolContract } from "../../generated/UniswapFacto
 import {
   exponentToBigDecimal,
   getSushiLpPrice,
-  loadToken,
   printDebug
 } from "../utils/helpers";
 import { getUniswapPoolAddress } from "./factory";
@@ -22,6 +21,7 @@ import {
   TWO_BD
 } from "../utils/consts";
 import { getPendlePrice } from "../sushiswap/factory";
+import { loadToken } from "../utils/load-entity";
 
 // @TODO: move these things to compound folder
 export function getCTokenCurrentRate(token: Token | null): BigDecimal {

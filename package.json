@@ -2,8 +2,10 @@
   "name": "v3",
   "version": "0.1.0",
   "scripts": {
-    "mode:mainnet": "cp subgraph-modes/mainnet.yaml subgraph.yaml && cp src/utils/consts-modes/mainnet_consts.ts src/utils/consts.ts",
-    "mode:kovan": "cp subgraph-modes/kovan.yaml subgraph.yaml && cp src/utils/consts-modes/kovan_consts.ts src/utils/consts.ts",
+    "mode:mainnet": "cp subgraph-modes/mainnet.yaml subgraph.yaml && cp src/utils/consts-modes/mainnet_consts.ts src/utils/consts.ts && graph codegen",
+    "mode:kovan": "cp subgraph-modes/kovan.yaml subgraph.yaml && cp src/utils/consts-modes/kovan_consts.ts src/utils/consts.ts && graph codegen",
+    "mode:polygon": "cp subgraph-modes/polygon.yaml subgraph.yaml && cp src/utils/consts-modes/polygon_consts.ts src/utils/consts.ts && graph codegen",
+    
     "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
     "create": "graph create josephsaw/v3 --node https://api.thegraph.com/deploy/",
     "create-local": "graph create josephsaw/v3 --node http://127.0.0.1:8020",
@@ -14,11 +16,15 @@
     "deploy-local": "graph deploy josephsaw/v3 --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
     "deploy:mainnet-staging": "yarn codegen && graph deploy josephsaw/mainnetstaging --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token 3d75be1dce784c08949c46127a791288",
     "format": "yarn prettier --write \"src/**/*.{js,ts}\"",
-    "deploy:mainnet": "yarn mode:mainnet && yarn codegen && graph deploy ngfam/pendle --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
-    "deploy:kovan": "yarn mode:kovan && yarn codegen && graph deploy ngfam/pendle-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
-    "deploy:test": "yarn mode:mainnet && yarn codegen && graph deploy ngfam/pendle-mainnet2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
-    "deploy:nft": "yarn mode:mainnet && yarn codegen && graph deploy ngfam/pendle-nft --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
-    "deploy:nft2": "yarn mode:mainnet && yarn codegen && graph deploy ngfam/pendle-nft2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261" 
+    "deploy:mainnet": "yarn mode:mainnet && graph deploy ngfam/pendle --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
+    "deploy:kovan": "yarn mode:kovan && graph deploy ngfam/pendle-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
+    "deploy:test": "yarn mode:mainnet && graph deploy ngfam/pendle-mainnet2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
+    "deploy:polygon": "yarn mode:polygon && graph deploy ngfam/pendle-polygon --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
+    
+    
+    
+    "deploy:nft": "yarn mode:mainnet && graph deploy ngfam/pendle-nft --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
+    "deploy:nft2": "yarn mode:mainnet && graph deploy ngfam/pendle-nft2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261" 
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.19.0",

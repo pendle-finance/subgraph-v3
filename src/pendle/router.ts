@@ -3,7 +3,8 @@ import {
   SwapEvent,
   Join as JoinLiquidityPoolEvent,
   Exit as ExitLiquidityPoolEvent,
-  MarketCreated as MarketCreatedEvent
+  MarketCreated as MarketCreatedEvent,
+  RedeemLpInterestsCall
 } from "../../generated/PendleRouter/PendleRouter";
 import { LiquidityPool, Pair, Swap, Token } from "../../generated/schema";
 import { PendleMarket as PendleMarketTemplate } from "../../generated/templates";
@@ -22,11 +23,12 @@ import {
 import {
   calcLpPrice,
   convertTokenToDecimal,
-  generateNewToken,
-  loadPendleData,
+  loadPendleData
 } from "../utils/helpers";
-import { getLiquidityMining } from "./liquidity-mining-v1";
-import { updateMarketLiquidityMiningApr } from "./market";
+import { generateNewToken, loadToken, loadUser } from "../utils/load-entity";
+import { getMarketLiquidityMining } from "./liquidity-mining-v1";
+import { loadUserMarketData } from "../utils/load-entity";
+import { redeemLpInterests } from "./market";
 
 export function handleSwap(event: SwapEvent): void {
   let pair = Pair.load(event.params.market.toHexString());
@@ -518,7 +520,7 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
   pair.lpPriceUSD = ZERO_BD;
   pair.lpStakedUSD = ZERO_BD;
 
-  let lm = getLiquidityMining(event.params.market);
+  let lm = getMarketLiquidityMining(event.params.market);
 
   if (lm != null) pair.liquidityMining = lm.id;
 
@@ -534,6 +536,10 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
   token0.save();
   token1.save();
   pair.save();
+}
+
+export function handleRedeemLpInterests(call: RedeemLpInterestsCall): void {
+  // redeemLpInterests(call.inputs.user, call.inputs.market, call.outputs.interests);
 }
 
 /*

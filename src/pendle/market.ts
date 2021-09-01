@@ -32,11 +32,10 @@ import {
   convertTokenToDecimal,
   getLpPrice,
   isMarketLiquidityMiningV2,
-  loadToken,
-  loadUser,
   printDebug
 } from "../utils/helpers";
-import { getEthPrice } from "../uniswap/pricing";
+import { loadToken, loadUser, loadUserMarketData } from "../utils/load-entity";
+import { getUniswapTokenPrice } from "../uniswap/pricing";
 
 export function handleTransfer(event: TransferEvent): void {
   // To make sure that theres lp holder
@@ -86,23 +85,6 @@ export function handleTransfer(event: TransferEvent): void {
     toBalanceChange,
     event.block.timestamp.toI32()
   );
-}
-
-function loadUserMarketData(user: Address, market: Address): UserMarketData {
-  let id = user.toHexString() + "-" + market.toHexString();
-  let ins = UserMarketData.load(id);
-  if (ins != null) {
-    return ins as UserMarketData;
-  }
-  ins = new UserMarketData(id);
-  ins.user = loadUser(user).id;
-  ins.market = market.toHexString();
-  ins.lpHolding = ZERO_BI;
-  ins.recordedUSDValue = ZERO_BD;
-  ins.capitalProvided = ZERO_BD;
-  ins.capitalWithdrawn = ZERO_BD;
-  ins.save();
-  return ins as UserMarketData;
 }
 
 function updateUserMarketData(
@@ -198,6 +180,24 @@ export function handleSync(event: SyncEvent): void {
 
   token0.save();
   token1.save();
+}
+
+export function redeemLpInterests(user: Address, market: Address, amount: BigInt): void {
+  let pair = Pair.load(market.toHexString());
+  let yt = Token.load(pair.token0);
+  let yieldBearingAsset = loadToken(
+    Address.fromHexString(yt.underlyingAsset) as Address
+  );
+  let amountBD = convertTokenToDecimal(
+    amount,
+    yieldBearingAsset.decimals
+  );
+  let relation = loadUserMarketData(user, market);
+  relation.yieldClaimedRaw = relation.yieldClaimedRaw.plus(amountBD);
+  relation.yieldClaimedUsd = relation.yieldClaimedUsd.plus(
+    amountBD.times(getUniswapTokenPrice(yieldBearingAsset as Token))
+  );
+  relation.save();
 }
 
 export function updateMarketLiquidityMiningApr(

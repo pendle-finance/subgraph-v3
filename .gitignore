@@ -60,9 +60,8 @@ typings/
 # next.js build output
 .next
 
-# package.json
-package.json
-
 # generated folder
 generated/
 build/
+
+subgraph.yaml

@@ -1,6 +1,6 @@
 specVersion: 0.0.2
-description: Gravatar for Ethereum
-repository: https://github.com/graphprotocol/example-subgraph
+description: Pendle subgraph on Kovan
+repository: https://github.com/pendle-finance/subgraph-v3
 schema:
   file: ./schema.graphql
 dataSources:
@@ -52,6 +52,9 @@ dataSources:
           handler: handleExitLiquidityPool
         - event: MarketCreated(bytes32,indexed address,indexed address,indexed address)
           handler: handleMarketCreated
+      callHandlers:
+        - function: redeemLpInterests(address,address)
+          handler: handleRedeemLpInterests
       file: ./src/pendle/router.ts
   - kind: ethereum/contract
     name: PendleData
@@ -305,6 +308,7 @@ templates:
         - Pair
         - Token
         - DebugLog
+        - UserMarketData
       abis:
         - name: PendleMarket
           file: ./abis/PendleMarket.json
@@ -312,11 +316,20 @@ templates:
           file: ./abis/ERC20.json
         - name: PendleLiquidityMiningV1
           file: ./abis/PendleLiquidityMiningV1.json
+        - name: PendleLpHolder
+          file: ./abis/PendleLpHolder.json
+        - name: UniswapPool
+          file: ./abis/uniswap/pool.json
       eventHandlers:
         - event: Staked(uint256,address,uint256)
           handler: handleStake
         - event: Withdrawn(uint256,address,uint256)
           handler: handleWithdrawn
+        - event: PendleRewardsSettled(uint256,address,uint256)
+          handler: handleRedeemReward
+      callHandlers:
+        - function: redeemLpInterests(uint256,address)
+          handler: handleRedeemLpInterests
   - kind: ethereum/contract
     name: PendleLiquidityMiningV2
     network: kovan

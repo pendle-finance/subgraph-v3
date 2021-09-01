@@ -12,12 +12,9 @@ import {
 } from "../../generated/templates/IPendleForge/IPendleForge";
 import { getUniswapTokenPrice } from "../uniswap/pricing";
 import { ONE_BI, ZERO_BD, ZERO_BI } from "../utils/consts";
-import {
-  convertTokenToDecimal,
-  fetchTokenTotalSupply,
-  generateNewToken,
-  printDebug
-} from "../utils/helpers";
+import { convertTokenToDecimal, printDebug } from "../utils/helpers";
+import { generateNewToken } from "../utils/load-entity";
+import { fetchTokenTotalSupply } from "../utils/token-fetch";
 
 export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   let forgeId = event.params.forgeId.toString();

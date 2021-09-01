@@ -1,16 +1,46 @@
-import { Address, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { LiquidityMining } from "../../generated/schema";
-import { PendleLiquidityMiningV1 } from "../../generated/templates";
 import {
+  RedeemLpInterestsCall,
   Staked as StakeEvent,
-  Withdrawn as WithdrawEvent
+  Withdrawn as WithdrawEvent,
+  PendleLiquidityMiningV1 as LMv1Contract,
+  PendleRewardsSettled,
 } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
+import { PendleLpHolder } from "../../generated/templates/PendleLiquidityMiningV1/PendleLpHolder";
+import { getPendlePrice } from "../sushiswap/factory";
+import { PENDLE_TOKEN_ADDRESS } from "../utils/consts";
+import { convertTokenToDecimal, printDebug } from "../utils/helpers";
+import { loadLiquidityMiningV1, loadToken, loadUserMarketData } from "../utils/load-entity";
+import { redeemLpInterests } from "./market";
 
 export function handleStake(event: StakeEvent): void {}
 
 export function handleWithdrawn(event: WithdrawEvent): void {}
 
-export function getLiquidityMining(marketAddress: Address): LiquidityMining {
+export function handleRedeemReward(event: PendleRewardsSettled): void {
+  let rel = loadUserMarketData(event.params.user, getExpiryMarket(event.address, event.params.expiry));
+  let pendleToken = loadToken(PENDLE_TOKEN_ADDRESS as Address);
+  let amount = convertTokenToDecimal(event.params.amount, pendleToken.decimals);
+  rel.pendleRewardReceivedRaw = rel.pendleRewardReceivedRaw.plus(amount);
+  rel.pendleRewardReceivedUSD = rel.pendleRewardReceivedRaw.times(getPendlePrice());
+  rel.save();
+  return;
+}
+
+export function handleRedeemLpInterests(call: RedeemLpInterestsCall): void {
+  redeemLpInterests(call.inputs.user, getExpiryMarket(call.to, call.inputs.expiry), call.outputs.interests);
+}
+
+function getExpiryMarket(liquidityMining: Address, expiry: BigInt): Address {
+  let contract = LMv1Contract.bind(liquidityMining);
+  let lpHolder = contract.readExpiryData(expiry).value3;
+  let lpHolderContract = PendleLpHolder.bind(lpHolder);
+  let marketAddress = lpHolderContract.pendleMarket();
+  return marketAddress;
+}
+
+export function getMarketLiquidityMining(marketAddress: Address): LiquidityMining {
   // Try v2?
   let lm = LiquidityMining.load(marketAddress.toHexString());
   if (lm == null) {
@@ -19,18 +49,6 @@ export function getLiquidityMining(marketAddress: Address): LiquidityMining {
   return lm as LiquidityMining;
 }
 
-export function loadLiquidityMiningV1(lmAddress: Address): LiquidityMining {
-  let lm = LiquidityMining.load(lmAddress.toHexString());
-  if (lm != null) {
-    return lm as LiquidityMining;
-  }
-  lm = new LiquidityMining(lmAddress.toHexString());
-  lm.save();
-
-  PendleLiquidityMiningV1.create(lmAddress);
-
-  return lm as LiquidityMining;
-}
 
 export function hardcodedLiquidityMining(
   marketAddress: Address

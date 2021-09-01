@@ -190,7 +190,7 @@ type Pair @entity {
 
   pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
 
-  liquidityMining: String
+  liquidityMining: LiquidityMining
   lpAPR: BigDecimal
   yieldTokenHolderAddress: String
 }
@@ -230,6 +230,11 @@ type User @entity {
 type LiquidityMining @entity {
   id: ID! # for v1, id will be LiqMining's address, for V2, it should be ERC20's address
   lmAddress: String
+}
+
+type LiquidityMiningExpiry @entity {
+  id: ID!
+  marketAddress: Pair!
 }
 
 type LiquidityPosition @entity {
@@ -471,16 +476,6 @@ type SushiswapPairHourData @entity {
   tradingVolumeUSD: BigDecimal!
 }
 
-############## DEBUG ############################
-
-
-type DebugLog @entity {
-  # The instance with id "0" is the root of the entity set. It stores the number of the instances (using for generating the id-s)
-  id: ID!
-  message: String!
-  type: String!
-  length: BigInt
-}
 
 type UserMarketData @entity {
   id: ID!
@@ -490,6 +485,13 @@ type UserMarketData @entity {
   recordedUSDValue: BigDecimal!
   capitalProvided: BigDecimal!
   capitalWithdrawn: BigDecimal!
+
+  yieldClaimedUsd: BigDecimal!
+  yieldClaimedRaw: BigDecimal!
+
+
+  pendleRewardReceivedRaw: BigDecimal!
+  pendleRewardReceivedUSD: BigDecimal!
 }
 
 type LpTransferEvent @entity {
@@ -503,3 +505,15 @@ type LpTransferEvent @entity {
   block: BigInt!
 }
 
+
+
+############## DEBUG ############################
+
+
+type DebugLog @entity {
+  # The instance with id "0" is the root of the entity set. It stores the number of the instances (using for generating the id-s)
+  id: ID!
+  message: String!
+  type: String!
+  length: BigInt
+}

@@ -28,15 +28,11 @@ import {
   ZERO_BD,
   ZERO_BI
 } from "../utils/consts";
-import {
-  convertTokenToDecimal,
-  getBalanceOf,
-  loadToken,
-  printDebug
-} from "../utils/helpers";
+import { convertTokenToDecimal, getBalanceOf } from "../utils/helpers";
 import { SushiswapPair as SushiswapPairTemplate } from "../../generated/templates";
 import { SushiswapPair as SushiswapPairContract } from "../../generated/templates/SushiswapPair/SushiswapPair";
 import { LiquidityMiningV2 } from "../../generated/templates/SushiswapPair/LiquidityMiningV2";
+import { loadToken } from "../utils/load-entity";
 
 export function isOwnershipToken(tokenAddress: Address): boolean {
   let token = Token.load(tokenAddress.toHexString());
