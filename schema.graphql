@@ -435,7 +435,7 @@ type PairDailyData @entity {
 
 ############## THIRD PARTY PACKAGE ################
 
-type UniswapPool @entity {
+type PricePool @entity {
   id: ID!
   poolAddress: String!
   token0Address: String!

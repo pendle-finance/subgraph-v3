@@ -9,7 +9,6 @@ import {
 import { LiquidityPool, Pair, Swap, Token } from "../../generated/schema";
 import { PendleMarket as PendleMarketTemplate } from "../../generated/templates";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
-import { getUniswapTokenPrice } from "../uniswap/pricing";
 import { updatePairDailyData, updatePairHourData } from "../updates";
 import {
   ERROR_COMPOUND_MARKET,
@@ -23,12 +22,11 @@ import {
 import {
   calcLpPrice,
   convertTokenToDecimal,
-  loadPendleData
+  loadPendleData,
 } from "../utils/helpers";
 import { generateNewToken, loadToken, loadUser } from "../utils/load-entity";
 import { getMarketLiquidityMining } from "./liquidity-mining-v1";
-import { loadUserMarketData } from "../utils/load-entity";
-import { redeemLpInterests } from "./market";
+import { getTokenPrice } from "../pricing";
 
 export function handleSwap(event: SwapEvent): void {
   let pair = Pair.load(event.params.market.toHexString());
@@ -45,10 +43,10 @@ export function handleSwap(event: SwapEvent): void {
   let baseTokenPrice = ZERO_BD;
   let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
   if (inToken.type == "swapBase") {
-    baseTokenPrice = getUniswapTokenPrice(inToken as Token);
+    baseTokenPrice = getTokenPrice(inToken as Token);
     derivedAmountUSD = amountIn.times(baseTokenPrice);
   } else {
-    baseTokenPrice = getUniswapTokenPrice(outToken as Token);
+    baseTokenPrice = getTokenPrice(outToken as Token);
     derivedAmountUSD = amountOut.times(baseTokenPrice);
   }
 
@@ -285,7 +283,7 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
     let token1Amount = pair.reserve1
       .times(token1Lp)
       .div(totalLp.times(ONE_BD.minus(token0Weight)));
-    let volumeUSD = token1Amount.times(getUniswapTokenPrice(inToken1 as Token));
+    let volumeUSD = token1Amount.times(getTokenPrice(inToken1 as Token));
 
     /// HOURLY
     pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
@@ -438,9 +436,7 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
       token1Lp.div(totalLp.times(ONE_BD.minus(token0Weight)))
     );
 
-    let volumeUSD = token1Amount.times(
-      getUniswapTokenPrice(outToken1 as Token)
-    );
+    let volumeUSD = token1Amount.times(getTokenPrice(outToken1 as Token));
 
     /// HOURLY
     pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(

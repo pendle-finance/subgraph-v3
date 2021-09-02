@@ -12,7 +12,6 @@ import {
   Sync as SyncEvent,
   Transfer as TransferEvent
 } from "../../generated/templates/PendleMarket/PendleMarket";
-import { getPendlePrice } from "../sushiswap/factory";
 import {
   ADDRESS_ZERO,
   DAYS_PER_WEEK_BD,
@@ -35,7 +34,7 @@ import {
   printDebug
 } from "../utils/helpers";
 import { loadToken, loadUser, loadUserMarketData } from "../utils/load-entity";
-import { getUniswapTokenPrice } from "../uniswap/pricing";
+import { getTokenPrice } from "../pricing";
 
 export function handleTransfer(event: TransferEvent): void {
   // To make sure that theres lp holder
@@ -182,20 +181,21 @@ export function handleSync(event: SyncEvent): void {
   token1.save();
 }
 
-export function redeemLpInterests(user: Address, market: Address, amount: BigInt): void {
+export function redeemLpInterests(
+  user: Address,
+  market: Address,
+  amount: BigInt
+): void {
   let pair = Pair.load(market.toHexString());
   let yt = Token.load(pair.token0);
   let yieldBearingAsset = loadToken(
     Address.fromHexString(yt.underlyingAsset) as Address
   );
-  let amountBD = convertTokenToDecimal(
-    amount,
-    yieldBearingAsset.decimals
-  );
+  let amountBD = convertTokenToDecimal(amount, yieldBearingAsset.decimals);
   let relation = loadUserMarketData(user, market);
   relation.yieldClaimedRaw = relation.yieldClaimedRaw.plus(amountBD);
   relation.yieldClaimedUsd = relation.yieldClaimedUsd.plus(
-    amountBD.times(getUniswapTokenPrice(yieldBearingAsset as Token))
+    amountBD.times(getTokenPrice(yieldBearingAsset as Token))
   );
   relation.save();
 }
@@ -264,7 +264,7 @@ export function updateMarketLiquidityMiningApr(
       pendleToken.decimals
     ).div(pair.lpStakedUSD);
 
-    let apw = pendlePerLpBD.times(getPendlePrice());
+    let apw = pendlePerLpBD.times(getTokenPrice(pendleToken as Token));
     pair.lpAPR = apw.times(DAYS_PER_YEAR_BD).div(DAYS_PER_WEEK_BD);
     pair.save();
     return;
@@ -306,7 +306,7 @@ export function updateMarketLiquidityMiningApr(
       pendleToken.decimals
     ).div(totalStaked.toBigDecimal());
 
-    let apw = pendlePerLp.times(getPendlePrice()).div(pair.lpPriceUSD);
+    let apw = pendlePerLp.times(getTokenPrice(pendleToken as Token)).div(pair.lpPriceUSD);
     pair.lpAPR = apw
       .times(DAYS_PER_YEAR_BD)
       .div(DAYS_PER_WEEK_BD)

@@ -52,4 +52,9 @@ export const ERROR_COMPOUND_SUSHISWAP_PAIR =
 export const LIQUIDITY_MINING_PROXY =
   "0x70e649eb230dbaee72303ac14fa817b81dedcf0b";
 export let LM_ALLOC_DENOM = BigInt.fromI32(1000000000);
-export const isMainnet = true;
+
+export const isMainnet = 137;
+
+export function getHardcodedPrice(tokenAddress: Address): BigDecimal {
+  return BigDecimal.fromString("0");
+}

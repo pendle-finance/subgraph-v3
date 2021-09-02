@@ -20,9 +20,7 @@
     "deploy:kovan": "yarn mode:kovan && graph deploy ngfam/pendle-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
     "deploy:test": "yarn mode:mainnet && graph deploy ngfam/pendle-mainnet2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
     "deploy:polygon": "yarn mode:polygon && graph deploy ngfam/pendle-polygon --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
-    
-    
-    
+    "deploy:polygon2": "yarn mode:polygon && graph deploy ngfam/matic-subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
     "deploy:nft": "yarn mode:mainnet && graph deploy ngfam/pendle-nft --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261",
     "deploy:nft2": "yarn mode:mainnet && graph deploy ngfam/pendle-nft2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token d31c64a831a44bcebf0f9f2565273261" 
   },

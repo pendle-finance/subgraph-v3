@@ -7,17 +7,12 @@ import {
 } from "../../generated/schema";
 import { PairCreated as SushiswapPairCreatedEvent } from "../../generated/SushiswapFactory/SushiswapFactory";
 import { Swap as SwapEvent } from "../../generated/SushiswapFactory/SushiswapPair";
-import {
-  getEthPrice,
-  getUniswapAddressPrice,
-  getUniswapTokenPrice
-} from "../uniswap/pricing";
+import { getEthPrice } from "../uniswap/pricing";
 import {
   ADDRESS_ZERO,
   DAYS_PER_WEEK_BD,
   DAYS_PER_YEAR_BD,
   ERROR_COMPOUND_SUSHISWAP_PAIR,
-  isMainnet,
   ONE_BD,
   ONE_BI,
   ONE_HOUR,
@@ -33,6 +28,8 @@ import { SushiswapPair as SushiswapPairTemplate } from "../../generated/template
 import { SushiswapPair as SushiswapPairContract } from "../../generated/templates/SushiswapPair/SushiswapPair";
 import { LiquidityMiningV2 } from "../../generated/templates/SushiswapPair/LiquidityMiningV2";
 import { loadToken } from "../utils/load-entity";
+import { getTokenPrice } from "../pricing";
+import {  } from "./pricing";
 
 export function isOwnershipToken(tokenAddress: Address): boolean {
   let token = Token.load(tokenAddress.toHexString());
@@ -86,7 +83,9 @@ export function updateSushiswapPair(
     baseTokenAddress as Address,
     pairAddress as Address
   );
-  let baseTokenPrice = getUniswapAddressPrice(baseTokenAddress as Address);
+  let baseTokenPrice = getTokenPrice(
+    loadToken(baseTokenAddress as Address) as Token
+  );
   let marketWorth = baseTokenPrice.times(baseTokenBalance).times(TWO_BD);
 
   if (otBalance.equals(ZERO_BD) || marketWorth.equals(ZERO_BD))
@@ -149,22 +148,13 @@ export function getOtApr(pair: SushiswapPair, timestamp: BigInt): void {
     totalReward,
     pendleToken.decimals
   ).div(totalStaked.toBigDecimal());
-
-  let apw = pendlePerLp.times(getPendlePrice()).div(lpPrice);
+  let apw = pendlePerLp.times(getTokenPrice(pendleToken as Token)).div(lpPrice);
   pair.aprPercentage = apw
     .times(DAYS_PER_YEAR_BD)
     .div(DAYS_PER_WEEK_BD)
     .times(BigDecimal.fromString("100"));
   pair.save();
   return;
-}
-
-export function getPendlePrice(): BigDecimal {
-  if (!isMainnet) return ONE_BD;
-  let pendleBalance = getBalanceOf(PENDLE_TOKEN_ADDRESS, PENDLE_ETH_SUSHISWAP);
-  let wethBalance = getBalanceOf(WETH_ADDRESS, PENDLE_ETH_SUSHISWAP);
-  let wethPrice = getEthPrice();
-  return wethPrice.times(wethBalance).div(pendleBalance);
 }
 
 export function handleSwapSushiswap(event: SwapEvent): void {
@@ -186,7 +176,7 @@ export function handleSwapSushiswap(event: SwapEvent): void {
     );
   }
 
-  tradingValue = tradingValue.times(getUniswapTokenPrice(baseToken));
+  tradingValue = tradingValue.times(getTokenPrice(baseToken));
 
   let timestamp = event.block.timestamp.toI32();
   let hourID = timestamp / ONE_HOUR;
