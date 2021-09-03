@@ -1,7 +1,4 @@
-import {
-  BigDecimal,
-  BigInt,
-} from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { Pair, PairHourData, Token, PairDailyData } from "../generated/schema";
 import { getTokenPrice } from "./pricing";
 import {
@@ -15,8 +12,7 @@ import {
 import {
   calcMarketWorthUSD,
   calcYieldTokenPrice,
-  printDebug,
-  
+  printDebug
 } from "./utils/helpers";
 
 export function updatePairHourData(

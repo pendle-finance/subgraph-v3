@@ -4,7 +4,7 @@ import { exponentToBigDecimal, printDebug } from "../utils/helpers";
 import { getUniswapPoolAddress } from "./factory";
 import {
   WETH_ADDRESS,
-  USDC_WETH_03_POOL,
+  USDC_WETH_POOL,
   UNISWAP_Q192,
   ONE_BD,
   STABLE_USD_TOKENS
@@ -35,15 +35,15 @@ export function getPoolPrice(
   }
 }
 
-export function getEthPrice(): BigDecimal {
-  return getPoolPrice(USDC_WETH_03_POOL, WETH_ADDRESS);
+export function getUniswapEthPrice(): BigDecimal {
+  return getPoolPrice(USDC_WETH_POOL, WETH_ADDRESS);
 }
 
 export function getUniswapTokenPrice(tokenAddress: Address): BigDecimal {
   let poolAddress = getUniswapPoolAddress(tokenAddress, WETH_ADDRESS);
   if (poolAddress) {
     // tokenPrice = token/eth * eth price
-    return getPoolPrice(poolAddress, tokenAddress).times(getEthPrice());
+    return getPoolPrice(poolAddress, tokenAddress).times(getUniswapEthPrice());
   } else {
     for (let i = 0; i < STABLE_USD_TOKENS.length; ++i) {
       let usdToken = STABLE_USD_TOKENS[i];

@@ -1,6 +1,7 @@
 import { Address, BigDecimal } from "@graphprotocol/graph-ts";
 import { Token } from "../generated/schema";
 import { ICToken as ICTokenContract } from "../generated/templates/IPendleForge/ICToken";
+import { getQuickSwapTokenPrice } from "./quickswap/pricing";
 import { getPendlePrice, getSushiLpPrice } from "./sushiswap/pricing";
 import { getUniswapTokenPrice } from "./uniswap/pricing";
 import {
@@ -13,7 +14,7 @@ import {
 import { exponentToBigDecimal, printDebug } from "./utils/helpers";
 import { loadToken } from "./utils/load-entity";
 
-export function getCTokenCurrentRate(token: Token | null): BigDecimal {
+export function getCTokenCurrentRate(token: Token): BigDecimal {
   let tokenAddress = Address.fromHexString(token.id) as Address;
   let underlyingAssetAddress = Address.fromHexString(
     token.underlyingAsset
@@ -26,6 +27,21 @@ export function getCTokenCurrentRate(token: Token | null): BigDecimal {
     .toBigDecimal()
     .div(COMPOUND_EXCHANGE_RATE_DECIMAL)
     .div(exponentToBigDecimal(underlyingAsset.decimals.minus(token.decimals)));
+}
+
+function calcSpecialForgePrice(
+  token: Token,
+  underlyingPrice: BigDecimal
+): BigDecimal {
+  let tokenPrice = underlyingPrice;
+  if (token.forgeId.startsWith("Compound")) {
+    tokenPrice = underlyingPrice.times(getCTokenCurrentRate(token as Token));
+  }
+  if (token.forgeId.startsWith("Aave")) {
+    // Currently we just leave 1 token = 1 aave token
+    tokenPrice = underlyingPrice;
+  }
+  return tokenPrice;
 }
 
 /**
@@ -44,7 +60,6 @@ export function getTokenPrice(token: Token): BigDecimal {
     return getPendlePrice();
   }
 
-  let tokenPrice = ZERO_BD;
   let underlyingPrice = ZERO_BD;
   let isYieldBearingToken = token.underlyingAsset !== null;
   let underlyingAsset = Address.fromHexString(
@@ -57,26 +72,26 @@ export function getTokenPrice(token: Token): BigDecimal {
     return underlyingPrice;
   }
 
-  if (chainId == 1) {
-    // Mainnet
-    underlyingPrice = getUniswapTokenPrice(underlyingAsset);
-  } else if (chainId == 42) {
-    // Kovan
-    underlyingPrice = getHardcodedPrice(underlyingAsset);
-  } else if (chainId == 137) {
-    // Matic - polygon
+  switch (chainId) {
+    case 1: {
+      // Mainnet
+      underlyingPrice = getUniswapTokenPrice(underlyingAsset);
+      break;
+    }
+    case 42: {
+      // Kovan
+      underlyingPrice = getHardcodedPrice(underlyingAsset);
+      break;
+    }
+    case 137: {
+      // Polygon
+      underlyingPrice = getQuickSwapTokenPrice(underlyingAsset);
+      break;
+    }
   }
-
   if (isYieldBearingToken) {
-    if (token.forgeId.startsWith("Compound")) {
-      tokenPrice = underlyingPrice.times(getCTokenCurrentRate(token));
-    }
-    if (token.forgeId.startsWith("Aave")) {
-      // Currently we just leave 1 token = 1 aave token
-      tokenPrice = underlyingPrice;
-    }
+    return calcSpecialForgePrice(token, underlyingPrice);
   } else {
-    tokenPrice = underlyingPrice;
+    return underlyingPrice;
   }
-  return tokenPrice;
 }

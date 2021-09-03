@@ -22,7 +22,7 @@ import {
 import {
   calcLpPrice,
   convertTokenToDecimal,
-  loadPendleData,
+  loadPendleData
 } from "../utils/helpers";
 import { generateNewToken, loadToken, loadUser } from "../utils/load-entity";
 import { getMarketLiquidityMining } from "./liquidity-mining-v1";

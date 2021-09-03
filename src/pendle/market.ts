@@ -306,7 +306,9 @@ export function updateMarketLiquidityMiningApr(
       pendleToken.decimals
     ).div(totalStaked.toBigDecimal());
 
-    let apw = pendlePerLp.times(getTokenPrice(pendleToken as Token)).div(pair.lpPriceUSD);
+    let apw = pendlePerLp
+      .times(getTokenPrice(pendleToken as Token))
+      .div(pair.lpPriceUSD);
     pair.lpAPR = apw
       .times(DAYS_PER_YEAR_BD)
       .div(DAYS_PER_WEEK_BD)

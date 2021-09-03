@@ -18,7 +18,7 @@ export let ONE_BD = BigDecimal.fromString("1");
 export let COMPOUND_EXCHANGE_RATE_DECIMAL = BigInt.fromI32(10)
   .pow(18)
   .toBigDecimal();
-export let USDC_WETH_03_POOL = Address.fromString(
+export let USDC_WETH_POOL = Address.fromString(
   "0xbaca9d50c2ae0cd5b9a457e7dbe38c673197caa3"
 );
 export let WETH_ADDRESS = Address.fromString(
@@ -26,6 +26,9 @@ export let WETH_ADDRESS = Address.fromString(
 );
 export let USDC_ADDRESS = Address.fromString(
   "0xe22da380ee6b445bb8273c81944adeb6e8450422"
+);
+export let WMATIC_ADDRESS = Address.fromString(
+  "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
 );
 export let UNISWAP_Q192 = BigDecimal.fromString(
   BigInt.fromI32(2)
@@ -51,7 +54,7 @@ export const ERROR_COMPOUND_SUSHISWAP_PAIR =
 
 export let LM_ALLOC_DENOM = BigInt.fromI32(1000000000);
 
-export const chainId = 42;
+export const chainId: u32 = 42;
 
 export function getHardcodedPrice(tokenAddress: Address): BigDecimal {
   let token = tokenAddress.toHexString();
