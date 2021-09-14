@@ -13,15 +13,15 @@ import {
 import { getUniswapTokenPrice } from "../uniswap/pricing";
 import { ONE_BI, ZERO_BD, ZERO_BI } from "../utils/consts";
 import { convertTokenToDecimal, printDebug } from "../utils/helpers";
-import { generateNewToken } from "../utils/load-entity";
+import { loadToken } from "../utils/load-entity";
 import { fetchTokenTotalSupply } from "../utils/token-fetch";
 
 export function handleNewYieldContracts(event: NewYieldContractsEvent): void {
   let forgeId = event.params.forgeId.toString();
-  let underlyingToken = generateNewToken(event.params.underlyingAsset);
-  let yieldBearingToken = generateNewToken(event.params.yieldBearingAsset);
-  let xytToken = generateNewToken(event.params.xyt);
-  let otToken = generateNewToken(event.params.ot);
+  let underlyingToken = loadToken(event.params.underlyingAsset);
+  let yieldBearingToken = loadToken(event.params.yieldBearingAsset);
+  let xytToken = loadToken(event.params.xyt);
+  let otToken = loadToken(event.params.ot);
 
   // Setting up yield tokens
   xytToken.forgeId = forgeId;

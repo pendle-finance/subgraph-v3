@@ -25,7 +25,7 @@ import {
   convertTokenToDecimal,
   loadPendleData
 } from "../utils/helpers";
-import { generateNewToken, loadToken, loadUser } from "../utils/load-entity";
+import { loadToken, loadUser } from "../utils/load-entity";
 import { getMarketLiquidityMining } from "./liquidity-mining-v1";
 import { loadUserMarketData } from "../utils/load-entity";
 import { redeemLpInterests } from "./market";
@@ -470,20 +470,10 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
     return;
   }
   // create the tokens
-  let token0 = Token.load(event.params.xyt.toHexString());
-  let token1 = Token.load(event.params.token.toHexString());
+  let token0 = loadToken(event.params.xyt);
+  let token1 = loadToken(event.params.token);
   //Generating LP Token
-  generateNewToken(event.params.market);
-
-  // fetch info if null
-  if (token0 === null) {
-    token0 = generateNewToken(event.params.xyt);
-  }
-
-  // fetch info if null
-  if (token1 === null) {
-    token1 = generateNewToken(event.params.token);
-  }
+  loadToken(event.params.market);
 
   // Bailing if token0 or token1 is still null
   if (token0 === null || token1 === null) {
