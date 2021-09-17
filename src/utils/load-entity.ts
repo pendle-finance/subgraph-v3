@@ -1,6 +1,6 @@
 import { Address, log } from "@graphprotocol/graph-ts";
 import {
-    LiquidityMining,
+  LiquidityMining,
   PendleData,
   Token,
   User,
@@ -37,6 +37,7 @@ export function generateNewToken(tokenAddress: Address): Token | null {
     log.debug("mybug the decimal on token 0 was null", []);
     return null;
   }
+  token.forgeId = "Unassigned";
 
   token.decimals = decimals;
   token.tradeVolume = ZERO_BD;
@@ -101,14 +102,13 @@ export function loadUserMarketData(
   return ins as UserMarketData;
 }
 
-
 export function loadLiquidityMiningV1(lmAddress: Address): LiquidityMining {
-    let lm = LiquidityMining.load(lmAddress.toHexString());
-    if (lm != null) {
-      return lm as LiquidityMining;
-    }
-    lm = new LiquidityMining(lmAddress.toHexString());
-    lm.save();  
-    PendleLiquidityMiningV1.create(lmAddress);
+  let lm = LiquidityMining.load(lmAddress.toHexString());
+  if (lm != null) {
     return lm as LiquidityMining;
+  }
+  lm = new LiquidityMining(lmAddress.toHexString());
+  lm.save();
+  PendleLiquidityMiningV1.create(lmAddress);
+  return lm as LiquidityMining;
 }

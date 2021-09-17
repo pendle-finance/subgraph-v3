@@ -1,17 +1,5 @@
-/**
- * @dev
- * In order to maintain the dev mode of UniswapV3 when there're new tokens, new uniswap pools. Please notice:
- *    a) They main point of implementing dev mode is that uncommenting uniswap in subgraph.yaml can turn it into production
- *
- *    b) To maintain the dev mode when there are new tokens - uniswap pools, do the following steps:
- *      1. Uncomment Uniswap datasource in subgraph.yaml (turn in to production mode)
- *      2. Deploy subgraph
- *      3. On subgraph playground, query for UniswapPools that has hasBeenUsed = true
- *      4. Put those "used" pools into initializeUniswapPools() function
- */
-
-import { Address, log } from "@graphprotocol/graph-ts";
-import { UniswapPool } from "../../generated/schema";
+import { Address } from "@graphprotocol/graph-ts";
+import { PricePool } from "../../generated/schema";
 import { PoolCreated as UniswapPoolCreatedEvent } from "../../generated/UniswapFactory/UniswapFactory";
 
 export function createUniswapPool(
@@ -20,11 +8,11 @@ export function createUniswapPool(
   token1Address: Address
 ): void {
   let id = token0Address.toHexString() + "-" + token1Address.toHexString();
-  let poolInstance = UniswapPool.load(id);
+  let poolInstance = PricePool.load(id);
   if (poolInstance) {
     return;
   }
-  poolInstance = new UniswapPool(id);
+  poolInstance = new PricePool(id);
   poolInstance.poolAddress = poolAddress.toHexString();
   poolInstance.token0Address = token0Address.toHexString();
   poolInstance.token1Address = token1Address.toHexString();
@@ -40,9 +28,6 @@ export function handleUniswapPoolCreated(event: UniswapPoolCreatedEvent): void {
   );
 }
 
-/**
- * @dev this function can also be used in production mode so no need to remove it
- */
 export function initializeUniswapPools(): void {
   createUniswapPool(
     Address.fromString("0xa80964c5bbd1a0e95777094420555fead1a26c1e"),
@@ -61,10 +46,10 @@ export function getUniswapPoolAddress(
   token1Address: Address
 ): Address {
   let id = token0Address.toHexString() + "-" + token1Address.toHexString();
-  let poolInstance = UniswapPool.load(id);
+  let poolInstance = PricePool.load(id);
   if (!poolInstance) {
     id = token1Address.toHexString() + "-" + token0Address.toHexString();
-    poolInstance = UniswapPool.load(id);
+    poolInstance = PricePool.load(id);
   }
   if (!poolInstance) {
     return null;

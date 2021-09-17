@@ -20,7 +20,7 @@ dataSources:
         - Pair
         - Token
         - Swap
-        - UniswapPool
+        - PricePool
         - DebugLog
         - SushiswapPair
         - PairDailyData
@@ -101,7 +101,7 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - UniswapPool
+        - PricePool
       abis:
         - name: UniswapFactory
           file: ./abis/UniswapFactory.json
@@ -191,7 +191,7 @@ templates:
         - Token
         - MintYieldToken
         - YieldContract
-        - UniswapPool
+        - PricePool
         - DebugLog
         - SushiswapPair
       abis:
@@ -228,7 +228,7 @@ templates:
       file: ./src/pendle/market.ts
       entities:
         - PendleData
-        - UniswapPool
+        - PricePool
         - DebugLog
         - SushiswapPair
         - PairDailyData
@@ -268,7 +268,7 @@ templates:
         - SushiswapPair
         - LiquidityMining
         - Token
-        - UniswapPool
+        - PricePool
         - DebugLog
         - SushiswapPairHourData
       abis:

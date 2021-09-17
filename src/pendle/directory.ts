@@ -13,8 +13,6 @@ export function handleNewContractAddress(event: NewAddressEvent): void {
     let lmInstance = new LiquidityMining(token.toHexString());
     lmInstance.lmAddress = newAddress.toHexString();
     lmInstance.save();
-
-    printDebug(token.toHexString() + "-" + newAddress.toHexString(), "lmv2");
     PendleLiquidityMiningV2.create(newAddress);
   }
 }

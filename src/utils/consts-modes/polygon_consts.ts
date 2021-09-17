@@ -1,9 +1,9 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 
 export let STABLE_USD_TOKENS: Address[] = [
-  Address.fromString("0x6b175474e89094c44da98b954eedeac495271d0f"), // DAI
-  Address.fromString("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"), // USDC
-  Address.fromString("0xdac17f958d2ee523a2206206994597c13d831ec7") // USDT
+  Address.fromString("0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"), // DAI
+  Address.fromString("0x2791bca1f2de4661ed88a30c99a7a9449aa84174"), // USDC
+  Address.fromString("0xc2132d05d31c914a87c6611c10748aeb04b58e8f") // USDT
 ];
 
 export let TWO_BD = BigDecimal.fromString("2");
@@ -18,15 +18,17 @@ export let ONE_BD = BigDecimal.fromString("1");
 export let COMPOUND_EXCHANGE_RATE_DECIMAL = BigInt.fromI32(10)
   .pow(18)
   .toBigDecimal();
-export let USDC_WETH_03_POOL = Address.fromString(
-  "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8"
+export let USDC_WETH_POOL = Address.fromString(
+  "0x853ee4b2a13f8a742d64c8f088be7ba2131f670d"
 );
 export let WETH_ADDRESS = Address.fromString(
-  "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+  "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
 );
-export let USDC_ADDRESS = Address.fromString(
-  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+
+export let WMATIC_ADDRESS = Address.fromString(
+  "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
 );
+
 export let UNISWAP_Q192 = BigDecimal.fromString(
   BigInt.fromI32(2)
     .pow(192)
@@ -49,7 +51,10 @@ export const ERROR_COMPOUND_MARKET =
 export const ERROR_COMPOUND_SUSHISWAP_PAIR =
   "0x1e790169999eb3bf4bcd41c650ab417faa53138d";
 
-export const LIQUIDITY_MINING_PROXY =
-  "0x70e649eb230dbaee72303ac14fa817b81dedcf0b";
 export let LM_ALLOC_DENOM = BigInt.fromI32(1000000000);
-export const isMainnet = true;
+
+export const chainId: u32 = 137;
+
+export function getHardcodedPrice(tokenAddress: Address): BigDecimal {
+  return BigDecimal.fromString("0");
+}

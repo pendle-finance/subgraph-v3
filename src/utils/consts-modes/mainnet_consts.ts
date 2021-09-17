@@ -18,7 +18,7 @@ export let ONE_BD = BigDecimal.fromString("1");
 export let COMPOUND_EXCHANGE_RATE_DECIMAL = BigInt.fromI32(10)
   .pow(18)
   .toBigDecimal();
-export let USDC_WETH_03_POOL = Address.fromString(
+export let USDC_WETH_POOL = Address.fromString(
   "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8"
 );
 export let WETH_ADDRESS = Address.fromString(
@@ -27,6 +27,10 @@ export let WETH_ADDRESS = Address.fromString(
 export let USDC_ADDRESS = Address.fromString(
   "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
 );
+export let WMATIC_ADDRESS = Address.fromString(
+  "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
+);
+
 export let UNISWAP_Q192 = BigDecimal.fromString(
   BigInt.fromI32(2)
     .pow(192)
@@ -49,7 +53,10 @@ export const ERROR_COMPOUND_MARKET =
 export const ERROR_COMPOUND_SUSHISWAP_PAIR =
   "0x1e790169999eb3bf4bcd41c650ab417faa53138d";
 
-export const LIQUIDITY_MINING_PROXY =
-  "0x70e649eb230dbaee72303ac14fa817b81dedcf0b";
 export let LM_ALLOC_DENOM = BigInt.fromI32(1000000000);
-export const isMainnet = true;
+
+export const chainId: u32 = 1;
+
+export function getHardcodedPrice(tokenAddress: Address): BigDecimal {
+  return BigDecimal.fromString("0");
+}

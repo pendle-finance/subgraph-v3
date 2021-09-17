@@ -1,17 +1,21 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { LiquidityMining } from "../../generated/schema";
+import { LiquidityMining, Token } from "../../generated/schema";
 import {
   RedeemLpInterestsCall,
   Staked as StakeEvent,
   Withdrawn as WithdrawEvent,
   PendleLiquidityMiningV1 as LMv1Contract,
-  PendleRewardsSettled,
+  PendleRewardsSettled
 } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import { PendleLpHolder } from "../../generated/templates/PendleLiquidityMiningV1/PendleLpHolder";
-import { getPendlePrice } from "../sushiswap/factory";
+import { getTokenPrice } from "../pricing";
 import { PENDLE_TOKEN_ADDRESS } from "../utils/consts";
 import { convertTokenToDecimal, printDebug } from "../utils/helpers";
-import { loadLiquidityMiningV1, loadToken, loadUserMarketData } from "../utils/load-entity";
+import {
+  loadLiquidityMiningV1,
+  loadToken,
+  loadUserMarketData
+} from "../utils/load-entity";
 import { redeemLpInterests } from "./market";
 
 export function handleStake(event: StakeEvent): void {}
@@ -19,17 +23,26 @@ export function handleStake(event: StakeEvent): void {}
 export function handleWithdrawn(event: WithdrawEvent): void {}
 
 export function handleRedeemReward(event: PendleRewardsSettled): void {
-  let rel = loadUserMarketData(event.params.user, getExpiryMarket(event.address, event.params.expiry));
+  let rel = loadUserMarketData(
+    event.params.user,
+    getExpiryMarket(event.address, event.params.expiry)
+  );
   let pendleToken = loadToken(PENDLE_TOKEN_ADDRESS as Address);
   let amount = convertTokenToDecimal(event.params.amount, pendleToken.decimals);
   rel.pendleRewardReceivedRaw = rel.pendleRewardReceivedRaw.plus(amount);
-  rel.pendleRewardReceivedUSD = rel.pendleRewardReceivedRaw.times(getPendlePrice());
+  rel.pendleRewardReceivedUSD = rel.pendleRewardReceivedRaw.times(
+    getTokenPrice(pendleToken as Token)
+  );
   rel.save();
   return;
 }
 
 export function handleRedeemLpInterests(call: RedeemLpInterestsCall): void {
-  redeemLpInterests(call.inputs.user, getExpiryMarket(call.to, call.inputs.expiry), call.outputs.interests);
+  redeemLpInterests(
+    call.inputs.user,
+    getExpiryMarket(call.to, call.inputs.expiry),
+    call.outputs.interests
+  );
 }
 
 function getExpiryMarket(liquidityMining: Address, expiry: BigInt): Address {
@@ -40,7 +53,9 @@ function getExpiryMarket(liquidityMining: Address, expiry: BigInt): Address {
   return marketAddress;
 }
 
-export function getMarketLiquidityMining(marketAddress: Address): LiquidityMining {
+export function getMarketLiquidityMining(
+  marketAddress: Address
+): LiquidityMining {
   // Try v2?
   let lm = LiquidityMining.load(marketAddress.toHexString());
   if (lm == null) {
@@ -48,7 +63,6 @@ export function getMarketLiquidityMining(marketAddress: Address): LiquidityMinin
   }
   return lm as LiquidityMining;
 }
-
 
 export function hardcodedLiquidityMining(
   marketAddress: Address

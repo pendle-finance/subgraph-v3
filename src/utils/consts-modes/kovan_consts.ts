@@ -18,7 +18,7 @@ export let ONE_BD = BigDecimal.fromString("1");
 export let COMPOUND_EXCHANGE_RATE_DECIMAL = BigInt.fromI32(10)
   .pow(18)
   .toBigDecimal();
-export let USDC_WETH_03_POOL = Address.fromString(
+export let USDC_WETH_POOL = Address.fromString(
   "0xbaca9d50c2ae0cd5b9a457e7dbe38c673197caa3"
 );
 export let WETH_ADDRESS = Address.fromString(
@@ -26,6 +26,9 @@ export let WETH_ADDRESS = Address.fromString(
 );
 export let USDC_ADDRESS = Address.fromString(
   "0xe22da380ee6b445bb8273c81944adeb6e8450422"
+);
+export let WMATIC_ADDRESS = Address.fromString(
+  "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
 );
 export let UNISWAP_Q192 = BigDecimal.fromString(
   BigInt.fromI32(2)
@@ -50,4 +53,31 @@ export const ERROR_COMPOUND_SUSHISWAP_PAIR =
   "0x1e790169999eb3bf4bcd41c650ab417faa53138d";
 
 export let LM_ALLOC_DENOM = BigInt.fromI32(1000000000);
-export const isMainnet = false;
+
+export const chainId: u32 = 42;
+
+export function getHardcodedPrice(tokenAddress: Address): BigDecimal {
+  let token = tokenAddress.toHexString();
+  if (token == "0xd0a1e359811322d97991e03f863a0c30c2cf029c") {
+    // ethereum
+    return BigDecimal.fromString("2000");
+  }
+  if (token == "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa") {
+    // USD DAI
+    return ONE_BD;
+  }
+  if (token == "0xe22da380ee6b445bb8273c81944adeb6e8450422") {
+    return ONE_BD;
+  }
+  if (token == "0x13512979ade267ab5100878e2e0f485b568328a4") {
+    return ONE_BD;
+  }
+  if (token == "0xb7a4f3e9097c08da09517b5ab877f7a917224ede") {
+    return ONE_BD;
+  }
+  if (token == PENDLE_TOKEN_ADDRESS.toHexString()) {
+    /// PENDLE
+    return ONE_BD;
+  }
+  return BigDecimal.fromString("0");
+}

@@ -5,6 +5,7 @@ import {
 } from "../../generated/PendleData/PendleData";
 import { Forge, MarketFactory } from "../../generated/schema";
 import { IPendleForge as PendleForgeTemplate } from "../../generated/templates";
+import { initializeQuickSwapPools } from "../quickswap/factory";
 import { initializeUniswapPools } from "../uniswap/factory";
 import { RONE } from "../utils/consts";
 import { loadPendleData } from "../utils/helpers";
@@ -27,6 +28,7 @@ export function handleMarketFeesSet(event: MarketFeesSetEvent): void {
 export function handleNewForge(event: NewForgeEvent): void {
   // This line is put here on the purpose that its just gonna run once at the start of Pendle subgraph
   initializeUniswapPools();
+  initializeQuickSwapPools();
   let forge = new Forge(event.params.forgeAddress.toHexString());
   forge.forgeId = event.params.forgeId.toString();
   forge.save();
