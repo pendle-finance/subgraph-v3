@@ -216,95 +216,95 @@ export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
   pairHourData.save();
 
-  let pairDayData = updatePairDailyData(event.block.timestamp, pair as Pair);
-  pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
-  pairDayData.save();
+  // let pairDayData = updatePairDailyData(event.block.timestamp, pair as Pair);
+  // pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
+  // pairDayData.save();
 
-  //Calculating swap fees for add single liq only
-  if (
-    event.params.token0Amount.notEqual(ZERO_BI) &&
-    event.params.token1Amount.notEqual(ZERO_BI)
-  ) {
-    return;
-  }
+  // //Calculating swap fees for add single liq only
+  // if (
+  //   event.params.token0Amount.notEqual(ZERO_BI) &&
+  //   event.params.token1Amount.notEqual(ZERO_BI)
+  // ) {
+  //   return;
+  // }
 
-  /**
-   * It will always refer to YT Token
-   */
-  let rawAmount = event.params.token0Amount;
-  let rawWeight = pair.token0WeightRaw;
-  let tokenPriceFormatted = pair.token0Price;
-  let inToken = inToken0;
+  // /**
+  //  * It will always refer to YT Token
+  //  */
+  // let rawAmount = event.params.token0Amount;
+  // let rawWeight = pair.token0WeightRaw;
+  // let tokenPriceFormatted = pair.token0Price;
+  // let inToken = inToken0;
 
-  /**
-   * It will always refer to base Token
-   */
-  if (event.params.token1Amount.gt(ZERO_BI)) {
-    rawAmount = event.params.token1Amount;
-    rawWeight = pair.token1WeightRaw;
-    tokenPriceFormatted = pair.token1Price;
-    inToken = inToken1;
-  }
-  let poweredTokenDecimal = BigInt.fromI32(10)
-    .pow(inToken.decimals.toI32() as u8)
-    .toBigDecimal();
-  let rawSwapAmount = rawAmount.times(RONE.minus(rawWeight)).div(RONE);
+  // /**
+  //  * It will always refer to base Token
+  //  */
+  // if (event.params.token1Amount.gt(ZERO_BI)) {
+  //   rawAmount = event.params.token1Amount;
+  //   rawWeight = pair.token1WeightRaw;
+  //   tokenPriceFormatted = pair.token1Price;
+  //   inToken = inToken1;
+  // }
+  // let poweredTokenDecimal = BigInt.fromI32(10)
+  //   .pow(inToken.decimals.toI32() as u8)
+  //   .toBigDecimal();
+  // let rawSwapAmount = rawAmount.times(RONE.minus(rawWeight)).div(RONE);
 
-  let pendleData = loadPendleData();
+  // let pendleData = loadPendleData();
 
-  let usdVolume = rawSwapAmount
-    .toBigDecimal()
-    .div(poweredTokenDecimal)
-    .times(tokenPriceFormatted);
-  let usdFee = usdVolume.times(pendleData.swapFee);
+  // let usdVolume = rawSwapAmount
+  //   .toBigDecimal()
+  //   .div(poweredTokenDecimal)
+  //   .times(tokenPriceFormatted);
+  // let usdFee = usdVolume.times(pendleData.swapFee);
 
-  liquidityPool.swapFeesCollectedUSD = usdFee;
-  liquidityPool.swapVolumeUSD = usdVolume;
+  // liquidityPool.swapFeesCollectedUSD = usdFee;
+  // liquidityPool.swapVolumeUSD = usdVolume;
 
-  pair.feesUSD = pair.feesUSD.plus(usdFee);
-  pair.volumeUSD = pair.volumeUSD.plus(usdVolume);
+  // pair.feesUSD = pair.feesUSD.plus(usdFee);
+  // pair.volumeUSD = pair.volumeUSD.plus(usdVolume);
 
-  liquidityPool.save();
-  pair.save();
+  // liquidityPool.save();
+  // pair.save();
 
-  // Add single
-  if (
-    event.params.token0Amount.equals(ZERO_BI) ||
-    event.params.token1Amount.equals(ZERO_BI)
-  ) {
-    let lpOut = event.params.exactOutLp.toBigDecimal();
-    let totalLp = pair.totalSupply;
-    let token0Weight = pair.token0WeightRaw.toBigDecimal().div(RONE_BD);
-    let token0Lp = lpOut.times(token0Weight);
-    let token1Lp = lpOut.minus(token0Lp);
-    let token0Amount = pair.reserve0
-      .times(token0Lp)
-      .div(totalLp.times(token0Weight));
-    let token1Amount = pair.reserve1
-      .times(token1Lp)
-      .div(totalLp.times(ONE_BD.minus(token0Weight)));
-    let volumeUSD = token1Amount.times(getTokenPrice(inToken1 as Token));
+  // // Add single
+  // if (
+  //   event.params.token0Amount.equals(ZERO_BI) ||
+  //   event.params.token1Amount.equals(ZERO_BI)
+  // ) {
+  //   let lpOut = event.params.exactOutLp.toBigDecimal();
+  //   let totalLp = pair.totalSupply;
+  //   let token0Weight = pair.token0WeightRaw.toBigDecimal().div(RONE_BD);
+  //   let token0Lp = lpOut.times(token0Weight);
+  //   let token1Lp = lpOut.minus(token0Lp);
+  //   let token0Amount = pair.reserve0
+  //     .times(token0Lp)
+  //     .div(totalLp.times(token0Weight));
+  //   let token1Amount = pair.reserve1
+  //     .times(token1Lp)
+  //     .div(totalLp.times(ONE_BD.minus(token0Weight)));
+  //   let volumeUSD = token1Amount.times(getTokenPrice(inToken1 as Token));
 
-    /// HOURLY
-    pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
-      token0Amount
-    );
-    pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
-      token1Amount
-    );
-    pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(volumeUSD);
+  //   /// HOURLY
+  //   pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
+  //     token0Amount
+  //   );
+  //   pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
+  //     token1Amount
+  //   );
+  //   pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(volumeUSD);
 
-    /// DAILY
-    pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
-      token0Amount
-    );
-    pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
-      token1Amount
-    );
-    pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(volumeUSD);
-  }
-  pairHourData.save();
-  pairDayData.save();
+  //   /// DAILY
+  //   pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
+  //     token0Amount
+  //   );
+  //   pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
+  //     token1Amount
+  //   );
+  //   pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(volumeUSD);
+  // }
+  // pairHourData.save();
+  // pairDayData.save();
 }
 
 export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {

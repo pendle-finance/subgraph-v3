@@ -1,8 +1,6 @@
-[
-  {
+[{
     "anonymous": false,
-    "inputs": [
-      {
+    "inputs": [{
         "indexed": true,
         "internalType": "uint24",
         "name": "fee",
@@ -20,8 +18,7 @@
   },
   {
     "anonymous": false,
-    "inputs": [
-      {
+    "inputs": [{
         "indexed": true,
         "internalType": "address",
         "name": "oldOwner",
@@ -39,8 +36,7 @@
   },
   {
     "anonymous": false,
-    "inputs": [
-      {
+    "inputs": [{
         "indexed": true,
         "internalType": "address",
         "name": "token0",
@@ -75,8 +71,7 @@
     "type": "event"
   },
   {
-    "inputs": [
-      {
+    "inputs": [{
         "internalType": "address",
         "name": "tokenA",
         "type": "address"
@@ -93,19 +88,16 @@
       }
     ],
     "name": "createPool",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "pool",
-        "type": "address"
-      }
-    ],
+    "outputs": [{
+      "internalType": "address",
+      "name": "pool",
+      "type": "address"
+    }],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
+    "inputs": [{
         "internalType": "uint24",
         "name": "fee",
         "type": "uint24"
@@ -122,27 +114,22 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint24",
-        "name": "fee",
-        "type": "uint24"
-      }
-    ],
+    "inputs": [{
+      "internalType": "uint24",
+      "name": "fee",
+      "type": "uint24"
+    }],
     "name": "feeAmountTickSpacing",
-    "outputs": [
-      {
-        "internalType": "int24",
-        "name": "",
-        "type": "int24"
-      }
-    ],
+    "outputs": [{
+      "internalType": "int24",
+      "name": "",
+      "type": "int24"
+    }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
+    "inputs": [{
         "internalType": "address",
         "name": "tokenA",
         "type": "address"
@@ -159,37 +146,31 @@
       }
     ],
     "name": "getPool",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "pool",
-        "type": "address"
-      }
-    ],
+    "outputs": [{
+      "internalType": "address",
+      "name": "pool",
+      "type": "address"
+    }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{
+      "internalType": "address",
+      "name": "",
+      "type": "address"
+    }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_owner",
-        "type": "address"
-      }
-    ],
+    "inputs": [{
+      "internalType": "address",
+      "name": "_owner",
+      "type": "address"
+    }],
     "name": "setOwner",
     "outputs": [],
     "stateMutability": "nonpayable",

@@ -3,6 +3,7 @@ import { QuickswapPair } from "../../generated/PendleRouter/QuickswapPair";
 import {
   ONE_BD,
   STABLE_USD_TOKENS,
+  USDC_WETH_POOL,
   WETH_ADDRESS,
   WMATIC_ADDRESS,
   ZERO_BD,
@@ -28,7 +29,7 @@ export function getPoolPrice(
     if (response.reverted) {
       printDebug(
         "Pool Contract try_token0 reverted: " + poolAddress.toHexString(),
-        "error"
+        "type"
       );
       return ZERO_BD;
     }
@@ -56,9 +57,8 @@ export function getQuickSwapMaticPrice(): BigDecimal {
 /**
  * @returns the price of eth (based on MATIC/ETH pool)
  */
-export function getQuickSwapEthPrice(): BigDecimal {
-  let pool = getQuickswapPairAddress(WMATIC_ADDRESS, WETH_ADDRESS);
-  return getPoolPrice(pool, WETH_ADDRESS).times(getQuickSwapMaticPrice());
+export function getUniswapV2GasTokenPrice(): BigDecimal {
+  return getPoolPrice(USDC_WETH_POOL, WETH_ADDRESS)
 }
 
 /**

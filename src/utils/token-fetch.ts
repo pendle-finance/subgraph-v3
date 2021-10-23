@@ -2,6 +2,8 @@ import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import { ERC20NameBytes } from "../../generated/templates/IPendleForge/ERC20NameBytes";
 import { ERC20SymbolBytes } from "../../generated/templates/IPendleForge/ERC20SymbolBytes";
 import { ERC20 } from "../../generated/templates/PendleMarket/ERC20";
+import { printDebug } from "../utils/helpers";
+import { ZERO_BD, ZERO_BI } from "./consts";
 
 export function isNullEthValue(value: string): boolean {
   return (
@@ -80,13 +82,18 @@ export function fetchTokenName(tokenAddress: Address): string {
 
 export function fetchTokenTotalSupply(tokenAddress: Address): BigInt {
   let contract = ERC20.bind(tokenAddress);
-  let totalSupplyValue = contract.totalSupply();
+  let totalSupplyValue = contract.try_totalSupply();
+
+  if (totalSupplyValue.reverted) {
+    printDebug("Fetch total supply reverted: " + tokenAddress.toHexString(), "type");
+    return ZERO_BI;
+  }
 
   log.info("tokenAddress: {}, totalsupplyValue: {}", [
     tokenAddress.toHexString(),
-    totalSupplyValue.toString()
+    totalSupplyValue.value.toString(),
   ]);
-  return totalSupplyValue as BigInt;
+  return totalSupplyValue.value as BigInt;
 }
 
 export function fetchTokenDecimals(tokenAddress: Address): BigInt {

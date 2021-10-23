@@ -4,7 +4,7 @@ import {
   PendleData,
   Token,
   User,
-  UserMarketData
+  UserMarketData,
 } from "../../generated/schema";
 import { PendleLiquidityMiningV1 } from "../../generated/templates";
 import { ZERO_BD, ZERO_BI } from "./consts";
@@ -12,8 +12,9 @@ import {
   fetchTokenDecimals,
   fetchTokenName,
   fetchTokenSymbol,
-  fetchTokenTotalSupply
+  fetchTokenTotalSupply,
 } from "./token-fetch";
+import { printDebug } from "../utils/helpers";
 
 export function loadUser(address: Address): User {
   let user = User.load(address.toHexString());
@@ -27,7 +28,6 @@ export function loadUser(address: Address): User {
 
 export function generateNewToken(tokenAddress: Address): Token | null {
   let token: Token = new Token(tokenAddress.toHexString());
-
   token.symbol = fetchTokenSymbol(tokenAddress);
   token.name = fetchTokenName(tokenAddress);
   token.totalSupply = fetchTokenTotalSupply(tokenAddress);

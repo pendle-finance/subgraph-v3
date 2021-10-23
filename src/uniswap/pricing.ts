@@ -7,7 +7,8 @@ import {
   USDC_WETH_POOL,
   UNISWAP_Q192,
   ONE_BD,
-  STABLE_USD_TOKENS
+  STABLE_USD_TOKENS,
+  ZERO_BD,
 } from "../utils/consts";
 import { loadToken } from "../utils/load-entity";
 
@@ -16,7 +17,17 @@ export function getPoolPrice(
   inToken: Address
 ): BigDecimal {
   let poolContract = UniswapPoolContract.bind(poolAddress);
-  let token0Address = poolContract.token0();
+  let token0Response = poolContract.try_token0();
+
+  if (token0Response.reverted) {
+    printDebug(
+      "Uniswap Pool Contract try_token0 reverted:",
+      "type"
+    );
+    return ZERO_BD;
+  }
+
+  let token0Address = token0Response.value as Address;
   let token1Address = poolContract.token1();
   let token0Decimals = exponentToBigDecimal(loadToken(token0Address).decimals);
   let token1Decimals = exponentToBigDecimal(loadToken(token1Address).decimals);

@@ -3,11 +3,13 @@ import { Token } from "../../generated/schema";
 import { SushiswapPair } from "../../generated/SushiswapFactory/SushiswapPair";
 import { getTokenPrice } from "../pricing";
 import { getUniswapEthPrice } from "../uniswap/pricing";
+import { getUniswapV2GasTokenPrice } from "../uniswapv2/pricing";
+import { chainId, ZERO_BD } from "../utils/consts";
 import {
   PENDLE_ETH_SUSHISWAP,
   PENDLE_TOKEN_ADDRESS,
   TWO_BD,
-  WETH_ADDRESS
+  WETH_ADDRESS,
 } from "../utils/consts";
 import { convertTokenToDecimal, getBalanceOf } from "../utils/helpers";
 import { loadToken } from "../utils/load-entity";
@@ -33,6 +35,13 @@ export function getSushiLpPrice(lpAddress: Address): BigDecimal {
 export function getPendlePrice(): BigDecimal {
   let pendleBalance = getBalanceOf(PENDLE_TOKEN_ADDRESS, PENDLE_ETH_SUSHISWAP);
   let wethBalance = getBalanceOf(WETH_ADDRESS, PENDLE_ETH_SUSHISWAP);
-  let wethPrice = getUniswapEthPrice();
+  let wethPrice = ZERO_BD;
+
+  if (chainId == 43114) {
+    wethPrice = getUniswapV2GasTokenPrice();
+  } else {
+    wethPrice = getUniswapEthPrice();
+  }
+
   return wethPrice.times(wethBalance).div(pendleBalance);
 }

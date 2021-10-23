@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
 import { Pair, PairHourData, Token, PairDailyData } from "../generated/schema";
 import { getTokenPrice } from "./pricing";
 import {
@@ -7,12 +7,12 @@ import {
   ONE_DAY,
   ONE_HOUR,
   ZERO_BD,
-  ZERO_BI
+  ZERO_BI,
 } from "./utils/consts";
 import {
   calcMarketWorthUSD,
   calcYieldTokenPrice,
-  printDebug
+  printDebug,
 } from "./utils/helpers";
 
 export function updatePairHourData(
@@ -72,20 +72,34 @@ export function updatePairHourData(
     .toBigDecimal()
     .minus(_timestamp.toBigDecimal())
     .div(ONE_DAY);
-
+  log.debug("_timestamp: %s, ONE_DAY: %s", [
+    _timestamp.toString(),
+    ONE_DAY.toString(),
+  ]);
+  log.debug("yieldTokenPriceUSD: %s, pairHourData.yieldBearingAssetPrice: %s", [
+    yieldTokenPriceUSD.toString(),
+    pairHourData.yieldBearingAssetPrice.toString(),
+  ]);
   let impliedYieldPercentage = yieldTokenPriceUSD
     .div(pairHourData.yieldBearingAssetPrice.minus(yieldTokenPriceUSD))
     .div(daysUntilExpiry)
     .times(DAYS_PER_YEAR_BD);
 
   pairHourData.impliedYield = impliedYieldPercentage;
+  pairHourData.marketWorthUSD = calcMarketWorthUSD(market);
+  pairHourData.lpTokenPrice = ZERO_BD;
+  pairHourData.totalSupply = market.totalSupply;
   pairHourData.reserve0 = market.reserve0;
   pairHourData.reserve1 = market.reserve1;
-  pairHourData.marketWorthUSD = calcMarketWorthUSD(market);
-  pairHourData.totalSupply = market.totalSupply;
-  pairHourData.lpTokenPrice = pairHourData.marketWorthUSD.div(
-    pairHourData.totalSupply
-  );
+
+  log.debug("pairHourData.marketWorthUSD: %s, market.totalSupply: %s", [
+    pairHourData.marketWorthUSD.toString(),
+    market.totalSupply.toString(),
+  ]);
+
+  // pairHourData.marketWorthUSD.div(
+  //   pairHourData.totalSupply
+  // );
   pairHourData.save();
   return pairHourData as PairHourData;
 }
