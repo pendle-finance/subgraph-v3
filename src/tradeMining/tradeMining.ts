@@ -1,5 +1,5 @@
 import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { TradeMiningUser } from "../../generated/schema";
+import { TradeMiningUser, TradeMiningHouse } from "../../generated/schema";
 import { ZERO_BD, chainId, ONE_BI } from "../utils/consts";
 
 function getPhase(block: ethereum.Block): String {
@@ -70,6 +70,23 @@ export function getTradeMiningUser(
   return tradeMiningUsers as TradeMiningUser[];
 }
 
+export function getTradeMiningHouse(
+  house: string,
+  phase: string
+): TradeMiningHouse {
+  let key = house + "-" + phase;
+  let tradeMiningHouse = TradeMiningHouse.load(key);
+
+  if (tradeMiningHouse == null) {
+    tradeMiningHouse = new TradeMiningHouse(key);
+    tradeMiningHouse.volumeUSD = ZERO_BD;
+    tradeMiningHouse.house = house;
+    tradeMiningHouse.phase = phase;
+  }
+
+  return tradeMiningHouse as TradeMiningHouse;
+}
+
 export function sumTradeVolumeToHouse(
   tradeMiningUsers: TradeMiningUser[],
   volumeUSD: BigDecimal
@@ -78,5 +95,12 @@ export function sumTradeVolumeToHouse(
     let tradeMiningUser = tradeMiningUsers[i];
     tradeMiningUser.volumeUSD = tradeMiningUser.volumeUSD.plus(volumeUSD);
     tradeMiningUser.save();
+
+    let tradeMiningHouse = getTradeMiningHouse(
+      tradeMiningUser.house,
+      tradeMiningUser.phase
+    );
+    tradeMiningHouse.volumeUSD = tradeMiningHouse.volumeUSD.plus(volumeUSD);
+    tradeMiningHouse.save();
   }
 }

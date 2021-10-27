@@ -535,6 +535,13 @@ type TradeMiningUser @entity {
   phase: String!
 }
 
+type TradeMiningHouse @entity {
+  id: ID! #house-phase
+  volumeUSD: BigDecimal!
+  house: String!
+  phase: String!
+}
+
 ############## DEBUG ############################
 
 type DebugLog @entity {
