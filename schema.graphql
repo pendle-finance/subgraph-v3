@@ -476,6 +476,33 @@ type SushiswapPairHourData @entity {
   tradingVolumeUSD: BigDecimal!
 }
 
+type OTPair @entity {
+  id: ID! # OT Address
+  otToken: Token!
+  baseToken: Token!
+  marketWorthUSD: BigDecimal
+  baseTokenBalance: BigDecimal
+  baseTokenPrice: BigDecimal
+  otBalance: BigDecimal
+  otPrice: BigDecimal
+  totalTradingUSD: BigDecimal!
+
+  totalStaked: BigInt
+  totalReward: BigInt
+  lpPrice: BigDecimal
+
+
+  isOtToken0: Boolean!
+  aprPercentage: BigDecimal
+  updatedAt: BigInt
+}
+
+type OTPairHourData @entity {
+  id: ID!
+  hourStartUnix: Int!
+  otAddress: String!
+  tradingVolumeUSD: BigDecimal!
+}
 
 type UserMarketData @entity {
   id: ID!

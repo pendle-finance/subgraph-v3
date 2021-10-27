@@ -120,41 +120,38 @@ dataSources:
   #       - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
   #         handler: handleUniswapPoolCreated
   #     file: ./src/uniswap/factory.ts
-  # - kind: ethereum/contract
-  #   name: SushiswapFactory
-  #   network: avalanche
-  #   source:
-  #     address: "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac"
-  #     abi: SushiswapFactory
-  #     startBlock: 12638048
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - SushiswapPair
-  #       - Token
-  #       - DebugLog
-  #       - LiquidityMining
-  #     abis:
-  #       - name: ERC20
-  #         file: ./abis/ERC20.json
-  #       - name: ERC20SymbolBytes
-  #         file: ./abis/ERC20SymbolBytes.json
-  #       - name: ERC20NameBytes
-  #         file: ./abis/ERC20NameBytes.json
-  #       - name: SushiswapFactory
-  #         file: ./abis/SushiswapFactory.json
-  #       - name: SushiswapPair
-  #         file: ./abis/sushiswap/pair.json
-  #       - name: UniswapPool
-  #         file: ./abis/uniswap/pool.json
-  #       - name: LiquidityMiningV2
-  #         file: ./abis/PendleLiquidityMiningV2.json
-  #     eventHandlers:
-  #       - event: PairCreated(indexed address,indexed address,address,uint256)
-  #         handler: handleNewSushiswapPair
-  #     file: ./src/sushiswap/factory.ts
+  - kind: ethereum/contract
+    name: QuickswapFactory
+    network: avalanche
+    source:
+      address: "0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10"
+      abi: QuickswapFactory
+      startBlock: 5841410
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - OTPair
+        - Token
+        - LiquidityMining
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: QuickswapFactory
+          file: ./abis/quickswap/factory.json
+        - name: QuickswapPair
+          file: ./abis/quickswap/pair.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
+      eventHandlers:
+        - event: PairCreated(indexed address,indexed address,address,uint256)
+          handler: handleNewUniswapV2Pair
+      file: ./src/uniswapv2/factory.ts
   # - kind: ethereum/contract
   #   name: Directory
   #   network: avalanche
