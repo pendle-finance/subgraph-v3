@@ -70,7 +70,6 @@ type Token @entity {
   mintVolume: BigDecimal!
   mintVolumeUSD: BigDecimal!
 
-
   redeemVolume: BigDecimal!
   redeemVolumeUSD: BigDecimal!
 
@@ -129,7 +128,7 @@ type RedeemYieldToken @entity {
 #            1. Interest from YT (interest rate from Aave)
 #            2. Swap fee? -> Rolling 24h
 #            3. APR from staking
-# 
+#
 # Hour and 24 hours (priority: 1)
 #  + open close high low
 #  + volumes
@@ -155,7 +154,6 @@ type Pair @entity {
   # Exchange rate between token0 and token1
   token0Price: BigDecimal!
   token1Price: BigDecimal!
-
 
   # lifetime volume stats
   volumeToken0: BigDecimal!
@@ -370,7 +368,7 @@ type LiquidityPool @entity {
 type PairHourData @entity {
   id: ID!
   hourStartUnix: Int!
-  
+
   pair: Pair!
 
   # reserves
@@ -463,7 +461,6 @@ type SushiswapPair @entity {
   totalReward: BigInt
   lpPrice: BigDecimal
 
-
   isOtToken0: Boolean!
   aprPercentage: BigDecimal
   updatedAt: BigInt
@@ -491,7 +488,6 @@ type OTPair @entity {
   totalReward: BigInt
   lpPrice: BigDecimal
 
-
   isOtToken0: Boolean!
   aprPercentage: BigDecimal
   updatedAt: BigInt
@@ -516,7 +512,6 @@ type UserMarketData @entity {
   yieldClaimedUsd: BigDecimal!
   yieldClaimedRaw: BigDecimal!
 
-
   pendleRewardReceivedRaw: BigDecimal!
   pendleRewardReceivedUSD: BigDecimal!
 }
@@ -532,10 +527,15 @@ type LpTransferEvent @entity {
   block: BigInt!
 }
 
-
+type TradeMiningUser @entity {
+  id: ID! #userAddress-house-phase
+  volumeUSD: BigDecimal!
+  house: String!
+  userAddress: String!
+  phase: String!
+}
 
 ############## DEBUG ############################
-
 
 type DebugLog @entity {
   # The instance with id "0" is the root of the entity set. It stores the number of the instances (using for generating the id-s)

@@ -1,12 +1,18 @@
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
   SwapEvent,
   Join as JoinLiquidityPoolEvent,
   Exit as ExitLiquidityPoolEvent,
   MarketCreated as MarketCreatedEvent,
-  RedeemLpInterestsCall
+  RedeemLpInterestsCall,
 } from "../../generated/PendleRouter/PendleRouter";
-import { LiquidityPool, Pair, Swap, Token } from "../../generated/schema";
+import {
+  LiquidityPool,
+  Pair,
+  Swap,
+  Token,
+  TradeMiningUser,
+} from "../../generated/schema";
 import { PendleMarket as PendleMarketTemplate } from "../../generated/templates";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
 import { updatePairDailyData, updatePairHourData } from "../updates";
@@ -17,16 +23,21 @@ import {
   RONE,
   RONE_BD,
   ZERO_BD,
-  ZERO_BI
+  ZERO_BI,
+  chainId,
 } from "../utils/consts";
 import {
   calcLpPrice,
   convertTokenToDecimal,
-  loadPendleData
+  loadPendleData,
 } from "../utils/helpers";
 import { loadToken, loadUser } from "../utils/load-entity";
 import { getMarketLiquidityMining } from "./liquidity-mining-v1";
 import { getTokenPrice } from "../pricing";
+import {
+  getTradeMiningUser,
+  sumTradeVolumeToHouse,
+} from "../tradeMining/tradeMining";
 
 export function handleSwap(event: SwapEvent): void {
   let pair = Pair.load(event.params.market.toHexString());
@@ -109,6 +120,17 @@ export function handleSwap(event: SwapEvent): void {
   swap.amountUSD = derivedAmountUSD;
 
   swap.save();
+
+  // Trade Mining
+  let tradeMiningUsers = getTradeMiningUser(
+    event.params.trader.toHexString(),
+    event.params.market.toHexString(),
+    event.block
+  );
+
+  sumTradeVolumeToHouse(tradeMiningUsers, derivedAmountUSD);
+
+  // CandleStick Chart
   let pairHourData = updatePairHourData(event.block.timestamp, pair as Pair);
   let pairDayData = updatePairDailyData(event.block.timestamp, pair as Pair);
   if (inToken.underlyingAsset != "") {
@@ -437,6 +459,14 @@ export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
     );
 
     let volumeUSD = token1Amount.times(getTokenPrice(outToken1 as Token));
+
+    // Trade Mining
+    let tradeMiningUsers = getTradeMiningUser(
+      event.params.sender.toHexString(),
+      event.params.market.toHexString(),
+      event.block
+    );
+    sumTradeVolumeToHouse(tradeMiningUsers, derivedAmountUSD);
 
     /// HOURLY
     pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(

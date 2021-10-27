@@ -25,6 +25,7 @@ dataSources:
         - SushiswapPair
         - LiquidityMining
         - PairDailyData
+        - TradeMiningUser
       abis:
         - name: PendleRouter
           file: ./abis/PendleRouter.json
