@@ -1,6 +1,11 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { PairCreated as QuickswapPairCreatedEvent } from "../../generated/QuickswapFactory/QuickswapFactory";
-import { OTPair, PricePool, Token, LiquidityMining } from "../../generated/schema";
+import {
+  OTPair,
+  PricePool,
+  Token,
+  LiquidityMining
+} from "../../generated/schema";
 import { chainId } from "../utils/consts";
 import { SushiswapPair as SushiswapPairTemplate } from "../../generated/templates";
 import { convertTokenToDecimal, getBalanceOf } from "../utils/helpers";
@@ -18,7 +23,7 @@ import {
   TWO_BD,
   WETH_ADDRESS,
   ZERO_BD,
-  ZERO_BI,
+  ZERO_BI
 } from "../utils/consts";
 import { loadToken } from "../utils/load-entity";
 import { LiquidityMiningV2 } from "../../generated/templates/SushiswapPair/LiquidityMiningV2";

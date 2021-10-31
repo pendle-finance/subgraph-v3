@@ -58,3 +58,7 @@ export const chainId: u32 = 43114;
 export function getHardcodedPrice(tokenAddress: Address): BigDecimal {
   return BigDecimal.fromString("0");
 }
+
+export let PENDLE_WRAPPER: Address = Address.fromString(
+  "0xaA17b3AF8588f33eF5b9B2d3D64ce36139e8603D"
+);

@@ -10,7 +10,7 @@ import {
   getHardcodedPrice,
   ONE_BD,
   PENDLE_TOKEN_ADDRESS,
-  ZERO_BD,
+  ZERO_BD
 } from "./utils/consts";
 import { exponentToBigDecimal, printDebug } from "./utils/helpers";
 import { loadToken } from "./utils/load-entity";
@@ -35,7 +35,10 @@ function calcSpecialForgePrice(
   underlyingPrice: BigDecimal
 ): BigDecimal {
   let tokenPrice = underlyingPrice;
-  if (token.forgeId.startsWith("Compound") || token.forgeId.startsWith("BenQi")) {
+  if (
+    token.forgeId.startsWith("Compound") ||
+    token.forgeId.startsWith("BenQi")
+  ) {
     tokenPrice = underlyingPrice.times(getCTokenCurrentRate(token as Token));
   }
   if (token.forgeId.startsWith("Aave")) {

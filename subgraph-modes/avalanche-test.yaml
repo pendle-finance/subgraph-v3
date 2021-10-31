@@ -26,6 +26,7 @@ dataSources:
         - LiquidityMining
         - PairDailyData
         - TradeMiningUser
+        - TestingSchema
       abis:
         - name: PendleRouter
           file: ./abis/PendleRouter.json
@@ -175,7 +176,42 @@ dataSources:
   #       - event: NewAddress(bytes32,address)
   #         handler: handleNewContractAddress
   #     file: ./src/pendle/directory.ts
-
+  - kind: ethereum/contract
+    name: PendleWrapper
+    network: avalanche
+    source:
+      address: "0xaA17b3AF8588f33eF5b9B2d3D64ce36139e8603D"
+      abi: PendleWrapper
+      startBlock: 6077226
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - OTPair
+        - Token
+        - LiquidityMining
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: QuickswapFactory
+          file: ./abis/quickswap/factory.json
+        - name: QuickswapPair
+          file: ./abis/quickswap/pair.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
+        - name: PendleData
+          file: ./abis/PendleData.json
+        - name: PendleWrapper
+          file: ./abis/PendleWrapper.json
+      eventHandlers:
+        - event: SwapEventYT(address,address,address,uint256,uint256)
+          handler: handleSwapEventYT
+      file: ./src/pendle/wrapper.ts
 templates:
   - kind: ethereum/contract
     name: IPendleForge

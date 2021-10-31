@@ -5,7 +5,7 @@ import {
   Pair,
   DebugLog,
   PendleData,
-  LiquidityMining,
+  LiquidityMining
 } from "../../generated/schema";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
 import {
@@ -15,7 +15,7 @@ import {
   RONE_BD,
   TWO_BD,
   ZERO_BD,
-  ZERO_BI,
+  ZERO_BI
 } from "./consts";
 import { loadToken } from "./load-entity";
 import { getTokenPrice } from "../pricing";
@@ -72,7 +72,7 @@ export function calcLpPrice(
 }
 
 export function calcMarketWorthUSD(market: Pair): BigDecimal {
-  printDebug("market: " + market.id, "type")
+  printDebug("market: " + market.id, "type");
   let baseToken = Token.load(market.token1);
   let baseTokenWeight = market.token1WeightRaw.toBigDecimal().div(RONE_BD);
   let baseTokenBalance = market.reserve1;

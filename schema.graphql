@@ -78,7 +78,9 @@ type Token @entity {
 
   # liquidity across all pairs (markets)
   totalLiquidity: BigDecimal!
+  
   type: String # yt | ot | yieldBearing | swapBase
+  markets: [String!]!
 }
 
 type MintYieldToken @entity {
@@ -550,4 +552,9 @@ type DebugLog @entity {
   message: String!
   type: String!
   length: BigInt
+}
+
+type TestingSchema @entity {
+  id: ID!
+  numberArray: [BigInt!]
 }

@@ -6,7 +6,7 @@ import {
   USDC_WETH_POOL,
   WETH_ADDRESS,
   WMATIC_ADDRESS,
-  ZERO_BD,
+  ZERO_BD
 } from "../utils/consts";
 import { getBalanceOf, printDebug } from "../utils/helpers";
 import { getQuickswapPairAddress } from "./factory";
@@ -58,7 +58,7 @@ export function getQuickSwapMaticPrice(): BigDecimal {
  * @returns the price of eth (based on MATIC/ETH pool)
  */
 export function getUniswapV2GasTokenPrice(): BigDecimal {
-  return getPoolPrice(USDC_WETH_POOL, WETH_ADDRESS)
+  return getPoolPrice(USDC_WETH_POOL, WETH_ADDRESS);
 }
 
 /**

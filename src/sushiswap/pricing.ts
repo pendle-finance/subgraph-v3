@@ -9,7 +9,7 @@ import {
   PENDLE_ETH_SUSHISWAP,
   PENDLE_TOKEN_ADDRESS,
   TWO_BD,
-  WETH_ADDRESS,
+  WETH_ADDRESS
 } from "../utils/consts";
 import { convertTokenToDecimal, getBalanceOf } from "../utils/helpers";
 import { loadToken } from "../utils/load-entity";

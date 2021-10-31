@@ -4,7 +4,7 @@ import {
   PendleData,
   Token,
   User,
-  UserMarketData,
+  UserMarketData
 } from "../../generated/schema";
 import { PendleLiquidityMiningV1 } from "../../generated/templates";
 import { ZERO_BD, ZERO_BI } from "./consts";
@@ -12,7 +12,7 @@ import {
   fetchTokenDecimals,
   fetchTokenName,
   fetchTokenSymbol,
-  fetchTokenTotalSupply,
+  fetchTokenTotalSupply
 } from "./token-fetch";
 import { printDebug } from "../utils/helpers";
 
@@ -51,6 +51,7 @@ export function generateNewToken(tokenAddress: Address): Token | null {
   // token.allPairs = []
   token.txCount = ZERO_BI;
   token.totalLiquidity = ZERO_BD;
+  token.markets = [];
 
   token.save();
 

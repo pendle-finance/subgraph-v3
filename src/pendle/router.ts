@@ -1,493 +1,69 @@
-import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address } from "@graphprotocol/graph-ts";
 import {
   SwapEvent,
   Join as JoinLiquidityPoolEvent,
   Exit as ExitLiquidityPoolEvent,
   MarketCreated as MarketCreatedEvent,
-  RedeemLpInterestsCall,
+  RedeemLpInterestsCall
 } from "../../generated/PendleRouter/PendleRouter";
-import {
-  LiquidityPool,
-  Pair,
-  Swap,
-  Token,
-  TradeMiningUser,
-} from "../../generated/schema";
+import { Pair } from "../../generated/schema";
 import { PendleMarket as PendleMarketTemplate } from "../../generated/templates";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
-import { updatePairDailyData, updatePairHourData } from "../updates";
 import {
   ERROR_COMPOUND_MARKET,
-  ONE_BD,
-  ONE_BI,
-  RONE,
-  RONE_BD,
   ZERO_BD,
   ZERO_BI,
-  chainId,
+  PENDLE_WRAPPER
 } from "../utils/consts";
-import {
-  calcLpPrice,
-  convertTokenToDecimal,
-  loadPendleData,
-} from "../utils/helpers";
 import { loadToken, loadUser } from "../utils/load-entity";
 import { getMarketLiquidityMining } from "./liquidity-mining-v1";
-import { getTokenPrice } from "../pricing";
 import {
-  getTradeMiningUser,
-  sumTradeVolumeToHouse,
-} from "../tradeMining/tradeMining";
+  handleExitInfo,
+  handleJoinInfo,
+  handleSwapInfo
+} from "./market/marketEventRouter";
 
 export function handleSwap(event: SwapEvent): void {
-  let pair = Pair.load(event.params.market.toHexString());
-  let inToken = Token.load(event.params.inToken.toHexString());
-  let outToken = Token.load(event.params.outToken.toHexString());
-  let amountIn = convertTokenToDecimal(event.params.exactIn, inToken.decimals);
-  let amountOut = convertTokenToDecimal(
+  if (event.params.trader.equals(PENDLE_WRAPPER)) return;
+  handleSwapInfo(
+    event.params.market,
+    event.params.inToken,
+    event.params.outToken,
+    event.params.exactIn,
     event.params.exactOut,
-    outToken.decimals
+    event.params.trader,
+    event
   );
-  let pendleData = loadPendleData();
-
-  // @TODO Find a way to calculate USD amount
-  let baseTokenPrice = ZERO_BD;
-  let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
-  if (inToken.type == "swapBase") {
-    baseTokenPrice = getTokenPrice(inToken as Token);
-    derivedAmountUSD = amountIn.times(baseTokenPrice);
-  } else {
-    baseTokenPrice = getTokenPrice(outToken as Token);
-    derivedAmountUSD = amountOut.times(baseTokenPrice);
-  }
-
-  // only accounts for volume through white listed tokens
-  let trackedAmountUSD = ZERO_BD; // getTrackedVolumeUSD(amount0Total, token0 as Token, amount1Total, token1 as Token, pair as Pair)
-
-  // update inToken global volume and token liquidity stats
-  inToken.tradeVolume = inToken.tradeVolume.plus(amountIn);
-  inToken.tradeVolumeUSD = inToken.tradeVolumeUSD.plus(derivedAmountUSD);
-
-  // update outToken global volume and token liquidity stats
-  outToken.tradeVolume = outToken.tradeVolume.plus(amountOut);
-  outToken.tradeVolumeUSD = outToken.tradeVolumeUSD.plus(derivedAmountUSD);
-  // update txn counts
-  inToken.txCount = inToken.txCount.plus(ONE_BI);
-
-  outToken.txCount = outToken.txCount.plus(ONE_BI);
-  pair.txCount = pair.txCount.plus(ONE_BI);
-
-  // Calculate and update collected fees
-  let tokenFee = amountIn.times(pendleData.swapFee);
-  let usdFee = derivedAmountUSD.times(pendleData.swapFee);
-
-  // update pair volume data, use tracked amount if we have it as its probably more accurate
-  pair.volumeUSD = pair.volumeUSD.plus(derivedAmountUSD);
-
-  if (inToken.id == pair.token0) {
-    pair.volumeToken0 = pair.volumeToken0.plus(amountIn);
-    pair.volumeToken1 = pair.volumeToken1.plus(amountOut);
-    pair.feesToken0 = pair.feesToken0.plus(tokenFee);
-  } else if (inToken.id == pair.token1) {
-    pair.volumeToken1 = pair.volumeToken1.plus(amountIn);
-    pair.volumeToken0 = pair.volumeToken0.plus(amountOut);
-    pair.feesToken1 = pair.feesToken1.plus(tokenFee);
-  }
-
-  pair.feesUSD = pair.feesUSD.plus(usdFee);
-
-  // save entities
-  pair.save();
-  inToken.save();
-  outToken.save();
-
-  // Create Swap Entity
-  let swap = new Swap(event.transaction.hash.toHexString());
-  swap.timestamp = event.block.timestamp;
-  swap.pair = pair.id;
-
-  swap.sender = event.params.trader;
-  swap.from = event.transaction.from;
-  swap.inToken = inToken.id;
-  swap.outToken = outToken.id;
-  swap.inAmount = amountIn;
-  swap.outAmount = amountOut;
-  swap.to = event.params.trader;
-  swap.logIndex = event.logIndex;
-  swap.feesCollected = tokenFee;
-  swap.feesCollectedUSD = usdFee;
-  // use the tracked amount if we have it
-  swap.amountUSD = derivedAmountUSD;
-
-  swap.save();
-
-  // Trade Mining
-  let tradeMiningUsers = getTradeMiningUser(
-    event.params.trader.toHexString(),
-    event.params.market.toHexString(),
-    event.block
-  );
-
-  sumTradeVolumeToHouse(tradeMiningUsers, derivedAmountUSD);
-
-  // CandleStick Chart
-  let pairHourData = updatePairHourData(event.block.timestamp, pair as Pair);
-  let pairDayData = updatePairDailyData(event.block.timestamp, pair as Pair);
-  if (inToken.underlyingAsset != "") {
-    // inToken is YT
-
-    /// HOURLY
-    pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
-      amountIn
-    );
-    pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
-      amountOut
-    );
-    /// DAILY
-    pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
-      amountIn
-    );
-    pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
-      amountOut
-    );
-  } else {
-    /// HOURLY
-    pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
-      amountOut
-    );
-    pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
-      amountIn
-    );
-
-    /// DAILY
-    pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
-      amountOut
-    );
-    pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
-      amountIn
-    );
-  }
-  pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(
-    derivedAmountUSD
-  );
-  pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
-
-  pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(
-    derivedAmountUSD
-  );
-  pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
-
-  pairHourData.save();
-  pairDayData.save();
 }
 
 export function handleJoinLiquidityPool(event: JoinLiquidityPoolEvent): void {
   if (event.params.market.toHexString() == ERROR_COMPOUND_MARKET) {
     return;
   }
-  let pair = Pair.load(event.params.market.toHexString());
-
-  let inToken0 = Token.load(pair.token0);
-  let inToken1 = Token.load(pair.token1);
-  let inAmount0 = convertTokenToDecimal(
-    event.params.token0Amount,
-    inToken0.decimals
-  );
-  let inAmount1 = convertTokenToDecimal(
-    event.params.token1Amount,
-    inToken1.decimals
-  );
-
-  let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
-  let rawLpPrice = ZERO_BD;
-
-  rawLpPrice = calcLpPrice(
+  if (event.params.sender.equals(PENDLE_WRAPPER)) return;
+  handleJoinInfo(
     event.params.market,
-    inToken1.id,
+    event.params.token0Amount,
     event.params.token1Amount,
-    event.params.exactOutLp.toBigDecimal(),
-    true
-  );
-
-  derivedAmountUSD = event.params.exactOutLp.toBigDecimal().times(rawLpPrice);
-
-  // Create LiquidityPool Entity
-  let liquidityPool = new LiquidityPool(event.transaction.hash.toHexString());
-  liquidityPool.timestamp = event.block.timestamp;
-  liquidityPool.pair = pair.id;
-  liquidityPool.type = "Join";
-
-  liquidityPool.from = event.params.sender;
-  liquidityPool.inToken0 = inToken0.id;
-  liquidityPool.inToken1 = inToken1.id;
-  liquidityPool.inAmount0 = inAmount0;
-  liquidityPool.inAmount1 = inAmount1;
-  liquidityPool.feesCollected = ZERO_BD;
-  liquidityPool.swapFeesCollectedUSD = ZERO_BD;
-  liquidityPool.swapVolumeUSD = ZERO_BD;
-  // use the tracked amount if we have it
-  liquidityPool.amountUSD = derivedAmountUSD;
-  liquidityPool.lpAmount = convertTokenToDecimal(
     event.params.exactOutLp,
-    BigInt.fromI32(18)
+    event.params.sender,
+    event
   );
-
-  liquidityPool.save();
-
-  let pairHourData = updatePairHourData(event.block.timestamp, pair as Pair);
-  pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
-  pairHourData.save();
-
-  // let pairDayData = updatePairDailyData(event.block.timestamp, pair as Pair);
-  // pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
-  // pairDayData.save();
-
-  // //Calculating swap fees for add single liq only
-  // if (
-  //   event.params.token0Amount.notEqual(ZERO_BI) &&
-  //   event.params.token1Amount.notEqual(ZERO_BI)
-  // ) {
-  //   return;
-  // }
-
-  // /**
-  //  * It will always refer to YT Token
-  //  */
-  // let rawAmount = event.params.token0Amount;
-  // let rawWeight = pair.token0WeightRaw;
-  // let tokenPriceFormatted = pair.token0Price;
-  // let inToken = inToken0;
-
-  // /**
-  //  * It will always refer to base Token
-  //  */
-  // if (event.params.token1Amount.gt(ZERO_BI)) {
-  //   rawAmount = event.params.token1Amount;
-  //   rawWeight = pair.token1WeightRaw;
-  //   tokenPriceFormatted = pair.token1Price;
-  //   inToken = inToken1;
-  // }
-  // let poweredTokenDecimal = BigInt.fromI32(10)
-  //   .pow(inToken.decimals.toI32() as u8)
-  //   .toBigDecimal();
-  // let rawSwapAmount = rawAmount.times(RONE.minus(rawWeight)).div(RONE);
-
-  // let pendleData = loadPendleData();
-
-  // let usdVolume = rawSwapAmount
-  //   .toBigDecimal()
-  //   .div(poweredTokenDecimal)
-  //   .times(tokenPriceFormatted);
-  // let usdFee = usdVolume.times(pendleData.swapFee);
-
-  // liquidityPool.swapFeesCollectedUSD = usdFee;
-  // liquidityPool.swapVolumeUSD = usdVolume;
-
-  // pair.feesUSD = pair.feesUSD.plus(usdFee);
-  // pair.volumeUSD = pair.volumeUSD.plus(usdVolume);
-
-  // liquidityPool.save();
-  // pair.save();
-
-  // // Add single
-  // if (
-  //   event.params.token0Amount.equals(ZERO_BI) ||
-  //   event.params.token1Amount.equals(ZERO_BI)
-  // ) {
-  //   let lpOut = event.params.exactOutLp.toBigDecimal();
-  //   let totalLp = pair.totalSupply;
-  //   let token0Weight = pair.token0WeightRaw.toBigDecimal().div(RONE_BD);
-  //   let token0Lp = lpOut.times(token0Weight);
-  //   let token1Lp = lpOut.minus(token0Lp);
-  //   let token0Amount = pair.reserve0
-  //     .times(token0Lp)
-  //     .div(totalLp.times(token0Weight));
-  //   let token1Amount = pair.reserve1
-  //     .times(token1Lp)
-  //     .div(totalLp.times(ONE_BD.minus(token0Weight)));
-  //   let volumeUSD = token1Amount.times(getTokenPrice(inToken1 as Token));
-
-  //   /// HOURLY
-  //   pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
-  //     token0Amount
-  //   );
-  //   pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
-  //     token1Amount
-  //   );
-  //   pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(volumeUSD);
-
-  //   /// DAILY
-  //   pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
-  //     token0Amount
-  //   );
-  //   pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
-  //     token1Amount
-  //   );
-  //   pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(volumeUSD);
-  // }
-  // pairHourData.save();
-  // pairDayData.save();
 }
 
 export function handleExitLiquidityPool(event: ExitLiquidityPoolEvent): void {
   if (event.params.market.toHexString() == ERROR_COMPOUND_MARKET) {
     return;
   }
-  let pair = Pair.load(event.params.market.toHexString());
-  let outToken0 = Token.load(pair.token0);
-  let outToken1 = Token.load(pair.token1);
-  let outAmount0 = convertTokenToDecimal(
-    event.params.token0Amount,
-    outToken0.decimals
-  );
-  let outAmount1 = convertTokenToDecimal(
-    event.params.token1Amount,
-    outToken1.decimals
-  );
-
-  let derivedAmountUSD = ZERO_BD; //derivedAmountETH.times(bundle.ethPrice)
-  let rawLpPrice = ZERO_BD;
-
-  rawLpPrice = calcLpPrice(
+  if (event.params.sender.equals(PENDLE_WRAPPER)) return;
+  handleExitInfo(
     event.params.market,
-    outToken1.id,
+    event.params.token0Amount,
     event.params.token1Amount,
-    event.params.exactInLp.toBigDecimal(),
-    false
-  );
-
-  derivedAmountUSD = event.params.exactInLp.toBigDecimal().times(rawLpPrice);
-
-  // update pair volume data, use tracked amount if we have it as its probably more accurate
-
-  // Create LiquidityPool Entity
-  let liquidityPool = new LiquidityPool(event.transaction.hash.toHexString());
-  liquidityPool.timestamp = event.block.timestamp;
-  liquidityPool.pair = pair.id;
-  liquidityPool.type = "Exit";
-
-  liquidityPool.from = event.params.sender;
-  liquidityPool.inToken0 = outToken0.id;
-  liquidityPool.inToken1 = outToken1.id;
-  liquidityPool.inAmount0 = outAmount0;
-  liquidityPool.inAmount1 = outAmount1;
-  liquidityPool.feesCollected = ZERO_BD;
-  liquidityPool.swapFeesCollectedUSD = ZERO_BD;
-  liquidityPool.swapVolumeUSD = ZERO_BD;
-  // use the tracked amount if we have it
-  liquidityPool.amountUSD = derivedAmountUSD;
-  liquidityPool.lpAmount = convertTokenToDecimal(
     event.params.exactInLp,
-    BigInt.fromI32(18)
+    event.params.sender,
+    event
   );
-
-  liquidityPool.save();
-  let pairHourData = updatePairHourData(event.block.timestamp, pair as Pair);
-  pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
-  pairHourData.save();
-
-  let pairDayData = updatePairDailyData(event.block.timestamp, pair as Pair);
-  pairDayData.dailyTxns = pairDayData.dailyTxns.plus(ONE_BI);
-  pairDayData.save();
-
-  if (
-    event.params.token0Amount.notEqual(ZERO_BI) &&
-    event.params.token1Amount.notEqual(ZERO_BI)
-  ) {
-    return;
-  }
-
-  /**
-   * It will always refer to YT Token
-   */
-  let rawAmount = event.params.token0Amount;
-  let rawWeight = pair.token0WeightRaw;
-  let tokenPriceFormatted = pair.token0Price;
-  let outToken = outToken0;
-
-  /**
-   * It will always refer to base Token
-   */
-  if (event.params.token1Amount.gt(ZERO_BI)) {
-    rawAmount = event.params.token1Amount;
-    rawWeight = pair.token1WeightRaw;
-    tokenPriceFormatted = pair.token1Price;
-    outToken = outToken1;
-  }
-  let poweredTokenDecimal = BigInt.fromI32(10)
-    .pow(outToken.decimals.toI32() as u8)
-    .toBigDecimal();
-
-  let rawSwapAmount = rawAmount.times(RONE.minus(rawWeight)).div(RONE);
-
-  let pendleData = loadPendleData();
-
-  let usdVolume = rawSwapAmount
-    .toBigDecimal()
-    .div(poweredTokenDecimal)
-    .times(tokenPriceFormatted);
-  let usdFee = usdVolume.times(pendleData.swapFee);
-
-  liquidityPool.swapFeesCollectedUSD = usdFee;
-  liquidityPool.swapVolumeUSD = usdVolume;
-
-  pair.feesUSD = pair.feesUSD.plus(usdFee);
-  pair.volumeUSD = pair.volumeUSD.plus(usdVolume);
-
-  liquidityPool.save();
-  pair.save();
-
-  // Remove single
-  if (
-    event.params.token0Amount.equals(ZERO_BI) ||
-    event.params.token1Amount.equals(ZERO_BI)
-  ) {
-    let lpIn = event.params.exactInLp.toBigDecimal();
-
-    let totalLp = pair.totalSupply.plus(lpIn);
-    let reserve0 = pair.reserve0.plus(outAmount0);
-    let reserve1 = pair.reserve1.plus(outAmount1);
-
-    let token0Weight = pair.token0WeightRaw.toBigDecimal().div(RONE_BD);
-    let token0Lp = lpIn.times(token0Weight);
-    let token1Lp = lpIn.minus(token0Lp);
-    let token0Amount = reserve0.times(
-      token0Lp.div(totalLp.times(token0Weight))
-    );
-    let token1Amount = reserve1.times(
-      token1Lp.div(totalLp.times(ONE_BD.minus(token0Weight)))
-    );
-
-    let volumeUSD = token1Amount.times(getTokenPrice(outToken1 as Token));
-
-    // Trade Mining
-    let tradeMiningUsers = getTradeMiningUser(
-      event.params.sender.toHexString(),
-      event.params.market.toHexString(),
-      event.block
-    );
-    sumTradeVolumeToHouse(tradeMiningUsers, derivedAmountUSD);
-
-    /// HOURLY
-    pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
-      token0Amount
-    );
-    pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
-      token1Amount
-    );
-    pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(volumeUSD);
-
-    /// DAILY
-    pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
-      token0Amount
-    );
-    pairDayData.dailyVolumeToken1 = pairDayData.dailyVolumeToken1.plus(
-      token1Amount
-    );
-    pairDayData.dailyVolumeUSD = pairDayData.dailyVolumeUSD.plus(volumeUSD);
-  }
-  pairDayData.save();
-  pairHourData.save();
 }
 
 export function handleMarketCreated(event: MarketCreatedEvent): void {
@@ -506,10 +82,17 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
     return;
   }
 
-  token0.type = "yt";
-  token1.type = "swapBase";
-
   let pair = new Pair(event.params.market.toHexString());
+
+  let token0Markets = token0.markets;
+  token0Markets.push(pair.id);
+  token0.markets = token0Markets;
+  token0.type = "yt";
+
+  let token1Markets = token1.markets;
+  token1Markets.push(pair.id);
+  token1.markets.push(pair.id);
+  token1.type = "swapBase";
 
   pair.token0 = token0.id;
   pair.token1 = token1.id;
@@ -557,11 +140,3 @@ export function handleMarketCreated(event: MarketCreatedEvent): void {
 export function handleRedeemLpInterests(call: RedeemLpInterestsCall): void {
   // redeemLpInterests(call.inputs.user, call.inputs.market, call.outputs.interests);
 }
-
-/*
-{
-  debugLogs(first:10){
-    message
-  }
-}
-*/
