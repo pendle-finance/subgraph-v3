@@ -2,10 +2,7 @@ import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { LiquidityPool, Pair, Swap, Token } from "../../../generated/schema";
 import { getTokenPrice } from "../../pricing";
 import { updateUserTrade } from "../../tradeMining/tradeMining";
-import {
-  addHourlyDailyTxn,
-  addHourlyDailyVolume,
-} from "../../updates";
+import { addHourlyDailyTxn, addHourlyDailyVolume } from "../../updates";
 import {
   ONE_BD,
   ONE_BI,

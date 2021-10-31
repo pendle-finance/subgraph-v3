@@ -211,6 +211,8 @@ dataSources:
       eventHandlers:
         - event: SwapEventYT(address,address,address,uint256,uint256)
           handler: handleSwapEventYT
+        - event: AddLiquidityYT(indexed address,bytes32,address,address,uint256,uint256,uint256)
+          handler: handleAddLiquidityYT
       file: ./src/pendle/wrapper.ts
 templates:
   - kind: ethereum/contract

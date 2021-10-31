@@ -166,3 +166,20 @@ export function isMarketLiquidityMiningV2(marketAddress: Address): boolean {
 export function getLpPrice(market: Pair): BigDecimal {
   return market.reserveUSD.div(market.totalSupply);
 }
+
+export function getTokenPair(
+  token0Address: Address,
+  token1Address: Address
+): Pair | null {
+  let token0 = loadToken(token0Address);
+  let token1 = loadToken(token1Address);
+  let pair: Pair | null = null;
+  let inTokenMarkets = token0.markets;
+  for (let i = 0; i < inTokenMarkets.length; ++i) {
+    let currentPair = Pair.load(inTokenMarkets[i]);
+    if (currentPair.token0 == token1.id || currentPair.token1 == token1.id) {
+      pair = currentPair;
+    }
+  }
+  return pair;
+}

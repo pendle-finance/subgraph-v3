@@ -1,26 +1,17 @@
 import { Address, ethereum } from "@graphprotocol/graph-ts";
-import { SwapEventYT } from "../../generated/PendleWrapper/PendleWrapper";
+import {
+  AddLiquidityYT,
+  SwapEventYT
+} from "../../generated/PendleWrapper/PendleWrapper";
 import { Pair } from "../../generated/schema";
-import { loadPendleData, loadToken } from "../utils/load-entity";
-import { handleSwapInfo } from "./market/marketEventRouter";
+import { getTokenPair } from "../utils/helpers";
+import { handleJoinInfo, handleSwapInfo } from "./market/marketEventRouter";
 
 export function handleSwapEventYT(event: SwapEventYT): void {
-  let inToken = loadToken(event.params.inToken);
-  let outToken = loadToken(event.params.outToken);
-
-  let pair: Pair | null = null;
-  let inTokenMarkets = inToken.markets;
-  for (let i = 0; i < inTokenMarkets.length; ++i) {
-    let currentPair = Pair.load(inTokenMarkets[i]);
-    if (
-      currentPair.token0 == outToken.id ||
-      currentPair.token1 == outToken.id
-    ) {
-      pair = currentPair;
-    }
-  }
-
-  // swap starts here
+  let pair: Pair = getTokenPair(
+    event.params.inToken,
+    event.params.outToken
+  ) as Pair;
   handleSwapInfo(
     Address.fromHexString(pair.id) as Address,
     event.params.inToken,
@@ -28,6 +19,21 @@ export function handleSwapEventYT(event: SwapEventYT): void {
     event.params.inAmount,
     event.params.outAmount,
     event.params.user,
+    event
+  );
+}
+
+export function handleAddLiquidityYT(event: AddLiquidityYT): void {
+  let pair: Pair = getTokenPair(
+    event.params.token0,
+    event.params.token1
+  ) as Pair;
+  handleJoinInfo(
+    Address.fromHexString(pair.id) as Address,
+    event.params.token0Amount,
+    event.params.token1Amount,
+    event.params.exactOutLp,
+    event.params.sender,
     event
   );
 }
