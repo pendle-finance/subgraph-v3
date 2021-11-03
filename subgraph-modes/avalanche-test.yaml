@@ -8,9 +8,9 @@ dataSources:
     name: PendleRouter
     network: avalanche
     source:
-      address: "0xd313701E2835AB8FD758e9Aa151C8C4200E96658"
+      address: "0x3d4c5dB1081D7e5A8877C29123ad77fdf0536eCC"
       abi: PendleRouter
-      startBlock: 5840877
+      startBlock: 6452730
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -64,9 +64,9 @@ dataSources:
     name: PendleData
     network: avalanche
     source:
-      address: "0x010f240e9A5084267d549f1a7EdF2a85911250C7"
+      address: "0x9E0d260AB16a55956fA72Be7C5aA9C657d1Bc6e4"
       abi: PendleData
-      startBlock: 5840873
+      startBlock: 6452725
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
