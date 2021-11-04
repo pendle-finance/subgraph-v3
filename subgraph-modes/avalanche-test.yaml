@@ -153,28 +153,28 @@ dataSources:
         - event: PairCreated(indexed address,indexed address,address,uint256)
           handler: handleNewUniswapV2Pair
       file: ./src/uniswapv2/factory.ts
-  # - kind: ethereum/contract
-  #   name: Directory
-  #   network: avalanche
-  #   source:
-  #     address: "0x702A893f712a59be72722e4078513A1FbA5CAf2D"
-  #     abi: Directory
-  #     startBlock: 12983704
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - LiquidityMining
-  #     abis:
-  #       - name: Directory
-  #         file: ./abis/Directory.json
-  #       - name: LiquidityMiningV2
-  #         file: ./abis/PendleLiquidityMiningV2.json
-  #     eventHandlers:
-  #       - event: NewAddress(bytes32,address)
-  #         handler: handleNewContractAddress
-  #     file: ./src/pendle/directory.ts
+  - kind: ethereum/contract
+    name: Directory
+    network: avalanche
+    source:
+      address: "0xef1061941b271e481D3b3B263D5b407F8c76412b"
+      abi: Directory
+      startBlock: 6458777
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityMining
+      abis:
+        - name: Directory
+          file: ./abis/Directory.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
+      eventHandlers:
+        - event: NewAddress(bytes32,address)
+          handler: handleNewContractAddress
+      file: ./src/pendle/directory.ts
 
 templates:
   - kind: ethereum/contract
@@ -273,7 +273,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/sushiswap/factory.ts
+      file: ./src/uniswapv2/factory.ts
       entities:
         - SushiswapPair
         - Token
