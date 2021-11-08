@@ -5,7 +5,7 @@ import {
   Pair,
   DebugLog,
   PendleData,
-  LiquidityMining,
+  LiquidityMining
 } from "../../generated/schema";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
 import {
@@ -15,7 +15,7 @@ import {
   RONE_BD,
   TWO_BD,
   ZERO_BD,
-  ZERO_BI,
+  ZERO_BI
 } from "./consts";
 import { loadToken } from "./load-entity";
 import { getTokenPrice } from "../pricing";
@@ -72,7 +72,7 @@ export function calcLpPrice(
 }
 
 export function calcMarketWorthUSD(market: Pair): BigDecimal {
-  printDebug("market: " + market.id, "type")
+  printDebug("market: " + market.id, "type");
   let baseToken = Token.load(market.token1);
   let baseTokenWeight = market.token1WeightRaw.toBigDecimal().div(RONE_BD);
   let baseTokenBalance = market.reserve1;
@@ -165,4 +165,21 @@ export function isMarketLiquidityMiningV2(marketAddress: Address): boolean {
 
 export function getLpPrice(market: Pair): BigDecimal {
   return market.reserveUSD.div(market.totalSupply);
+}
+
+export function getTokenPair(
+  token0Address: Address,
+  token1Address: Address
+): Pair | null {
+  let token0 = loadToken(token0Address);
+  let token1 = loadToken(token1Address);
+  let pair: Pair | null = null;
+  let inTokenMarkets = token0.markets;
+  for (let i = 0; i < inTokenMarkets.length; ++i) {
+    let currentPair = Pair.load(inTokenMarkets[i]);
+    if (currentPair.token0 == token1.id || currentPair.token1 == token1.id) {
+      pair = currentPair;
+    }
+  }
+  return pair;
 }

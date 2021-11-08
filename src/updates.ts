@@ -4,15 +4,16 @@ import { getTokenPrice } from "./pricing";
 import {
   DAYS_PER_YEAR_BD,
   ONE_BD,
+  ONE_BI,
   ONE_DAY,
   ONE_HOUR,
   ZERO_BD,
-  ZERO_BI,
+  ZERO_BI
 } from "./utils/consts";
 import {
   calcMarketWorthUSD,
   calcYieldTokenPrice,
-  printDebug,
+  printDebug
 } from "./utils/helpers";
 
 export function updatePairHourData(
@@ -164,4 +165,37 @@ export function updatePairDailyData(
   );
   pairDayData.save();
   return pairDayData as PairDailyData;
+}
+
+export function addHourlyDailyTxn(_timestamp: BigInt, market: Pair): void {
+  let pairHourData = updatePairHourData(_timestamp, market);
+  pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
+  let pairDailyData = updatePairDailyData(_timestamp, market);
+  pairDailyData.dailyTxns = pairDailyData.dailyTxns.plus(ONE_BI);
+}
+
+export function addHourlyDailyVolume(
+  _timestamp: BigInt,
+  market: Pair,
+  token0Amount: BigDecimal,
+  token1Amount: BigDecimal,
+  volumeUSD: BigDecimal
+): void {
+  let pairHourData = updatePairHourData(_timestamp, market);
+  pairHourData.hourlyVolumeToken0 = pairHourData.hourlyVolumeToken0.plus(
+    token0Amount
+  );
+  pairHourData.hourlyVolumeToken1 = pairHourData.hourlyVolumeToken1.plus(
+    token1Amount
+  );
+  pairHourData.hourlyVolumeUSD = pairHourData.hourlyVolumeUSD.plus(volumeUSD);
+
+  let pairDailyData = updatePairDailyData(_timestamp, market);
+  pairDailyData.dailyVolumeToken0 = pairDailyData.dailyVolumeToken0.plus(
+    token0Amount
+  );
+  pairDailyData.dailyVolumeToken1 = pairDailyData.dailyVolumeToken1.plus(
+    token1Amount
+  );
+  pairDailyData.dailyVolumeUSD = pairDailyData.dailyVolumeUSD.plus(volumeUSD);
 }

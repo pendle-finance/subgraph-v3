@@ -18,7 +18,7 @@ import {
   TWO_BD,
   WETH_ADDRESS,
   ZERO_BD,
-  ZERO_BI,
+  ZERO_BI
 } from "../utils/consts";
 import { loadToken } from "../utils/load-entity";
 import { LiquidityMiningV2 } from "../../generated/templates/SushiswapPair/LiquidityMiningV2";

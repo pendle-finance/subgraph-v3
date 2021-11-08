@@ -1,23 +1,28 @@
 import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { TradeMiningUser, TradeMiningHouse } from "../../generated/schema";
+import {
+  TradeMiningUser,
+  TradeMiningHouse,
+  User,
+  Pair
+} from "../../generated/schema";
 import { ZERO_BD, chainId, ONE_BI } from "../utils/consts";
 
-function getPhase(block: ethereum.Block): String {
+function getPhase(timestamp: BigInt): string {
   let startTimestamp = BigInt.fromI32(1635846367);
   let interval = BigInt.fromI32(1209600); // 1 week in seconds
 
-  if (block.timestamp.lt(startTimestamp)) {
+  if (timestamp.lt(startTimestamp)) {
     return "0";
   }
 
-  return block.timestamp
+  return timestamp
     .minus(startTimestamp)
     .div(interval)
     .plus(ONE_BI)
     .toString();
 }
 
-function mapMarketAddressToHouse(marketAddress: string): String[] {
+function mapMarketAddressToHouse(marketAddress: string): string[] {
   let houseArray = new Array<string>();
   switch (chainId) {
     case 43114:
@@ -46,9 +51,9 @@ function mapMarketAddressToHouse(marketAddress: string): String[] {
 export function getTradeMiningUser(
   userAddress: string,
   marketAddress: string,
-  block: ethereum.Block
+  timestamp: BigInt
 ): TradeMiningUser[] {
-  let phase = getPhase(block);
+  let phase = getPhase(timestamp);
 
   if (phase == "0") return [];
 
@@ -105,4 +110,14 @@ export function sumTradeVolumeToHouse(
     tradeMiningHouse.volumeUSD = tradeMiningHouse.volumeUSD.plus(volumeUSD);
     tradeMiningHouse.save();
   }
+}
+
+export function updateUserTrade(
+  user: User,
+  pair: Pair,
+  amountUSD: BigDecimal,
+  timestamp: BigInt
+): void {
+  let tradeMiningUsers = getTradeMiningUser(user.id, pair.id, timestamp);
+  sumTradeVolumeToHouse(tradeMiningUsers, amountUSD);
 }

@@ -8,7 +8,7 @@ import {
   UNISWAP_Q192,
   ONE_BD,
   STABLE_USD_TOKENS,
-  ZERO_BD,
+  ZERO_BD
 } from "../utils/consts";
 import { loadToken } from "../utils/load-entity";
 
@@ -20,10 +20,7 @@ export function getPoolPrice(
   let token0Response = poolContract.try_token0();
 
   if (token0Response.reverted) {
-    printDebug(
-      "Uniswap Pool Contract try_token0 reverted:",
-      "type"
-    );
+    printDebug("Uniswap Pool Contract try_token0 reverted:", "type");
     return ZERO_BD;
   }
 

@@ -85,13 +85,16 @@ export function fetchTokenTotalSupply(tokenAddress: Address): BigInt {
   let totalSupplyValue = contract.try_totalSupply();
 
   if (totalSupplyValue.reverted) {
-    printDebug("Fetch total supply reverted: " + tokenAddress.toHexString(), "type");
+    printDebug(
+      "Fetch total supply reverted: " + tokenAddress.toHexString(),
+      "type"
+    );
     return ZERO_BI;
   }
 
   log.info("tokenAddress: {}, totalsupplyValue: {}", [
     tokenAddress.toHexString(),
-    totalSupplyValue.value.toString(),
+    totalSupplyValue.value.toString()
   ]);
   return totalSupplyValue.value as BigInt;
 }
