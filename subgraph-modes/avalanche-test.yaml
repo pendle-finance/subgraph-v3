@@ -8,9 +8,9 @@ dataSources:
     name: PendleRouter
     network: avalanche
     source:
-      address: "0xd313701E2835AB8FD758e9Aa151C8C4200E96658"
+      address: "0x3d4c5dB1081D7e5A8877C29123ad77fdf0536eCC"
       abi: PendleRouter
-      startBlock: 5840877
+      startBlock: 6452730
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -26,7 +26,6 @@ dataSources:
         - LiquidityMining
         - PairDailyData
         - TradeMiningUser
-        - TestingSchema
       abis:
         - name: PendleRouter
           file: ./abis/PendleRouter.json
@@ -65,9 +64,9 @@ dataSources:
     name: PendleData
     network: avalanche
     source:
-      address: "0x010f240e9A5084267d549f1a7EdF2a85911250C7"
+      address: "0x9E0d260AB16a55956fA72Be7C5aA9C657d1Bc6e4"
       abi: PendleData
-      startBlock: 5840873
+      startBlock: 6452725
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -154,35 +153,35 @@ dataSources:
         - event: PairCreated(indexed address,indexed address,address,uint256)
           handler: handleNewUniswapV2Pair
       file: ./src/uniswapv2/factory.ts
-  # - kind: ethereum/contract
-  #   name: Directory
-  #   network: avalanche
-  #   source:
-  #     address: "0x702A893f712a59be72722e4078513A1FbA5CAf2D"
-  #     abi: Directory
-  #     startBlock: 12983704
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - LiquidityMining
-  #     abis:
-  #       - name: Directory
-  #         file: ./abis/Directory.json
-  #       - name: LiquidityMiningV2
-  #         file: ./abis/PendleLiquidityMiningV2.json
-  #     eventHandlers:
-  #       - event: NewAddress(bytes32,address)
-  #         handler: handleNewContractAddress
-  #     file: ./src/pendle/directory.ts
+  - kind: ethereum/contract
+    name: Directory
+    network: avalanche
+    source:
+      address: "0xef1061941b271e481D3b3B263D5b407F8c76412b"
+      abi: Directory
+      startBlock: 6458777
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityMining
+      abis:
+        - name: Directory
+          file: ./abis/Directory.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
+      eventHandlers:
+        - event: NewAddress(bytes32,address)
+          handler: handleNewContractAddress
+      file: ./src/pendle/directory.ts
   - kind: ethereum/contract
     name: PendleWrapper
     network: avalanche
     source:
-      address: "0xaA17b3AF8588f33eF5b9B2d3D64ce36139e8603D"
+      address: "0xc4aef72f0f42ed47e216f8dcb3699a39276cbf5f"
       abi: PendleWrapper
-      startBlock: 6077226
+      startBlock: 6452748
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -311,7 +310,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/sushiswap/factory.ts
+      file: ./src/uniswapv2/factory.ts
       entities:
         - SushiswapPair
         - Token
@@ -382,9 +381,9 @@ templates:
           handler: handleWithdrawn
         - event: PendleRewardsSettled(uint256,address,uint256)
           handler: handleRedeemReward
-      callHandlers:
-        - function: redeemLpInterests(uint256,address)
-          handler: handleRedeemLpInterests
+      # callHandlers:
+      #   - function: redeemLpInterests(uint256,address)
+      #     handler: handleRedeemLpInterests
   - kind: ethereum/contract
     name: PendleLiquidityMiningV2
     network: avalanche
