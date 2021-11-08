@@ -60,5 +60,5 @@ export function getHardcodedPrice(tokenAddress: Address): BigDecimal {
 }
 
 export let PENDLE_WRAPPER: Address = Address.fromString(
-  "0xaA17b3AF8588f33eF5b9B2d3D64ce36139e8603D"
+  "0xc4aeF72F0f42eD47e216F8DCB3699A39276cBF5F"
 );

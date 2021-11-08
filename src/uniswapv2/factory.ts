@@ -1,11 +1,6 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { PairCreated as QuickswapPairCreatedEvent } from "../../generated/QuickswapFactory/QuickswapFactory";
-import {
-  OTPair,
-  PricePool,
-  Token,
-  LiquidityMining
-} from "../../generated/schema";
+import { OTPair, PricePool, Token, LiquidityMining, OTPairHourData } from "../../generated/schema";
 import { chainId } from "../utils/consts";
 import { SushiswapPair as SushiswapPairTemplate } from "../../generated/templates";
 import { convertTokenToDecimal, getBalanceOf } from "../utils/helpers";
@@ -28,6 +23,7 @@ import {
 import { loadToken } from "../utils/load-entity";
 import { LiquidityMiningV2 } from "../../generated/templates/SushiswapPair/LiquidityMiningV2";
 import { SushiswapPair as SushiswapPairContract } from "../../generated/templates/SushiswapPair/SushiswapPair";
+import { Swap as SwapEvent } from "../../generated/SushiswapFactory/SushiswapPair";
 
 export function createUniswapV2Pair(
   poolAddress: Address,
@@ -74,7 +70,7 @@ export function handleNewUniswapV2Pair(event: QuickswapPairCreatedEvent): void {
   }
   if (id != "") {
     // OT Market found
-    // SushiswapPairTemplate.create(event.params.pair);
+    SushiswapPairTemplate.create(event.params.pair);
     let otMarket = new OTPair(event.params.pair.toHexString());
     otMarket.otToken = id;
     otMarket.baseToken = baseToken;
@@ -151,7 +147,11 @@ export function getOtApr(pair: OTPair, timestamp: BigInt): void {
   let totalStaked = lmContract.totalStake();
   let totalReward = epochData.value1;
 
-  if (totalStaked.equals(ZERO_BI)) return;
+  if (totalStaked.equals(ZERO_BI)) {
+    pair.aprPercentage = BigDecimal.fromString("1000000");
+    pair.save();
+    return;
+  };
 
   pair.lpPrice = lpPrice;
   pair.totalStaked = totalStaked;
@@ -222,4 +222,55 @@ export function initializeQuickSwapPools(): void {
       );
       break;
   }
+}
+
+export function handleSwapSushiswap(event: SwapEvent): void {
+  let pair = updateOTPair(event.address, event.block.timestamp);
+  let baseToken = loadToken(
+    Address.fromHexString(pair.baseToken) as Address
+  ) as Token;
+
+  let tradingValue = ZERO_BD;
+  if (pair.isOtToken0) {
+    tradingValue = convertTokenToDecimal(
+      event.params.amount1In.plus(event.params.amount1Out),
+      baseToken.decimals
+    );
+  } else {
+    tradingValue = convertTokenToDecimal(
+      event.params.amount0In.plus(event.params.amount0Out),
+      baseToken.decimals
+    );
+  }
+
+  tradingValue = tradingValue.times(getTokenPrice(baseToken));
+
+  let timestamp = event.block.timestamp.toI32();
+  let hourID = timestamp / ONE_HOUR;
+  let hourStartUnix = hourID * ONE_HOUR;
+  let hourPairID = pair.id
+    .concat("-")
+    .concat(BigInt.fromI32(hourID).toString());
+
+  let sushiswapPairHourData = OTPairHourData.load(hourPairID);
+
+  if (sushiswapPairHourData === null) {
+    sushiswapPairHourData = new OTPairHourData(hourPairID);
+    sushiswapPairHourData.otAddress = pair.id;
+    sushiswapPairHourData.tradingVolumeUSD = ZERO_BD;
+    sushiswapPairHourData.hourStartUnix = hourStartUnix;
+  }
+
+  pair.totalTradingUSD = pair.totalTradingUSD.plus(tradingValue);
+  sushiswapPairHourData.tradingVolumeUSD = sushiswapPairHourData.tradingVolumeUSD.plus(
+    tradingValue
+  );
+  pair.save();
+  sushiswapPairHourData.save();
+  return;
+}
+
+export function handleUpdateSushiswap(event: SwapEvent): void {
+  let pair = updateOTPair(event.address, event.block.timestamp);
+  return;
 }

@@ -1,6 +1,7 @@
 import { Address, BigDecimal, log } from "@graphprotocol/graph-ts";
 import { Token } from "../generated/schema";
 import { ICToken as ICTokenContract } from "../generated/templates/IPendleForge/ICToken";
+import { ERC20 as ERC20Contract } from "../generated/templates/PendleMarket/ERC20";
 import { getQuickSwapTokenPrice } from "./quickswap/pricing";
 import { getPendlePrice, getSushiLpPrice } from "./sushiswap/pricing";
 import { getUniswapTokenPrice } from "./uniswap/pricing";
@@ -30,11 +31,31 @@ export function getCTokenCurrentRate(token: Token): BigDecimal {
     .div(exponentToBigDecimal(underlyingAsset.decimals.minus(token.decimals)));
 }
 
+function getxJoeRate(token: Token): BigDecimal {
+  let xJoeAddress = Address.fromHexString(token.id) as Address;
+  let xJoeToken = ERC20Contract.bind(xJoeAddress);
+  let joeToken = ERC20Contract.bind(
+    Address.fromHexString(token.underlyingAsset) as Address
+  );
+
+  let xJoeTotalSupply = xJoeToken.totalSupply().toBigDecimal();
+  let joeBalance = joeToken.balanceOf(xJoeAddress).toBigDecimal();
+
+  let rate = xJoeTotalSupply.div(joeBalance);
+
+  return rate;
+}
+
 function calcSpecialForgePrice(
   token: Token,
   underlyingPrice: BigDecimal
 ): BigDecimal {
   let tokenPrice = underlyingPrice;
+  if (token.forgeId.startsWith("xJoe")) {
+    printDebug("xJoe UnderlyingPrice: " + underlyingPrice.toString(), "test");
+    tokenPrice = underlyingPrice.times(getxJoeRate(token as Token));
+  }
+
   if (
     token.forgeId.startsWith("Compound") ||
     token.forgeId.startsWith("BenQi")
@@ -71,7 +92,10 @@ export function getTokenPrice(token: Token): BigDecimal {
   ) as Address;
 
   /* forges not depending on network */
-  if (token.forgeId.startsWith("Sushi")) {
+  if (
+    token.forgeId.startsWith("Sushi") ||
+    token.forgeId.startsWith("TraderJoe")
+  ) {
     underlyingPrice = getSushiLpPrice(underlyingAsset);
     return underlyingPrice;
   }
