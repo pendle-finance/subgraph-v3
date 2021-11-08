@@ -72,14 +72,6 @@ export function updatePairHourData(
     .toBigDecimal()
     .minus(_timestamp.toBigDecimal())
     .div(ONE_DAY);
-  log.debug("_timestamp: %s, ONE_DAY: %s", [
-    _timestamp.toString(),
-    ONE_DAY.toString(),
-  ]);
-  log.debug("yieldTokenPriceUSD: %s, pairHourData.yieldBearingAssetPrice: %s", [
-    yieldTokenPriceUSD.toString(),
-    pairHourData.yieldBearingAssetPrice.toString(),
-  ]);
   let impliedYieldPercentage = yieldTokenPriceUSD
     .div(pairHourData.yieldBearingAssetPrice.minus(yieldTokenPriceUSD))
     .div(daysUntilExpiry)
@@ -87,19 +79,13 @@ export function updatePairHourData(
 
   pairHourData.impliedYield = impliedYieldPercentage;
   pairHourData.marketWorthUSD = calcMarketWorthUSD(market);
-  pairHourData.lpTokenPrice = ZERO_BD;
   pairHourData.totalSupply = market.totalSupply;
   pairHourData.reserve0 = market.reserve0;
   pairHourData.reserve1 = market.reserve1;
 
-  log.debug("pairHourData.marketWorthUSD: %s, market.totalSupply: %s", [
-    pairHourData.marketWorthUSD.toString(),
-    market.totalSupply.toString(),
-  ]);
-
-  // pairHourData.marketWorthUSD.div(
-  //   pairHourData.totalSupply
-  // );
+  pairHourData.lpTokenPrice = pairHourData.marketWorthUSD.div(
+    pairHourData.totalSupply
+  );
   pairHourData.save();
   return pairHourData as PairHourData;
 }

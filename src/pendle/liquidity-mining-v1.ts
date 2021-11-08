@@ -5,7 +5,7 @@ import {
   Staked as StakeEvent,
   Withdrawn as WithdrawEvent,
   PendleLiquidityMiningV1 as LMv1Contract,
-  PendleRewardsSettled
+  PendleRewardsSettled,
 } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import { PendleLpHolder } from "../../generated/templates/PendleLiquidityMiningV1/PendleLpHolder";
 import { getTokenPrice } from "../pricing";
@@ -14,7 +14,7 @@ import { convertTokenToDecimal, printDebug } from "../utils/helpers";
 import {
   loadLiquidityMiningV1,
   loadToken,
-  loadUserMarketData
+  loadUserMarketData,
 } from "../utils/load-entity";
 import { redeemLpInterests } from "./market";
 
@@ -121,6 +121,26 @@ export function hardcodedLiquidityMining(
   ) {
     lmAddress = "0x4a7e31f01119c921fda702e54a882a289cf7c637";
   }
+
+  // avalanche qiUSDC / USDC
+  if (str == "0x574d9626f0bfde8b48cb762154dabf052812ccc6") {
+    lmAddress = "0x072b28b1b3b7f5f34af8b32c6fd74b64a92e4c3d";
+  }
+
+  // // avalanche JLP(AVAXUSDC) / USDC
+  // if (str == "0x414e36e93d055f1912d05fbd446e9c70899293fb") {
+  //   lmAddress = "0x10688f2bb9ff5881d88c41aafc1c28b630339a1c";
+  // }
+
+  // // avalanche JLP(PA) / PENDLE
+  // if (str == "0x027dfe08d7a3ce2562ce17a6f6f4b78d26f360bd") {
+  //   lmAddress = "0xa90db3286122355309cd161c3aec2ddb28021b6a";
+  // }
+
+  // // avalanche xJOE / USDC
+  // if (str == "0xcf5f662b388302836c1c2899446e2267b081c690") {
+  //   lmAddress = "0xc623caf18efab2c47f419e9529dedf0bdbcd560c";
+  // }
 
   if (lmAddress.length > 0) {
     return loadLiquidityMiningV1(Address.fromHexString(lmAddress) as Address);

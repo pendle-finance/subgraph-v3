@@ -3,8 +3,8 @@ import { TradeMiningUser, TradeMiningHouse } from "../../generated/schema";
 import { ZERO_BD, chainId, ONE_BI } from "../utils/consts";
 
 function getPhase(block: ethereum.Block): String {
-  let startTimestamp = BigInt.fromI32(1634738108);
-  let interval = BigInt.fromI32(604800); // 1 week in seconds
+  let startTimestamp = BigInt.fromI32(1635846367);
+  let interval = BigInt.fromI32(1209600); // 1 week in seconds
 
   if (block.timestamp.lt(startTimestamp)) {
     return "0";
@@ -22,16 +22,18 @@ function mapMarketAddressToHouse(marketAddress: string): String[] {
   switch (chainId) {
     case 43114:
       // YT-qiUSDC-2022 / USDC
-      if (marketAddress == "0x50d3a2991db715e51c55a5ec06488e91522029d2")
+      if (marketAddress == "0x574d9626f0bfde8b48cb762154dabf052812ccc6")
         houseArray.push("BenQi");
 
-      // YT-AvaxUSDC/Avax market ||
-      if (marketAddress == "0x66e98b6c1653c7f9fb0cd5ee520c0560d2d915d6")
+      // YT-AvaxUSDC/USDC market || YT-xJOE/USDC 
+      if (
+        marketAddress == "0x414e36e93d055f1912d05fbd446e9c70899293fb" ||
+        marketAddress == "0xCf5F662B388302836c1c2899446e2267b081c690"
+      )
         houseArray.push("TraderJoe");
 
       // YT-PendleAvax/Pendle
-      if (marketAddress == "0xd0bd9be51f71ca8d863a312a5fa243391e17318c") {
-        houseArray.push("TraderJoe");
+      if (marketAddress == "0x027dfe08d7a3ce2562ce17a6f6f4b78d26f360bd") {
         houseArray.push("Pendle");
       }
 
