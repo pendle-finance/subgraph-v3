@@ -1,6 +1,12 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { PairCreated as QuickswapPairCreatedEvent } from "../../generated/QuickswapFactory/QuickswapFactory";
-import { OTPair, PricePool, Token, LiquidityMining, OTPairHourData } from "../../generated/schema";
+import {
+  OTPair,
+  PricePool,
+  Token,
+  LiquidityMining,
+  OTPairHourData
+} from "../../generated/schema";
 import { chainId } from "../utils/consts";
 import { SushiswapPair as SushiswapPairTemplate } from "../../generated/templates";
 import { convertTokenToDecimal, getBalanceOf } from "../utils/helpers";
@@ -151,7 +157,7 @@ export function getOtApr(pair: OTPair, timestamp: BigInt): void {
     pair.aprPercentage = BigDecimal.fromString("1000000");
     pair.save();
     return;
-  };
+  }
 
   pair.lpPrice = lpPrice;
   pair.totalStaked = totalStaked;

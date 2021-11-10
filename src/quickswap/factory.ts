@@ -111,8 +111,8 @@ export function initializeQuickSwapPools(): void {
         Address.fromString("0xc7198437980c041c805a1edcba50c1ce5db95118")
       );
 
-       // ETH - JOE
-       createQuickswapPair(
+      // ETH - JOE
+      createQuickswapPair(
         Address.fromString("0x454e67025631c065d3cfad6d71e6892f74487a15"),
         Address.fromString("0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"),
         Address.fromString("0x6e84a6216ea6dacc71ee8e6b0a5b7322eebc0fdd")

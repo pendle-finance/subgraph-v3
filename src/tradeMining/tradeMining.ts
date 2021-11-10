@@ -30,7 +30,7 @@ function mapMarketAddressToHouse(marketAddress: string): string[] {
       if (marketAddress == "0x574d9626f0bfde8b48cb762154dabf052812ccc6")
         houseArray.push("BenQi");
 
-      // YT-AvaxUSDC/USDC market || YT-xJOE/USDC 
+      // YT-AvaxUSDC/USDC market || YT-xJOE/USDC
       if (
         marketAddress == "0x414e36e93d055f1912d05fbd446e9c70899293fb" ||
         marketAddress == "0xCf5F662B388302836c1c2899446e2267b081c690"

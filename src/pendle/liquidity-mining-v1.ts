@@ -5,16 +5,17 @@ import {
   Staked as StakeEvent,
   Withdrawn as WithdrawEvent,
   PendleLiquidityMiningV1 as LMv1Contract,
-  PendleRewardsSettled,
+  PendleRewardsSettled
 } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import { PendleLpHolder } from "../../generated/templates/PendleLiquidityMiningV1/PendleLpHolder";
 import { getTokenPrice } from "../pricing";
 import { PENDLE_TOKEN_ADDRESS } from "../utils/consts";
+import { YTLiquidityMining } from "../utils/consts-modes/avalanche_consts";
 import { convertTokenToDecimal, printDebug } from "../utils/helpers";
 import {
   loadLiquidityMiningV1,
   loadToken,
-  loadUserMarketData,
+  loadUserMarketData
 } from "../utils/load-entity";
 import { redeemLpInterests } from "./market";
 
@@ -123,9 +124,9 @@ export function hardcodedLiquidityMining(
   }
 
   // avalanche qiUSDC / USDC
-  if (str == "0x574d9626f0bfde8b48cb762154dabf052812ccc6") {
-    lmAddress = "0x072b28b1b3b7f5f34af8b32c6fd74b64a92e4c3d";
-  }
+  // if (str == "0x574d9626f0bfde8b48cb762154dabf052812ccc6") {
+  //   lmAddress = "0x072b28b1b3b7f5f34af8b32c6fd74b64a92e4c3d";
+  // }
 
   // // avalanche JLP(AVAXUSDC) / USDC
   // if (str == "0x414e36e93d055f1912d05fbd446e9c70899293fb") {
@@ -141,6 +142,28 @@ export function hardcodedLiquidityMining(
   // if (str == "0xcf5f662b388302836c1c2899446e2267b081c690") {
   //   lmAddress = "0xc623caf18efab2c47f419e9529dedf0bdbcd560c";
   // }
+
+  for (let i = 0; i < YTLiquidityMining.length; ++i) {
+    if (str == YTLiquidityMining[i][0]) {
+      lmAddress = YTLiquidityMining[i][1];
+    }
+  }
+
+  if (str == "0x7552f903e33db53a86167c1e74f0e082bd0740d5") {
+    lmAddress = "0x3ffd8ecffb03626bd7dee699ce1921cc62185dea";
+  }
+
+  if (str == "0x80aae49b1142e2f135033829a1b647b1636c1506") {
+    lmAddress = "0x1305434fbe1c14a8c6c1d30bbf92f5baee506381";
+  }
+
+  if (str == "0xd5736ba0be93c99a10e2264e8e4ebd54633306f8") {
+    lmAddress = "0xab74bc51c94b0f4918df448e17d0bdf3528d5a8f";
+  }
+
+  if (str == "0x3e2737eb1b513bcee93a2144204d22695b272215") {
+    lmAddress = "0xb0badfa50aabf4eba331117c1a5c94b7c1dc6388";
+  }
 
   if (lmAddress.length > 0) {
     return loadLiquidityMiningV1(Address.fromHexString(lmAddress) as Address);

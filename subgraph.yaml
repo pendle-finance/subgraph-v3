@@ -8,9 +8,9 @@ dataSources:
     name: PendleRouter
     network: avalanche
     source:
-      address: "0x3d4c5dB1081D7e5A8877C29123ad77fdf0536eCC"
+      address: "0x771ad65bF2837C89A1CC0A0FC601d9De7f217b52"
       abi: PendleRouter
-      startBlock: 6452730
+      startBlock: 6725078
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -64,9 +64,9 @@ dataSources:
     name: PendleData
     network: avalanche
     source:
-      address: "0x9E0d260AB16a55956fA72Be7C5aA9C657d1Bc6e4"
+      address: "0x94D7E5c48Ca9627001FACb04D1820C54dFf3032c"
       abi: PendleData
-      startBlock: 6452725
+      startBlock: 6725074
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -157,9 +157,9 @@ dataSources:
     name: Directory
     network: avalanche
     source:
-      address: "0xef1061941b271e481D3b3B263D5b407F8c76412b"
+      address: "0x6E85FC67EF36a674f32c862579A4Dea8Ec95572a"
       abi: Directory
-      startBlock: 6458777
+      startBlock: 6773942 
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -179,9 +179,9 @@ dataSources:
     name: PendleWrapper
     network: avalanche
     source:
-      address: "0xc4aef72f0f42ed47e216f8dcb3699a39276cbf5f"
+      address: "0x2e130d5dC593FfE5Eb8f54F63F6b5E50DF169A47"
       abi: PendleWrapper
-      startBlock: 6452748
+      startBlock: 6725117
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

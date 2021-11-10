@@ -1,1435 +1,1471 @@
 [
-    {
-      "inputs": [
-        {
-          "components": [
-            {
-              "internalType": "contract IPendleRouter",
-              "name": "pendleRouter",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IAaveV2LendingPool",
-              "name": "aaveLendingPool",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IUniswapV2Router02",
-              "name": "uniRouter",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IUniswapV2Router02",
-              "name": "sushiRouter",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IDMMLiquidityRouter",
-              "name": "kyberRouter",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IJoeBar",
-              "name": "joeBar",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IWETH",
-              "name": "weth",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "codeHashUni",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "codeHashSushi",
-              "type": "bytes32"
-            }
-          ],
-          "internalType": "struct ConstructorData",
-          "name": "_data",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "token0",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "token1",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "token0Amount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "token1Amount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "exactOutLp",
-          "type": "uint256"
-        }
-      ],
-      "name": "AddLiquidityOT",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "bytes32",
-          "name": "marketFactoryId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "token0",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "token1",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "token0Amount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "token1Amount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "exactOutLp",
-          "type": "uint256"
-        }
-      ],
-      "name": "AddLiquidityYT",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "bytes32",
-          "name": "forgeId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "underlyingAsset",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "expiry",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountToTokenize",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountTokenMinted",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        }
-      ],
-      "name": "MintYieldTokens",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "token0",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "token1",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "lpToken",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountIn0",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountIn1",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "lpOut",
-          "type": "uint256"
-        }
-      ],
-      "name": "RawTokenToYTokenDouble",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "rawAsset",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "yieldBearingToken",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountIn",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountOut",
-          "type": "uint256"
-        }
-      ],
-      "name": "RawTokenToYTokenSingle",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "inToken",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "outToken",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "inAmount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "outAmount",
-          "type": "uint256"
-        }
-      ],
-      "name": "SwapEventYT",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "ETH_ADDRESS",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "aaveLendingPool",
-      "outputs": [
-        {
-          "internalType": "contract IAaveV2LendingPool",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "codeHashSushi",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "codeHashUni",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "token",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "to",
-              "type": "address"
-            }
-          ],
-          "internalType": "struct Approval[]",
-          "name": "approvals",
-          "type": "tuple[]"
-        }
-      ],
-      "name": "infinityApprove",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "enum Mode",
-          "name": "mode",
-          "type": "uint8"
-        },
-        {
-          "components": [
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "token",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct DataTknzSingle",
-              "name": "single",
-              "type": "tuple"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "tokenA",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "tokenB",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountADesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBDesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountAMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "deadline",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "kyberPool",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256[2]",
-                  "name": "kybervReserveRatioBounds",
-                  "type": "uint256[2]"
-                }
-              ],
-              "internalType": "struct DataAddLiqUniFork",
-              "name": "double",
-              "type": "tuple"
-            },
-            {
-              "internalType": "address",
-              "name": "forge",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "expiryYT",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataTknz",
-          "name": "dataTknz",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "baseToken",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountTokenDesired",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountTokenMin",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "deadline",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "liqMiningAddr",
-              "type": "address"
-            }
-          ],
-          "internalType": "struct DataAddLiqOT",
-          "name": "dataAddOT",
-          "type": "tuple"
-        }
-      ],
-      "name": "insAddDualLiqForOT",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "OT",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "YT",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountYO",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataYO",
-          "name": "dataYO",
-          "type": "tuple"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lpOutOT",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amountBaseTokenUsedOT",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "enum Mode",
-          "name": "mode",
-          "type": "uint8"
-        },
-        {
-          "components": [
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "token",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct DataTknzSingle",
-              "name": "single",
-              "type": "tuple"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "tokenA",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "tokenB",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountADesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBDesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountAMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "deadline",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "kyberPool",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256[2]",
-                  "name": "kybervReserveRatioBounds",
-                  "type": "uint256[2]"
-                }
-              ],
-              "internalType": "struct DataAddLiqUniFork",
-              "name": "double",
-              "type": "tuple"
-            },
-            {
-              "internalType": "address",
-              "name": "forge",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "expiryYT",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataTknz",
-          "name": "dataTknz",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "baseToken",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountTokenDesired",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountTokenMin",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "deadline",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "liqMiningAddr",
-              "type": "address"
-            }
-          ],
-          "internalType": "struct DataAddLiqOT",
-          "name": "dataAddOT",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "baseToken",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountTokenDesired",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountTokenMin",
-              "type": "uint256"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "marketFactoryId",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "address",
-              "name": "liqMiningAddr",
-              "type": "address"
-            }
-          ],
-          "internalType": "struct DataAddLiqYT",
-          "name": "dataAddYT",
-          "type": "tuple"
-        }
-      ],
-      "name": "insAddDualLiqForOTandYT",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "OT",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "YT",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountYO",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataYO",
-          "name": "dataYO",
-          "type": "tuple"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lpOutOT",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amountBaseTokenUsedOT",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lpOutYT",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amountBaseTokenUsedYT",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "enum Mode",
-          "name": "mode",
-          "type": "uint8"
-        },
-        {
-          "components": [
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "token",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct DataTknzSingle",
-              "name": "single",
-              "type": "tuple"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "tokenA",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "tokenB",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountADesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBDesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountAMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "deadline",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "kyberPool",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256[2]",
-                  "name": "kybervReserveRatioBounds",
-                  "type": "uint256[2]"
-                }
-              ],
-              "internalType": "struct DataAddLiqUniFork",
-              "name": "double",
-              "type": "tuple"
-            },
-            {
-              "internalType": "address",
-              "name": "forge",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "expiryYT",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataTknz",
-          "name": "dataTknz",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "baseToken",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountTokenDesired",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountTokenMin",
-              "type": "uint256"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "marketFactoryId",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "address",
-              "name": "liqMiningAddr",
-              "type": "address"
-            }
-          ],
-          "internalType": "struct DataAddLiqYT",
-          "name": "dataAddYT",
-          "type": "tuple"
-        }
-      ],
-      "name": "insAddDualLiqForYT",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "OT",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "YT",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountYO",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataYO",
-          "name": "dataYO",
-          "type": "tuple"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lpOut",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amountBaseTokenUsed",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "enum Mode",
-          "name": "mode",
-          "type": "uint8"
-        },
-        {
-          "components": [
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "token",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct DataTknzSingle",
-              "name": "single",
-              "type": "tuple"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "tokenA",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "tokenB",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountADesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBDesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountAMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "deadline",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "kyberPool",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256[2]",
-                  "name": "kybervReserveRatioBounds",
-                  "type": "uint256[2]"
-                }
-              ],
-              "internalType": "struct DataAddLiqUniFork",
-              "name": "double",
-              "type": "tuple"
-            },
-            {
-              "internalType": "address",
-              "name": "forge",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "expiryYT",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataTknz",
-          "name": "dataTknz",
-          "type": "tuple"
-        },
-        {
-          "internalType": "bytes32",
-          "name": "marketFactoryId",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "address",
-          "name": "baseToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "minOutLp",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "liqMiningAddr",
-          "type": "address"
-        }
-      ],
-      "name": "insAddSingleLiq",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "OT",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "YT",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountYO",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataYO",
-          "name": "dataYO",
-          "type": "tuple"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lpOut",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "enum Mode",
-          "name": "mode",
-          "type": "uint8"
-        },
-        {
-          "components": [
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "token",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct DataTknzSingle",
-              "name": "single",
-              "type": "tuple"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "tokenA",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "tokenB",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountADesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBDesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountAMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "deadline",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "kyberPool",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256[2]",
-                  "name": "kybervReserveRatioBounds",
-                  "type": "uint256[2]"
-                }
-              ],
-              "internalType": "struct DataAddLiqUniFork",
-              "name": "double",
-              "type": "tuple"
-            },
-            {
-              "internalType": "address",
-              "name": "forge",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "expiryYT",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataTknz",
-          "name": "dataTknz",
-          "type": "tuple"
-        },
-        {
-          "internalType": "bytes32",
-          "name": "marketFactoryId",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "address",
-          "name": "baseToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "minOutBaseTokenAmount",
-          "type": "uint256"
-        }
-      ],
-      "name": "insRealizeFutureYield",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "OT",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "YT",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountYO",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataYO",
-          "name": "dataYO",
-          "type": "tuple"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amountBaseTokenOut",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "enum Mode",
-          "name": "mode",
-          "type": "uint8"
-        },
-        {
-          "components": [
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "token",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct DataTknzSingle",
-              "name": "single",
-              "type": "tuple"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "tokenA",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "tokenB",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountADesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBDesired",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountAMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amountBMin",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "deadline",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "kyberPool",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256[2]",
-                  "name": "kybervReserveRatioBounds",
-                  "type": "uint256[2]"
-                }
-              ],
-              "internalType": "struct DataAddLiqUniFork",
-              "name": "double",
-              "type": "tuple"
-            },
-            {
-              "internalType": "address",
-              "name": "forge",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "expiryYT",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataTknz",
-          "name": "dataTknz",
-          "type": "tuple"
-        }
-      ],
-      "name": "insTokenize",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "OT",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "YT",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amountYO",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataYO",
-          "name": "dataYO",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "joeBar",
-      "outputs": [
-        {
-          "internalType": "contract IJoeBar",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "kyberRouter",
-      "outputs": [
-        {
-          "internalType": "contract IDMMLiquidityRouter",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "pendleData",
-      "outputs": [
-        {
-          "internalType": "contract IPendleData",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "pendleRouter",
-      "outputs": [
-        {
-          "internalType": "contract IPendleRouter",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "sushiRouter",
-      "outputs": [
-        {
-          "internalType": "contract IUniswapV2Router02",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "uniRouter",
-      "outputs": [
-        {
-          "internalType": "contract IUniswapV2Router02",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "weth",
-      "outputs": [
-        {
-          "internalType": "contract IWETH",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "stateMutability": "payable",
-      "type": "receive"
-    }
-  ]
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "contract IPendleRouter",
+            "name": "pendleRouter",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IAaveV2LendingPool",
+            "name": "aaveLendingPool",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IUniswapV2Router02",
+            "name": "uniRouter",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IUniswapV2Router02",
+            "name": "sushiRouter",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IDMMLiquidityRouter",
+            "name": "kyberRouter",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IJoeRouter02",
+            "name": "joeRouter",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IOTMarketRouter",
+            "name": "otMarketRouter",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IJoeBar",
+            "name": "joeBar",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IWETH",
+            "name": "weth",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "codeHashUni",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "codeHashSushi",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct ConstructorData",
+        "name": "_data",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token0",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token1",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "token0Amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "token1Amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "exactOutLp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AddLiquidityOT",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "marketFactoryId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token0",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token1",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "token0Amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "token1Amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "exactOutLp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AddLiquidityYT",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "forgeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "underlyingAsset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "expiry",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountToTokenize",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountTokenMinted",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "MintYieldTokens",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token0",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token1",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "lpToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountIn0",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountIn1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lpOut",
+        "type": "uint256"
+      }
+    ],
+    "name": "RawTokenToYTokenDouble",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "rawAsset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "yieldBearingToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      }
+    ],
+    "name": "RawTokenToYTokenSingle",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "inToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "outToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "inAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "outAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "SwapEventYT",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "ETH_ADDRESS",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "aaveLendingPool",
+    "outputs": [
+      {
+        "internalType": "contract IAaveV2LendingPool",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "codeHashSushi",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "codeHashUni",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct Approval[]",
+        "name": "approvals",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "infinityApprove",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum Mode",
+        "name": "mode",
+        "type": "uint8"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct DataTknzSingle",
+            "name": "single",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "tokenA",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "tokenB",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountADesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBDesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountAMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "deadline",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "kyberPool",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256[2]",
+                "name": "kybervReserveRatioBounds",
+                "type": "uint256[2]"
+              }
+            ],
+            "internalType": "struct DataAddLiqUniFork",
+            "name": "double",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "forge",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiryYT",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataTknz",
+        "name": "dataTknz",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "baseToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenDesired",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "liqMiningAddr",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct DataAddLiqOT",
+        "name": "dataAddOT",
+        "type": "tuple"
+      }
+    ],
+    "name": "insAddDualLiqForOT",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "OT",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "YT",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountYO",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataYO",
+        "name": "dataYO",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpOutOT",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountBaseTokenUsedOT",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum Mode",
+        "name": "mode",
+        "type": "uint8"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct DataTknzSingle",
+            "name": "single",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "tokenA",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "tokenB",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountADesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBDesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountAMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "deadline",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "kyberPool",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256[2]",
+                "name": "kybervReserveRatioBounds",
+                "type": "uint256[2]"
+              }
+            ],
+            "internalType": "struct DataAddLiqUniFork",
+            "name": "double",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "forge",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiryYT",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataTknz",
+        "name": "dataTknz",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "baseToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenDesired",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "liqMiningAddr",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct DataAddLiqOT",
+        "name": "dataAddOT",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "baseToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenDesired",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "marketFactoryId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "liqMiningAddr",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct DataAddLiqYT",
+        "name": "dataAddYT",
+        "type": "tuple"
+      }
+    ],
+    "name": "insAddDualLiqForOTandYT",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "OT",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "YT",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountYO",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataYO",
+        "name": "dataYO",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpOutOT",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountBaseTokenUsedOT",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpOutYT",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountBaseTokenUsedYT",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum Mode",
+        "name": "mode",
+        "type": "uint8"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct DataTknzSingle",
+            "name": "single",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "tokenA",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "tokenB",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountADesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBDesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountAMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "deadline",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "kyberPool",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256[2]",
+                "name": "kybervReserveRatioBounds",
+                "type": "uint256[2]"
+              }
+            ],
+            "internalType": "struct DataAddLiqUniFork",
+            "name": "double",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "forge",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiryYT",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataTknz",
+        "name": "dataTknz",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "baseToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenDesired",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "marketFactoryId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "liqMiningAddr",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct DataAddLiqYT",
+        "name": "dataAddYT",
+        "type": "tuple"
+      }
+    ],
+    "name": "insAddDualLiqForYT",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "OT",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "YT",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountYO",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataYO",
+        "name": "dataYO",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpOut",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountBaseTokenUsed",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum Mode",
+        "name": "mode",
+        "type": "uint8"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct DataTknzSingle",
+            "name": "single",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "tokenA",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "tokenB",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountADesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBDesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountAMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "deadline",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "kyberPool",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256[2]",
+                "name": "kybervReserveRatioBounds",
+                "type": "uint256[2]"
+              }
+            ],
+            "internalType": "struct DataAddLiqUniFork",
+            "name": "double",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "forge",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiryYT",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataTknz",
+        "name": "dataTknz",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "marketFactoryId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "baseToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minOutLp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "liqMiningAddr",
+        "type": "address"
+      }
+    ],
+    "name": "insAddSingleLiq",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "OT",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "YT",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountYO",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataYO",
+        "name": "dataYO",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpOut",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum Mode",
+        "name": "mode",
+        "type": "uint8"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct DataTknzSingle",
+            "name": "single",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "tokenA",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "tokenB",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountADesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBDesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountAMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "deadline",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "kyberPool",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256[2]",
+                "name": "kybervReserveRatioBounds",
+                "type": "uint256[2]"
+              }
+            ],
+            "internalType": "struct DataAddLiqUniFork",
+            "name": "double",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "forge",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiryYT",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataTknz",
+        "name": "dataTknz",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "marketFactoryId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "baseToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minOutBaseTokenAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "insRealizeFutureYield",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "OT",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "YT",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountYO",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataYO",
+        "name": "dataYO",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountBaseTokenOut",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum Mode",
+        "name": "mode",
+        "type": "uint8"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct DataTknzSingle",
+            "name": "single",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "tokenA",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "tokenB",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountADesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBDesired",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountAMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountBMin",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "deadline",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "kyberPool",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256[2]",
+                "name": "kybervReserveRatioBounds",
+                "type": "uint256[2]"
+              }
+            ],
+            "internalType": "struct DataAddLiqUniFork",
+            "name": "double",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "forge",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiryYT",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataTknz",
+        "name": "dataTknz",
+        "type": "tuple"
+      }
+    ],
+    "name": "insTokenize",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "OT",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "YT",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountYO",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataYO",
+        "name": "dataYO",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "joeBar",
+    "outputs": [
+      {
+        "internalType": "contract IJoeBar",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "joeRouter",
+    "outputs": [
+      {
+        "internalType": "contract IJoeRouter02",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "kyberRouter",
+    "outputs": [
+      {
+        "internalType": "contract IDMMLiquidityRouter",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "otMarketRouter",
+    "outputs": [
+      {
+        "internalType": "contract IOTMarketRouter",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pendleData",
+    "outputs": [
+      {
+        "internalType": "contract IPendleData",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pendleRouter",
+    "outputs": [
+      {
+        "internalType": "contract IPendleRouter",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "sushiRouter",
+    "outputs": [
+      {
+        "internalType": "contract IUniswapV2Router02",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "uniRouter",
+    "outputs": [
+      {
+        "internalType": "contract IUniswapV2Router02",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "weth",
+    "outputs": [
+      {
+        "internalType": "contract IWETH",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
+  }
+]

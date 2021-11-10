@@ -41,10 +41,10 @@ export let DAYS_PER_WEEK_BD = BigDecimal.fromString("7");
 export let ONE_DAY = BigDecimal.fromString("86400");
 export const ONE_HOUR = 3600;
 export let PENDLE_TOKEN_ADDRESS = Address.fromString(
-  "0x36366298a3b6836e7030a7ff1964a1f0f44638e6"
+  "0xfb98b335551a418cd0737375a2ea0ded62ea213b"
 );
 export let PENDLE_ETH_SUSHISWAP = Address.fromString(
-  "0xd82b9b055f79d1a244005406988f85ed970797ed"
+  "0x3acD2FF1c3450bc8a9765AfD8d0DeA8E40822c86"
 );
 export const ERROR_COMPOUND_MARKET =
   "0x73a62de3b35126ae8f6a4547b9cbc170bc852001";
@@ -60,5 +60,24 @@ export function getHardcodedPrice(tokenAddress: Address): BigDecimal {
 }
 
 export let PENDLE_WRAPPER: Address = Address.fromString(
-  "0xc4aef72f0f42ed47e216f8dcb3699a39276cbf5f"
+  "0x2e130d5dC593FfE5Eb8f54F63F6b5E50DF169A47"
 );
+
+export let YTLiquidityMining: string[][] = [
+  [
+    "0x7552f903e33db53a86167c1e74f0e082bd0740d5",
+    "0x3ffd8ecffb03626bd7dee699ce1921cc62185dea"
+  ],
+  [
+    "0x80aae49b1142e2f135033829a1b647b1636c1506",
+    "0x1305434fbe1c14a8c6c1d30bbf92f5baee506381"
+  ],
+  [
+    "0xd5736ba0be93c99a10e2264e8e4ebd54633306f8",
+    "0xab74bc51c94b0f4918df448e17d0bdf3528d5a8f"
+  ],
+  [
+    "0x3e2737eb1b513bcee93a2144204d22695b272215",
+    "0xb0badfa50aabf4eba331117c1a5c94b7c1dc6388"
+  ]
+];

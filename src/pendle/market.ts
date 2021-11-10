@@ -113,8 +113,6 @@ function updateUserMarketData(
 }
 
 export function handleSync(event: SyncEvent): void {
-  printDebug("Test", "type");
-
   let pair = Pair.load(event.address.toHex());
   let token0 = Token.load(pair.token0); // xyt
   let token1 = Token.load(pair.token1); // baseToken
