@@ -22,6 +22,10 @@ import { getTokenPrice } from "../pricing";
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
   let bd = BigDecimal.fromString("1");
+  for (let i = ZERO_BI; i.gt(decimals as BigInt); i = i.minus(ONE_BI)) {
+    bd = bd.div(BigDecimal.fromString("10"))
+  }
+
   for (let i = ZERO_BI; i.lt(decimals as BigInt); i = i.plus(ONE_BI)) {
     bd = bd.times(BigDecimal.fromString("10"));
   }

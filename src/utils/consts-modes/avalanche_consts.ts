@@ -60,7 +60,7 @@ export function getHardcodedPrice(tokenAddress: Address): BigDecimal {
 }
 
 export let PENDLE_WRAPPER: Address = Address.fromString(
-  "0x2e130d5dC593FfE5Eb8f54F63F6b5E50DF169A47"
+  "0x91b7c55301c6cc44ce01bce66dc0dfd176cf16bb"
 );
 
 export let YTLiquidityMining: string[][] = [

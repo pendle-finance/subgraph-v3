@@ -150,19 +150,19 @@ export function hardcodedLiquidityMining(
   }
 
   if (str == "0x7552f903e33db53a86167c1e74f0e082bd0740d5") {
-    lmAddress = "0x3ffd8ecffb03626bd7dee699ce1921cc62185dea";
+    lmAddress = "0x2489a32844556193fb296c22597bdc158e9762a0";
   }
 
   if (str == "0x80aae49b1142e2f135033829a1b647b1636c1506") {
-    lmAddress = "0x1305434fbe1c14a8c6c1d30bbf92f5baee506381";
+    lmAddress = "0x47a3e9d5c87651d4074ef67a160afdb3f42cb242";
   }
 
   if (str == "0xd5736ba0be93c99a10e2264e8e4ebd54633306f8") {
-    lmAddress = "0xab74bc51c94b0f4918df448e17d0bdf3528d5a8f";
+    lmAddress = "0x204e698a71bb1973823517c74be041a985eaa46e";
   }
 
   if (str == "0x3e2737eb1b513bcee93a2144204d22695b272215") {
-    lmAddress = "0xb0badfa50aabf4eba331117c1a5c94b7c1dc6388";
+    lmAddress = "0xa3e0ca7e35f47f6547c0c2d8f005312c2188e70f";
   }
 
   if (lmAddress.length > 0) {

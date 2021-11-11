@@ -9,7 +9,7 @@ import { ZERO_BD, chainId, ONE_BI } from "../utils/consts";
 
 function getPhase(timestamp: BigInt): string {
   let startTimestamp = BigInt.fromI32(1635846367);
-  let interval = BigInt.fromI32(1209600); // 1 week in seconds
+  let interval = BigInt.fromI32(1209600); // 2 week in seconds
 
   if (timestamp.lt(startTimestamp)) {
     return "0";

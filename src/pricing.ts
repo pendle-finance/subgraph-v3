@@ -13,7 +13,7 @@ import {
   PENDLE_TOKEN_ADDRESS,
   ZERO_BD
 } from "./utils/consts";
-import { exponentToBigDecimal, printDebug } from "./utils/helpers";
+import { exponentToBigDecimal } from "./utils/helpers";
 import { loadToken } from "./utils/load-entity";
 
 export function getCTokenCurrentRate(token: Token): BigDecimal {
@@ -52,7 +52,6 @@ function calcSpecialForgePrice(
 ): BigDecimal {
   let tokenPrice = underlyingPrice;
   if (token.forgeId.startsWith("xJoe")) {
-    printDebug("xJoe UnderlyingPrice: " + underlyingPrice.toString(), "test");
     tokenPrice = underlyingPrice.times(getxJoeRate(token as Token));
   }
 
@@ -118,6 +117,7 @@ export function getTokenPrice(token: Token): BigDecimal {
       break;
     }
   }
+
   if (isYieldBearingToken) {
     return calcSpecialForgePrice(token, underlyingPrice);
   } else {
