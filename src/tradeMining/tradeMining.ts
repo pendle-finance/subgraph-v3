@@ -27,18 +27,18 @@ function mapMarketAddressToHouse(marketAddress: string): string[] {
   switch (chainId) {
     case 43114:
       // YT-qiUSDC-2022 / USDC
-      if (marketAddress == "0x574d9626f0bfde8b48cb762154dabf052812ccc6")
+      if (marketAddress == "0x7552f903e33db53a86167c1e74f0e082bd0740d5")
         houseArray.push("BenQi");
 
       // YT-AvaxUSDC/USDC market || YT-xJOE/USDC
       if (
-        marketAddress == "0x414e36e93d055f1912d05fbd446e9c70899293fb" ||
-        marketAddress == "0xCf5F662B388302836c1c2899446e2267b081c690"
+        marketAddress == "0x80aae49b1142e2f135033829a1b647b1636c1506" ||
+        marketAddress == "0x3e2737eb1b513bcee93a2144204d22695b272215"
       )
         houseArray.push("TraderJoe");
 
       // YT-PendleAvax/Pendle
-      if (marketAddress == "0x027dfe08d7a3ce2562ce17a6f6f4b78d26f360bd") {
+      if (marketAddress == "0xd5736ba0be93c99a10e2264e8e4ebd54633306f8") {
         houseArray.push("Pendle");
       }
 
