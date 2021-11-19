@@ -4,13 +4,12 @@ import {
   LpTransferEvent,
   Pair,
   Token,
-  UserMarketData,
 } from "../../generated/schema";
 import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import {
   PendleMarket as PendleMarketContract,
   Sync as SyncEvent,
-  Transfer as TransferEvent,
+  Transfer as TransferEvent
 } from "../../generated/templates/PendleMarket/PendleMarket";
 import {
   ADDRESS_ZERO,
@@ -22,7 +21,7 @@ import {
   PENDLE_TOKEN_ADDRESS,
   RONE,
   ZERO_BD,
-  ZERO_BI,
+  ZERO_BI
 } from "../utils/consts";
 import { LiquidityMiningV2 as LM2Contract } from "../../generated/Directory/LiquidityMiningV2";
 
@@ -31,7 +30,6 @@ import {
   convertTokenToDecimal,
   getLpPrice,
   isMarketLiquidityMiningV2,
-  printDebug,
 } from "../utils/helpers";
 import { loadToken, loadUser, loadUserMarketData } from "../utils/load-entity";
 import { getTokenPrice } from "../pricing";
@@ -61,7 +59,13 @@ export function handleTransfer(event: TransferEvent): void {
   }
 
   let transferEvent = new LpTransferEvent(
-    event.transaction.hash.toHexString() + "-" + from + "-" + to + "-" + market.id
+    event.transaction.hash.toHexString() +
+      "-" +
+      from +
+      "-" +
+      to +
+      "-" +
+      market.id
   );
   transferEvent.from = from;
   transferEvent.to = to;

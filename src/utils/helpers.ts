@@ -13,7 +13,6 @@ import {
   ONE_BI,
   RONE,
   RONE_BD,
-  TWO_BD,
   ZERO_BD,
   ZERO_BI
 } from "./consts";
@@ -23,7 +22,7 @@ import { getTokenPrice } from "../pricing";
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
   let bd = BigDecimal.fromString("1");
   for (let i = ZERO_BI; i.gt(decimals as BigInt); i = i.minus(ONE_BI)) {
-    bd = bd.div(BigDecimal.fromString("10"))
+    bd = bd.div(BigDecimal.fromString("10"));
   }
 
   for (let i = ZERO_BI; i.lt(decimals as BigInt); i = i.plus(ONE_BI)) {
