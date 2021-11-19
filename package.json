@@ -22,7 +22,7 @@
     "deploy:kovan": "yarn mode:kovan && graph deploy ngfam/pendle-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token $SUBGRAPH_ACCESS_TOKEN",
     "deploy:test": "yarn mode:mainnet && graph deploy ngfam/pendle-mainnet2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token $SUBGRAPH_ACCESS_TOKEN",
     "deploy:polygon": "yarn mode:polygon && graph deploy ngfam/pendle-polygon --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token $SUBGRAPH_ACCESS_TOKEN",
-    "deploy:avalanche-test": "yarn mode:avalanche-test && graph deploy josephsaw/pendle-avalanche-staging --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token 3d75be1dce784c08949c46127a791288",
+    "deploy:avalanche-test": "yarn mode:avalanche-test && graph deploy josephsaw/pendle-avalanche-staging --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token NO_TOKEN",
     "deploy:avalanche-ngfam": "yarn mode:avalanche-test && graph deploy ngfam/pendle-avalanche --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token $SUBGRAPH_ACCESS_TOKEN",
    
     "deploy:nft": "yarn mode:mainnet && graph deploy ngfam/pendle-nft --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token $SUBGRAPH_ACCESS_TOKEN",

@@ -5,11 +5,16 @@ import {
   PricePool,
   Token,
   LiquidityMining,
-  OTPairHourData
+  OTPairHourData,
+  LpTransferEvent,
 } from "../../generated/schema";
 import { chainId } from "../utils/consts";
 import { SushiswapPair as SushiswapPairTemplate } from "../../generated/templates";
-import { convertTokenToDecimal, getBalanceOf } from "../utils/helpers";
+import {
+  convertTokenToDecimal,
+  getBalanceOf,
+  printDebug,
+} from "../utils/helpers";
 import { getTokenPrice } from "../pricing";
 import {
   ADDRESS_ZERO,
@@ -24,12 +29,16 @@ import {
   TWO_BD,
   WETH_ADDRESS,
   ZERO_BD,
-  ZERO_BI
+  ZERO_BI,
 } from "../utils/consts";
-import { loadToken } from "../utils/load-entity";
+import { loadToken, loadUserMarketData } from "../utils/load-entity";
 import { LiquidityMiningV2 } from "../../generated/templates/SushiswapPair/LiquidityMiningV2";
-import { SushiswapPair as SushiswapPairContract } from "../../generated/templates/SushiswapPair/SushiswapPair";
+import {
+  SushiswapPair as SushiswapPairContract,
+  Transfer as TransferEvent,
+} from "../../generated/templates/SushiswapPair/SushiswapPair";
 import { Swap as SwapEvent } from "../../generated/SushiswapFactory/SushiswapPair";
+import { getSushiLpPrice } from "../sushiswap/pricing";
 
 export function createUniswapV2Pair(
   poolAddress: Address,
@@ -279,4 +288,79 @@ export function handleSwapSushiswap(event: SwapEvent): void {
 export function handleUpdateSushiswap(event: SwapEvent): void {
   let pair = updateOTPair(event.address, event.block.timestamp);
   return;
+}
+
+export function handleTransfer(event: TransferEvent): void {
+  let pair = OTPair.load(event.address.toHexString());
+  if (pair == null) return;
+
+  let from = event.params.from.toHexString();
+  let to = event.params.to.toHexString();
+  let fromBalanceChange = event.params.value.times(BigInt.fromI32(-1));
+  let toBalanceChange = event.params.value;
+
+  // if (fromBalanceChange.equals(ZERO_BI) && toBalanceChange.equals(ZERO_BI)) {
+  //   return;
+  // }
+
+  let transferEvent = new LpTransferEvent(
+    event.transaction.hash.toHexString() + "-" + from + "-" + to + "-" + pair.id
+  );
+
+  let token0 = pair.otToken;
+
+  if (!pair.isOtToken0) {
+    token0 = pair.baseToken;
+  }
+  printDebug("pair.id: " + pair.id, "handleTransfer");
+
+  let lpPrice = getSushiLpPrice(event.address);
+
+  transferEvent.from = from;
+  transferEvent.to = to;
+  transferEvent.market = pair.id;
+  transferEvent.lpPrice = lpPrice;
+  transferEvent.amount = event.params.value;
+  transferEvent.timestamp = event.block.timestamp;
+  transferEvent.block = event.block.number;
+  transferEvent.save();
+
+  updateUserMarketData(
+    event.params.from,
+    event.address,
+    fromBalanceChange,
+    lpPrice
+  );
+  updateUserMarketData(
+    event.params.to,
+    event.address,
+    toBalanceChange,
+    lpPrice
+  );
+
+  return;
+}
+
+function updateUserMarketData(
+  user: Address,
+  market: Address,
+  change: BigInt,
+  lpPrice: BigDecimal
+): void {
+  let ins = loadUserMarketData(user, market);
+
+  ins.lpHolding = ins.lpHolding.plus(change);
+  ins.recordedUSDValue = lpPrice.times(ins.lpHolding.toBigDecimal());
+  ins.lpPrice = lpPrice
+  if (change.lt(ZERO_BI)) {
+    ins.capitalWithdrawn = ins.capitalWithdrawn.plus(
+      change.toBigDecimal().times(lpPrice)
+    );
+  } else {
+    ins.capitalProvided = ins.capitalProvided.plus(
+      change.toBigDecimal().times(lpPrice)
+    );
+  }
+
+  ins.save();
 }

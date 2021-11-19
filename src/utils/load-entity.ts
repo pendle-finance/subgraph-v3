@@ -99,6 +99,7 @@ export function loadUserMarketData(
   ins.yieldClaimedUsd = ZERO_BD;
   ins.pendleRewardReceivedRaw = ZERO_BD;
   ins.pendleRewardReceivedUSD = ZERO_BD;
+  ins.lpPrice = ZERO_BD;
   ins.save();
   return ins as UserMarketData;
 }

@@ -345,6 +345,8 @@ templates:
           handler: handleUpdateSushiswap
         - event: Burn(indexed address,uint256,uint256,indexed address)
           handler: handleUpdateSushiswap
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
   - kind: ethereum/contract
     name: PendleLiquidityMiningV1
     network: avalanche

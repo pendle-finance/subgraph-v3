@@ -3,12 +3,13 @@ import {
   TradeMiningUser,
   TradeMiningHouse,
   User,
-  Pair
+  Pair,
 } from "../../generated/schema";
 import { ZERO_BD, chainId, ONE_BI } from "../utils/consts";
+import { printDebug } from "../utils/helpers";
 
 function getPhase(timestamp: BigInt): string {
-  let startTimestamp = BigInt.fromI32(1635846367);
+  let startTimestamp = BigInt.fromI32(1637236800);
   let interval = BigInt.fromI32(1209600); // 2 week in seconds
 
   if (timestamp.lt(startTimestamp)) {
@@ -26,15 +27,15 @@ function mapMarketAddressToHouse(marketAddress: string): string[] {
   let houseArray = new Array<string>();
   switch (chainId) {
     case 43114:
-      // YT-qiUSDC-2022 / USDC
-      if (marketAddress == "0x7552f903e33db53a86167c1e74f0e082bd0740d5")
+      // YT-qiUSDC-2022 / USDC || YT-qiAvax/USDC market 
+      if (
+        marketAddress == "0x7552f903e33db53a86167c1e74f0e082bd0740d5" ||
+        marketAddress == "0x80aae49b1142e2f135033829a1b647b1636c1506"
+      )
         houseArray.push("BenQi");
 
-      // YT-AvaxUSDC/USDC market || YT-xJOE/USDC
-      if (
-        marketAddress == "0x80aae49b1142e2f135033829a1b647b1636c1506" ||
-        marketAddress == "0x3e2737eb1b513bcee93a2144204d22695b272215"
-      )
+      // YT-xJOE/USDC
+      if (marketAddress == "0x3e2737eb1b513bcee93a2144204d22695b272215")
         houseArray.push("TraderJoe");
 
       // YT-PendleAvax/Pendle
@@ -116,8 +117,10 @@ export function updateUserTrade(
   user: User,
   pair: Pair,
   amountUSD: BigDecimal,
-  timestamp: BigInt
+  timestamp: BigInt,
+  type: string
 ): void {
+  // printDebug("amountUSD: " + amountUSD.toString() + " type: " + type, "tradeMining");
   let tradeMiningUsers = getTradeMiningUser(user.id, pair.id, timestamp);
   sumTradeVolumeToHouse(tradeMiningUsers, amountUSD);
 }

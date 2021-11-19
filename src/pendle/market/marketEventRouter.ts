@@ -106,7 +106,8 @@ export function handleSwapInfo(
     loadUser(traderAddress),
     pair as Pair,
     derivedAmountUSD,
-    event.block.timestamp
+    event.block.timestamp,
+    'swap'
   );
 
   // CandleStick Chart
@@ -245,7 +246,8 @@ export function handleJoinInfo(
       loadUser(traderAddress),
       pair as Pair,
       volumeUSD,
-      event.block.timestamp
+      event.block.timestamp,
+      'addSingle'
     );
 
     addHourlyDailyVolume(
@@ -377,7 +379,8 @@ export function handleExitInfo(
       loadUser(traderAddress),
       pair as Pair,
       volumeUSD,
-      event.block.timestamp
+      event.block.timestamp,
+      'removeSingle'
     );
 
     addHourlyDailyVolume(

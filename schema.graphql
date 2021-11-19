@@ -510,6 +510,7 @@ type UserMarketData @entity {
   recordedUSDValue: BigDecimal!
   capitalProvided: BigDecimal!
   capitalWithdrawn: BigDecimal!
+  lpPrice: BigDecimal!
 
   yieldClaimedUsd: BigDecimal!
   yieldClaimedRaw: BigDecimal!
