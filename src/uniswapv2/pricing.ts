@@ -12,7 +12,6 @@ import {
 import {
   getBalanceOf,
   printDebug,
-  convertTokenToDecimal,
 } from "../utils/helpers";
 import { loadToken } from "../utils/load-entity";
 import { getQuickswapPairAddress } from "./factory";
@@ -45,25 +44,6 @@ export function getPoolPrice(
   let balance0 = getBalanceOf(token0, poolAddress);
   let balance1 = getBalanceOf(token1, poolAddress);
   return balance1.div(balance0);
-}
-export function getUniswapV2LpPrice(lpAddress: Address): BigDecimal {
-  let sushiContract = QuickswapPair.bind(lpAddress);
-  let totalSupply = convertTokenToDecimal(
-    sushiContract.totalSupply(),
-    loadToken(lpAddress).decimals
-  );
-  let token = loadToken(sushiContract.token0());
-  let tokenPrice = getQuickSwapTokenPrice(
-    Address.fromHexString(token.id) as Address
-  );
-  let tokenBalance = convertTokenToDecimal(
-    sushiContract.getReserves().value0,
-    token.decimals
-  );
-  return tokenBalance
-    .times(tokenPrice)
-    .times(TWO_BD)
-    .div(totalSupply);
 }
 
 /**

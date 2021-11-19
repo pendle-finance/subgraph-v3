@@ -505,7 +505,7 @@ type OTPairHourData @entity {
 type UserMarketData @entity {
   id: ID!
   user: User!
-  market: Pair!
+  market: String!
   lpHolding: BigInt!
   recordedUSDValue: BigDecimal!
   capitalProvided: BigDecimal!

@@ -3,7 +3,9 @@ import { Token } from "../../generated/schema";
 import { SushiswapPair } from "../../generated/SushiswapFactory/SushiswapPair";
 import { getTokenPrice } from "../pricing";
 import { getUniswapEthPrice } from "../uniswap/pricing";
-import { getUniswapV2GasTokenPrice } from "../uniswapv2/pricing";
+import {
+  getUniswapV2GasTokenPrice
+} from "../uniswapv2/pricing";
 import { chainId, ZERO_BD } from "../utils/consts";
 import {
   PENDLE_ETH_SUSHISWAP,
@@ -11,7 +13,10 @@ import {
   TWO_BD,
   WETH_ADDRESS
 } from "../utils/consts";
-import { convertTokenToDecimal, getBalanceOf } from "../utils/helpers";
+import {
+  convertTokenToDecimal,
+  getBalanceOf,
+} from "../utils/helpers";
 import { loadToken } from "../utils/load-entity";
 
 export function getSushiLpPrice(lpAddress: Address): BigDecimal {
@@ -21,16 +26,18 @@ export function getSushiLpPrice(lpAddress: Address): BigDecimal {
     loadToken(lpAddress).decimals
   );
   let token = loadToken(sushiContract.token0());
-
-  if(token.underlyingAsset != null) {
-    token = loadToken(sushiContract.token1());
-  }
-
-  let tokenPrice = getTokenPrice(token as Token);
   let tokenBalance = convertTokenToDecimal(
     sushiContract.getReserves().value0,
     token.decimals
   );
+  if (token.underlyingAsset != null) {
+    token = loadToken(sushiContract.token1());
+    tokenBalance = convertTokenToDecimal(
+      sushiContract.getReserves().value1,
+      token.decimals
+    );
+  }
+  let tokenPrice = getTokenPrice(token as Token);
   return tokenBalance
     .times(tokenPrice)
     .times(TWO_BD)

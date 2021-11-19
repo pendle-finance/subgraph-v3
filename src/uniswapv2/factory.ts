@@ -6,36 +6,33 @@ import {
   Token,
   LiquidityMining,
   OTPairHourData,
-  LpTransferEvent,
+  LpTransferEvent
 } from "../../generated/schema";
 import { chainId } from "../utils/consts";
 import { SushiswapPair as SushiswapPairTemplate } from "../../generated/templates";
 import {
   convertTokenToDecimal,
+  exponentToBigDecimal,
   getBalanceOf,
-  printDebug,
 } from "../utils/helpers";
 import { getTokenPrice } from "../pricing";
 import {
   ADDRESS_ZERO,
   DAYS_PER_WEEK_BD,
   DAYS_PER_YEAR_BD,
-  ERROR_COMPOUND_SUSHISWAP_PAIR,
   ONE_BD,
   ONE_BI,
   ONE_HOUR,
-  PENDLE_ETH_SUSHISWAP,
   PENDLE_TOKEN_ADDRESS,
   TWO_BD,
-  WETH_ADDRESS,
   ZERO_BD,
-  ZERO_BI,
+  ZERO_BI
 } from "../utils/consts";
 import { loadToken, loadUserMarketData } from "../utils/load-entity";
 import { LiquidityMiningV2 } from "../../generated/templates/SushiswapPair/LiquidityMiningV2";
 import {
   SushiswapPair as SushiswapPairContract,
-  Transfer as TransferEvent,
+  Transfer as TransferEvent
 } from "../../generated/templates/SushiswapPair/SushiswapPair";
 import { Swap as SwapEvent } from "../../generated/SushiswapFactory/SushiswapPair";
 import { getSushiLpPrice } from "../sushiswap/pricing";
@@ -312,9 +309,11 @@ export function handleTransfer(event: TransferEvent): void {
   if (!pair.isOtToken0) {
     token0 = pair.baseToken;
   }
-  printDebug("pair.id: " + pair.id, "handleTransfer");
 
-  let lpPrice = getSushiLpPrice(event.address);
+  let lpPrice = getSushiLpPrice(event.address).div(
+    exponentToBigDecimal(loadToken(event.address).decimals)
+  );
+
 
   transferEvent.from = from;
   transferEvent.to = to;
@@ -351,7 +350,7 @@ function updateUserMarketData(
 
   ins.lpHolding = ins.lpHolding.plus(change);
   ins.recordedUSDValue = lpPrice.times(ins.lpHolding.toBigDecimal());
-  ins.lpPrice = lpPrice
+  ins.lpPrice = lpPrice;
   if (change.lt(ZERO_BI)) {
     ins.capitalWithdrawn = ins.capitalWithdrawn.plus(
       change.toBigDecimal().times(lpPrice)

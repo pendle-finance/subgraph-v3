@@ -3,7 +3,7 @@ import {
   TradeMiningUser,
   TradeMiningHouse,
   User,
-  Pair,
+  Pair
 } from "../../generated/schema";
 import { ZERO_BD, chainId, ONE_BI } from "../utils/consts";
 import { printDebug } from "../utils/helpers";
@@ -27,7 +27,7 @@ function mapMarketAddressToHouse(marketAddress: string): string[] {
   let houseArray = new Array<string>();
   switch (chainId) {
     case 43114:
-      // YT-qiUSDC-2022 / USDC || YT-qiAvax/USDC market 
+      // YT-qiUSDC-2022 / USDC || YT-qiAvax/USDC market
       if (
         marketAddress == "0x7552f903e33db53a86167c1e74f0e082bd0740d5" ||
         marketAddress == "0x80aae49b1142e2f135033829a1b647b1636c1506"
