@@ -56,9 +56,9 @@ dataSources:
           handler: handleExitLiquidityPool
         - event: MarketCreated(bytes32,indexed address,indexed address,indexed address)
           handler: handleMarketCreated
-      # callHandlers:
-      #   - function: redeemLpInterests(address,address)
-      #     handler: handleRedeemLpInterests
+      callHandlers:
+        - function: redeemLpInterests(address,address)
+          handler: handleRedeemLpInterests
       file: ./src/pendle/router.ts
   - kind: ethereum/contract
     name: PendleData
@@ -387,9 +387,9 @@ templates:
           handler: handleWithdrawn
         - event: PendleRewardsSettled(uint256,address,uint256)
           handler: handleRedeemReward
-      # callHandlers:
-      #   - function: redeemLpInterests(uint256,address)
-      #     handler: handleRedeemLpInterests
+      callHandlers:
+        - function: redeemLpInterests(uint256,address)
+          handler: handleRedeemLpInterests
   - kind: ethereum/contract
     name: PendleLiquidityMiningV2
     network: avalanche
