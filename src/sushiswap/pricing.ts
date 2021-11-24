@@ -19,11 +19,18 @@ export function getSushiLpPrice(lpAddress: Address): BigDecimal {
     loadToken(lpAddress).decimals
   );
   let token = loadToken(sushiContract.token0());
-  let tokenPrice = getTokenPrice(token as Token);
   let tokenBalance = convertTokenToDecimal(
     sushiContract.getReserves().value0,
     token.decimals
   );
+  if (token.underlyingAsset != null) {
+    token = loadToken(sushiContract.token1());
+    tokenBalance = convertTokenToDecimal(
+      sushiContract.getReserves().value1,
+      token.decimals
+    );
+  }
+  let tokenPrice = getTokenPrice(token as Token);
   return tokenBalance
     .times(tokenPrice)
     .times(TWO_BD)
