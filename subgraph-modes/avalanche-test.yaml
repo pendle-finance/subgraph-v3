@@ -56,9 +56,9 @@ dataSources:
           handler: handleExitLiquidityPool
         - event: MarketCreated(bytes32,indexed address,indexed address,indexed address)
           handler: handleMarketCreated
-      callHandlers:
-        - function: redeemLpInterests(address,address)
-          handler: handleRedeemLpInterests
+      # callHandlers:
+      #   - function: redeemLpInterests(address,address)
+      #     handler: handleRedeemLpInterests
       file: ./src/pendle/router.ts
   - kind: ethereum/contract
     name: PendleData
@@ -159,7 +159,7 @@ dataSources:
     source:
       address: "0x6E85FC67EF36a674f32c862579A4Dea8Ec95572a"
       abi: Directory
-      startBlock: 6773942 
+      startBlock: 6773942
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -211,6 +211,8 @@ dataSources:
           file: ./abis/PendleMarket.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
+        - name: ICToken
+          file: ./abis/ICToken.json
       eventHandlers:
         - event: SwapEventYT(address,address,address,uint256,uint256)
           handler: handleSwapEventYT
@@ -387,9 +389,11 @@ templates:
           handler: handleWithdrawn
         - event: PendleRewardsSettled(uint256,address,uint256)
           handler: handleRedeemReward
-      callHandlers:
-        - function: redeemLpInterests(uint256,address)
+        - event: RedeemLpInterests(uint256,address,uint256)
           handler: handleRedeemLpInterests
+      # callHandlers:
+      #   - function: redeemLpInterests(uint256,address)
+      #     handler: handleRedeemLpInterests
   - kind: ethereum/contract
     name: PendleLiquidityMiningV2
     network: avalanche

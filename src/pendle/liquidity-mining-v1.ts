@@ -1,11 +1,11 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { LiquidityMining, Token } from "../../generated/schema";
 import {
-  RedeemLpInterestsCall,
+  RedeemLpInterests as RedeemLpInterestsEvent,
   Staked as StakeEvent,
   Withdrawn as WithdrawEvent,
   PendleLiquidityMiningV1 as LMv1Contract,
-  PendleRewardsSettled
+  PendleRewardsSettled,
 } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import { PendleLpHolder } from "../../generated/templates/PendleLiquidityMiningV1/PendleLpHolder";
 import { getTokenPrice } from "../pricing";
@@ -15,7 +15,7 @@ import { convertTokenToDecimal, printDebug } from "../utils/helpers";
 import {
   loadLiquidityMiningV1,
   loadToken,
-  loadUserMarketData
+  loadUserMarketData,
 } from "../utils/load-entity";
 import { redeemLpInterests } from "./market";
 
@@ -38,11 +38,22 @@ export function handleRedeemReward(event: PendleRewardsSettled): void {
   return;
 }
 
-export function handleRedeemLpInterests(call: RedeemLpInterestsCall): void {
+export function handleRedeemLpInterests(event: RedeemLpInterestsEvent): void {
+  printDebug(
+    "lm address: " +
+      event.address.toHexString() +
+      " expiry: " +
+      event.params.expiry.toString() +
+      " market: " +
+      getExpiryMarket(event.address, event.params.expiry).toHexString() +
+      " interests: " +
+      event.params.interests.toString(),
+    "handleRedeemLpInterests"
+  );
   redeemLpInterests(
-    call.inputs.user,
-    getExpiryMarket(call.to, call.inputs.expiry),
-    call.outputs.interests
+    event.params.user,
+    getExpiryMarket(event.address, event.params.expiry),
+    event.params.interests
   );
 }
 

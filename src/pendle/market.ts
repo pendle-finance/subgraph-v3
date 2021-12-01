@@ -9,7 +9,7 @@ import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/te
 import {
   PendleMarket as PendleMarketContract,
   Sync as SyncEvent,
-  Transfer as TransferEvent
+  Transfer as TransferEvent,
 } from "../../generated/templates/PendleMarket/PendleMarket";
 import {
   ADDRESS_ZERO,
@@ -21,7 +21,7 @@ import {
   PENDLE_TOKEN_ADDRESS,
   RONE,
   ZERO_BD,
-  ZERO_BI
+  ZERO_BI,
 } from "../utils/consts";
 import { LiquidityMiningV2 as LM2Contract } from "../../generated/Directory/LiquidityMiningV2";
 
@@ -30,6 +30,7 @@ import {
   convertTokenToDecimal,
   getLpPrice,
   isMarketLiquidityMiningV2,
+  printDebug,
 } from "../utils/helpers";
 import { loadToken, loadUser, loadUserMarketData } from "../utils/load-entity";
 import { getTokenPrice } from "../pricing";
