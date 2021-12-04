@@ -13,7 +13,7 @@ import { SushiswapPair as SushiswapPairTemplate } from "../../generated/template
 import {
   convertTokenToDecimal,
   exponentToBigDecimal,
-  getBalanceOf,
+  getBalanceOf
 } from "../utils/helpers";
 import { getTokenPrice } from "../pricing";
 import {
@@ -313,7 +313,6 @@ export function handleTransfer(event: TransferEvent): void {
   let lpPrice = getSushiLpPrice(event.address).div(
     exponentToBigDecimal(loadToken(event.address).decimals)
   );
-
 
   transferEvent.from = from;
   transferEvent.to = to;

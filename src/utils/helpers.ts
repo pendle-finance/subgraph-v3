@@ -8,14 +8,7 @@ import {
   LiquidityMining
 } from "../../generated/schema";
 import { PendleMarket as PendleMarketContract } from "../../generated/templates/PendleMarket/PendleMarket";
-import {
-  ONE_BD,
-  ONE_BI,
-  RONE,
-  RONE_BD,
-  ZERO_BD,
-  ZERO_BI
-} from "./consts";
+import { ONE_BD, ONE_BI, RONE, RONE_BD, ZERO_BD, ZERO_BI } from "./consts";
 import { loadToken } from "./load-entity";
 import { getTokenPrice } from "../pricing";
 

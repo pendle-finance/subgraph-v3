@@ -1,4 +1,4 @@
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { LiquidityPool, Pair, Swap, Token } from "../../../generated/schema";
 import { getTokenPrice } from "../../pricing";
 import { updateUserTrade } from "../../tradeMining/tradeMining";
@@ -22,7 +22,7 @@ export function handleSwapInfo(
   exactOut: BigInt,
   traderAddress: Address,
   event: ethereum.Event
-): void {
+): BigDecimal {
   let pair = Pair.load(marketAddress.toHexString());
   let inToken = Token.load(inTokenAddress.toHexString());
   let outToken = Token.load(outTokenAddress.toHexString());
@@ -107,7 +107,7 @@ export function handleSwapInfo(
     pair as Pair,
     derivedAmountUSD,
     event.block.timestamp,
-    'swap'
+    "swap"
   );
 
   // CandleStick Chart
@@ -129,6 +129,7 @@ export function handleSwapInfo(
       derivedAmountUSD
     );
   }
+  return derivedAmountUSD;
 }
 
 export function handleJoinInfo(
@@ -138,7 +139,7 @@ export function handleJoinInfo(
   exactOutLp: BigInt,
   traderAddress: Address,
   event: ethereum.Event
-): void {
+): BigDecimal {
   let pair = Pair.load(marketAddress.toHexString());
   let inToken0 = Token.load(pair.token0);
   let inToken1 = Token.load(pair.token1);
@@ -185,7 +186,7 @@ export function handleJoinInfo(
 
   //Calculating swap fees for add single liq only
   if (token0Amount.notEqual(ZERO_BI) && token1Amount.notEqual(ZERO_BI)) {
-    return;
+    return derivedAmountUSD;
   }
 
   /**
@@ -247,7 +248,7 @@ export function handleJoinInfo(
       pair as Pair,
       volumeUSD,
       event.block.timestamp,
-      'addSingle'
+      "addSingle"
     );
 
     addHourlyDailyVolume(
@@ -258,6 +259,7 @@ export function handleJoinInfo(
       volumeUSD
     );
   }
+  return derivedAmountUSD;
 }
 
 export function handleExitInfo(
@@ -267,7 +269,7 @@ export function handleExitInfo(
   exactInLp: BigInt,
   traderAddress: Address,
   event: ethereum.Event
-): void {
+): BigDecimal {
   let pair = Pair.load(marketAddress.toHexString());
   let outToken0 = Token.load(pair.token0);
   let outToken1 = Token.load(pair.token1);
@@ -311,7 +313,7 @@ export function handleExitInfo(
   addHourlyDailyTxn(event.block.timestamp, pair as Pair);
 
   if (token0Amount.notEqual(ZERO_BI) && token1Amount.notEqual(ZERO_BI)) {
-    return;
+    return ZERO_BD;
   }
 
   /**
@@ -380,7 +382,7 @@ export function handleExitInfo(
       pair as Pair,
       volumeUSD,
       event.block.timestamp,
-      'removeSingle'
+      "removeSingle"
     );
 
     addHourlyDailyVolume(
@@ -390,5 +392,8 @@ export function handleExitInfo(
       token1Amount,
       volumeUSD
     );
+
+    return volumeUSD;
   }
+  return ZERO_BD;
 }

@@ -5,7 +5,7 @@ import {
   Staked as StakeEvent,
   Withdrawn as WithdrawEvent,
   PendleLiquidityMiningV1 as LMv1Contract,
-  PendleRewardsSettled,
+  PendleRewardsSettled
 } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import { PendleLpHolder } from "../../generated/templates/PendleLiquidityMiningV1/PendleLpHolder";
 import { getTokenPrice } from "../pricing";
@@ -15,7 +15,7 @@ import { convertTokenToDecimal, printDebug } from "../utils/helpers";
 import {
   loadLiquidityMiningV1,
   loadToken,
-  loadUserMarketData,
+  loadUserMarketData
 } from "../utils/load-entity";
 import { redeemLpInterests } from "./market";
 

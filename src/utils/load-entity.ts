@@ -21,6 +21,7 @@ export function loadUser(address: Address): User {
   if (user === null) {
     user = new User(address.toHexString());
     user.usdSwapped = ZERO_BD;
+    user.hasZapped = false;
     user.save();
   }
   return user as User;
