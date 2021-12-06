@@ -172,6 +172,8 @@ export function addHourlyDailyTxn(_timestamp: BigInt, market: Pair): void {
   pairHourData.hourlyTxns = pairHourData.hourlyTxns.plus(ONE_BI);
   let pairDailyData = updatePairDailyData(_timestamp, market);
   pairDailyData.dailyTxns = pairDailyData.dailyTxns.plus(ONE_BI);
+  pairHourData.save();
+  pairDailyData.save();
 }
 
 export function addHourlyDailyVolume(
@@ -198,4 +200,6 @@ export function addHourlyDailyVolume(
     token1Amount
   );
   pairDailyData.dailyVolumeUSD = pairDailyData.dailyVolumeUSD.plus(volumeUSD);
+  pairHourData.save();
+  pairDailyData.save();
 }
