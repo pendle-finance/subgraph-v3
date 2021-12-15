@@ -1,0 +1,519 @@
+type Forge @entity {
+  id: ID! #address
+  forgeId: String! #Human Readable ID
+}
+
+type MarketFactory @entity {
+  id: ID! #ForgeId
+  address: String! #Market Factory ID
+}
+
+# @DONE: Add total value locked
+# @TODO: And snapshot for it (priority: 2)
+
+type YieldContract @entity {
+  #Forge ID + underlying asset + expiry
+  id: ID!
+  forgeId: String!
+
+  # Underlying Asset Token
+  underlyingAsset: Token!
+  # XYT - Future Yield Token
+  xyt: Token!
+  # OT - Ownership Token
+  ot: Token!
+  #Expiry of Yield Tokens
+  expiry: BigInt!
+
+  # Total mint transactions
+  mintTxCount: BigInt!
+  # Total redeem transactions
+  redeemTxCount: BigInt!
+  # Total interest settled transactions
+  interestSettledTxCount: BigInt!
+
+  # Volume
+  lockedVolume: BigDecimal!
+  mintVolume: BigDecimal!
+  redeemVolume: BigDecimal!
+
+  # Volume USD
+  lockedVolumeUSD: BigDecimal!
+  mintVolumeUSD: BigDecimal!
+  redeemVolumeUSD: BigDecimal
+
+  interestSettledVolume: BigDecimal!
+  yieldBearingAsset: Token!
+}
+
+type Token @entity {
+  # token address
+  id: ID!
+
+  # mirrored from the smart contract
+  symbol: String!
+  name: String!
+  decimals: BigInt!
+
+  # underlying information (for yield bearing token and pendle tokens only)
+  forgeId: String
+  underlyingAsset: String
+
+  # used for other stats like marketcap
+  totalSupply: BigInt!
+
+  # token specific volume (@note: No use?)
+  tradeVolume: BigDecimal!
+  tradeVolumeUSD: BigDecimal!
+
+  # (@note: No use?)
+  mintVolume: BigDecimal!
+  mintVolumeUSD: BigDecimal!
+
+
+  redeemVolume: BigDecimal!
+  redeemVolumeUSD: BigDecimal!
+
+  # transactions across all pairs
+  txCount: BigInt!
+
+  # liquidity across all pairs (markets)
+  totalLiquidity: BigDecimal!
+  type: String # yt | ot | yieldBearing | swapBase
+}
+
+type MintYieldToken @entity {
+  # transaction hash
+  id: ID!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+
+  forgeId: String!
+  amountToTokenize: BigDecimal!
+  amountMinted: BigDecimal!
+  expiry: BigInt!
+  from: Bytes! # the EOA that initiated the txn
+  # Underlying Asset Token
+  underlyingAsset: Token!
+  yieldBearingAsset: Token!
+  xytAsset: Token!
+  otAsset: Token!
+  yieldContract: YieldContract!
+  mintedValueUSD: BigDecimal!
+}
+
+# @TODO: Stake and Unstake events
+
+type RedeemYieldToken @entity {
+  # transaction hash
+  id: ID!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+
+  forgeId: String!
+  amountToRedeem: BigDecimal!
+  amountRedeemed: BigDecimal!
+  expiry: BigInt!
+  from: Bytes! # the EOA that initiated the txn
+  # Underlying Asset Token
+  underlyingAsset: Token!
+  yieldBearingAsset: Token!
+  xytAsset: Token!
+  otAsset: Token!
+  yieldContract: YieldContract!
+  redeemedValueUSD: BigDecimal!
+}
+
+# @TODO: Modify entity name to Market or PendleMarket
+#        Add APR (Simple interest)
+#            1. Interest from YT (interest rate from Aave)
+#            2. Swap fee? -> Rolling 24h
+#            3. APR from staking
+# 
+# Hour and 24 hours (priority: 1)
+#  + open close high low
+#  + volumes
+#  + implied yield
+#  + users
+type Pair @entity {
+  # pair address
+  id: ID!
+
+  # mirrored from the smart contract
+  token0: Token! #xyt Token
+  token1: Token!
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  totalSupply: BigDecimal!
+  token0WeightRaw: BigInt!
+  token1WeightRaw: BigInt!
+
+  # derived liquidity
+  reserveUSD: BigDecimal!
+  # Price in terms of the asset pair
+  # @TODO: This might be calculated wrongly
+  # Exchange rate between token0 and token1
+  token0Price: BigDecimal!
+  token1Price: BigDecimal!
+
+
+  # lifetime volume stats
+  volumeToken0: BigDecimal!
+  volumeToken1: BigDecimal!
+  volumeUSD: BigDecimal!
+  txCount: BigInt!
+
+  # Single add, removal?
+  feesToken0: BigDecimal!
+  feesToken1: BigDecimal!
+  feesUSD: BigDecimal!
+
+  # creation stats
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+
+  # Fields used to help derived relationship
+  liquidityProviderCount: BigInt! # used to detect new exchanges
+  # derived fields
+  # pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
+  # liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "pair")
+  # liquidityPositionSnapshots: [LiquidityPositionSnapshot!]! @derivedFrom(field: "pair")
+  # mints: [Mint!]! @derivedFrom(field: "pair")
+  # burns: [Burn!]! @derivedFrom(field: "pair")
+  # swaps: [Swap!]! @derivedFrom(field: "pair")
+
+  expiry: BigInt!
+
+  lpPriceUSD: BigDecimal!
+  lpStaked: BigDecimal!
+  lpStakedUSD: BigDecimal!
+
+  pairHourData: [PairHourData!]! @derivedFrom(field: "pair")
+
+  liquidityMining: LiquidityMining
+  lpAPR: BigDecimal
+  yieldTokenHolderAddress: String
+}
+
+type Swap @entity {
+  # transaction hash
+  id: ID!
+  # transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token or pair
+  pair: Pair!
+
+  # populated from the Swap event
+  sender: Bytes!
+  from: Bytes! # the EOA that initiated the txn
+  inToken: Token!
+  outToken: Token!
+  inAmount: BigDecimal!
+  outAmount: BigDecimal!
+  to: Bytes!
+  logIndex: BigInt
+  feesCollected: BigDecimal!
+  feesCollectedUSD: BigDecimal!
+
+  # derived info
+  amountUSD: BigDecimal!
+}
+
+# @TODO: Check snapshot mechanism from uniswap
+# Not now?
+
+type User @entity {
+  id: ID!
+  liquidityPositions: [LiquidityPosition!] @derivedFrom(field: "user")
+  usdSwapped: BigDecimal!
+}
+
+type LiquidityMining @entity {
+  id: ID! # for v1, id will be LiqMining's address, for V2, it should be ERC20's address
+  lmAddress: String
+}
+
+type LiquidityMiningExpiry @entity {
+  id: ID!
+  marketAddress: Pair!
+}
+
+type LiquidityPosition @entity {
+  id: ID!
+  user: User!
+  pair: Pair!
+  liquidityTokenBalance: BigDecimal!
+  supplyOfPoolOwnedPercentage: BigDecimal! # the total of LP tokens owned/ LP token supply in percentage
+}
+
+# saved over time for return calculations
+type LiquidityPositionSnapshot @entity {
+  id: ID!
+  liquidityPosition: LiquidityPosition!
+  timestamp: Int! # saved for fast historical lookups
+  block: Int! # saved for fast historical lookups
+  user: User! # reference to user
+  pair: Pair! # reference to pair
+  token0Amount: BigDecimal! #the amount of token0 gained/removed
+  token1Amount: BigDecimal! #the amount of token1 gained/removed
+  token0PriceUSD: BigDecimal! # snapshot of token0 price
+  token1PriceUSD: BigDecimal! # snapshot of token1 price
+  reserve0: BigDecimal! # snapshot of pair token0 reserves
+  reserve1: BigDecimal! # snapshot of pair token1 reserves
+  reserveUSD: BigDecimal! # snapshot of pair reserves in USD
+  liquidityTokenTotalSupply: BigDecimal! # snapshot of pool token supply
+  liquidityTokenBalance: BigDecimal! # snapshot of users pool token balance
+  liquidityTokenMoved: BigDecimal! # the amount of LP tokens gained/removed
+  type: String! # either 'add' or 'remove' to specify if adding or removing liquidity
+}
+
+type Transaction @entity {
+  id: ID! # txn hash
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  # This is not the reverse of Mint.transaction; it is only used to
+  # track incomplete mints (similar for burns and swaps)
+  lpMints: [MintLPToken]!
+  lpBurns: [BurnLPToken]!
+  swaps: [Swap]!
+  mintYieldTokens: [MintYieldToken]!
+  redeemYieldTokens: [RedeemYieldToken]!
+}
+
+type MintLPToken @entity {
+  # transaction hash + "-" + index in mints Transaction array
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token or pair
+  pair: Pair!
+
+  # populated from the primary Transfer event
+  to: Bytes!
+  liquidity: BigDecimal!
+
+  # populated from the Mint event
+  sender: Bytes
+  amount0: BigDecimal
+  amount1: BigDecimal
+  logIndex: BigInt
+  # derived amount based on available prices of tokens
+  amountUSD: BigDecimal
+
+  # optional fee fields, if a Transfer event is fired in _mintFee
+  feeTo: Bytes
+  feeLiquidity: BigDecimal
+}
+
+type BurnLPToken @entity {
+  # transaction hash + "-" + index in mints Transaction array
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token or pair
+  pair: Pair!
+
+  # populated from the primary Transfer event
+  liquidity: BigDecimal!
+
+  # populated from the Burn event
+  sender: Bytes
+  amount0: BigDecimal
+  amount1: BigDecimal
+  to: Bytes
+  logIndex: BigInt
+  # derived amount based on available prices of tokens
+  amountUSD: BigDecimal
+
+  # mark uncomplete in ETH case
+  needsComplete: Boolean!
+
+  # optional fee fields, if a Transfer event is fired in _mintFee
+  feeTo: Bytes
+  feeLiquidity: BigDecimal
+}
+
+# @TODO: Add Settings from protocols?
+
+type PendleData @entity {
+  id: ID!
+  protocolSwapFee: BigDecimal!
+  swapFee: BigDecimal!
+  exitFee: BigDecimal!
+}
+
+# @TODO & Note: this schema definition of LiquidityPool is wrong. Relation with pair should be 1-N instead of 1-1
+
+type LiquidityPool @entity {
+  # transaction hash
+  id: ID!
+  # transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token or pair
+  pair: Pair!
+  type: String! # Join or Exit only
+  # populated from the LiquidityPool event
+  from: Bytes! # the EOA that initiated the txn
+  inToken0: Token!
+  inToken1: Token!
+  inAmount0: BigDecimal!
+  inAmount1: BigDecimal!
+  feesCollected: BigDecimal!
+  swapFeesCollectedUSD: BigDecimal!
+  swapVolumeUSD: BigDecimal!
+  lpAmount: BigDecimal!
+
+  # @TODO: Add TVL - (total value locked)
+
+  # derived info
+  amountUSD: BigDecimal!
+}
+
+############## SNAPSHOT DATA ######################
+
+type PairHourData @entity {
+  id: ID!
+  hourStartUnix: Int!
+  
+  pair: Pair!
+
+  # reserves
+  totalSupply: BigDecimal!
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  marketWorthUSD: BigDecimal!
+
+  # volume stats
+  hourlyVolumeToken0: BigDecimal!
+  hourlyVolumeToken1: BigDecimal!
+  hourlyVolumeUSD: BigDecimal!
+  hourlyTxns: BigInt!
+
+  # price
+  yieldTokenPrice_open: BigDecimal!
+  yieldTokenPrice_close: BigDecimal!
+  yieldTokenPrice_high: BigDecimal!
+  yieldTokenPrice_low: BigDecimal!
+
+  lpTokenPrice: BigDecimal!
+
+  baseTokenPrice: BigDecimal!
+  yieldBearingAssetPrice: BigDecimal!
+
+  # Statistics
+  impliedYield: BigDecimal!
+}
+
+type PairDailyData @entity {
+  id: ID!
+  dayStartUnix: Int!
+
+  pair: Pair!
+
+  # reserves
+  totalSupply: BigDecimal!
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  marketWorthUSD: BigDecimal!
+
+  # volume stats
+  dailyVolumeToken0: BigDecimal!
+  dailyVolumeToken1: BigDecimal!
+  dailyVolumeUSD: BigDecimal!
+  dailyTxns: BigInt!
+
+  # price
+  yieldTokenPrice_open: BigDecimal!
+  yieldTokenPrice_close: BigDecimal!
+  yieldTokenPrice_high: BigDecimal!
+  yieldTokenPrice_low: BigDecimal!
+
+  lpTokenPrice: BigDecimal!
+
+  baseTokenPrice: BigDecimal!
+  yieldBearingAssetPrice: BigDecimal!
+
+  # Statistics
+  impliedYield: BigDecimal!
+}
+
+############## THIRD PARTY PACKAGE ################
+
+type UniswapPool @entity {
+  id: ID!
+  poolAddress: String!
+  token0Address: String!
+  token1Address: String!
+  hasBeenUsed: Boolean!
+}
+
+type UniswapTokenPrice @entity {
+  id: ID!
+  price: BigDecimal!
+}
+
+type SushiswapPair @entity {
+  id: ID! # OT Address
+  otToken: Token!
+  baseToken: Token!
+  marketWorthUSD: BigDecimal
+  baseTokenBalance: BigDecimal
+  baseTokenPrice: BigDecimal
+  otBalance: BigDecimal
+  otPrice: BigDecimal
+  totalTradingUSD: BigDecimal!
+
+  totalStaked: BigInt
+  totalReward: BigInt
+  lpPrice: BigDecimal
+
+
+  isOtToken0: Boolean!
+  aprPercentage: BigDecimal
+  updatedAt: BigInt
+}
+
+type SushiswapPairHourData @entity {
+  id: ID!
+  hourStartUnix: Int!
+  otAddress: String!
+  tradingVolumeUSD: BigDecimal!
+}
+
+
+type UserMarketData @entity {
+  id: ID!
+  user: User!
+  market: Pair!
+  lpHolding: BigInt!
+  recordedUSDValue: BigDecimal!
+  capitalProvided: BigDecimal!
+  capitalWithdrawn: BigDecimal!
+
+  yieldClaimedUsd: BigDecimal!
+  yieldClaimedRaw: BigDecimal!
+
+
+  pendleRewardReceivedRaw: BigDecimal!
+  pendleRewardReceivedUSD: BigDecimal!
+}
+
+type LpTransferEvent @entity {
+  id: ID! # txn hash
+  from: String!
+  to: String!
+  market: String!
+  lpPrice: BigDecimal!
+  amount: BigInt!
+  timestamp: BigInt!
+  block: BigInt!
+}
+
+
+
+############## DEBUG ############################
+
+
+type DebugLog @entity {
+  # The instance with id "0" is the root of the entity set. It stores the number of the instances (using for generating the id-s)
+  id: ID!
+  message: String!
+  type: String!
+  length: BigInt
+}
