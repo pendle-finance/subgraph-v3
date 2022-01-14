@@ -3,6 +3,7 @@ import { QuickswapPair } from "../../generated/PendleRouter/QuickswapPair";
 import {
   ONE_BD,
   STABLE_USD_TOKENS,
+  TIME_ADDRESS,
   WETH_ADDRESS,
   WMATIC_ADDRESS,
   ZERO_BD
@@ -72,6 +73,13 @@ export function getQuickSwapEthPrice(): BigDecimal {
  *  Currently we dont want to implement the second phase, since we are not watching quickswap factory but rather hardcodes some pairs.
  */
 export function getQuickSwapTokenPrice(tokenAddress: Address): BigDecimal {
+  if (tokenAddress.equals(TIME_ADDRESS)) {
+    return getPoolPrice(
+      getQuickswapPairAddress(TIME_ADDRESS, STABLE_USD_TOKENS[3]),
+      TIME_ADDRESS
+    );
+  }
+
   let poolAddress = getQuickswapPairAddress(tokenAddress, WMATIC_ADDRESS);
   if (poolAddress) {
     return getPoolPrice(poolAddress, tokenAddress).times(

@@ -1,11 +1,9 @@
 import { Address, BigDecimal } from "@graphprotocol/graph-ts";
 import { Token } from "../../generated/schema";
-import { SushiswapPair } from "../../generated/SushiswapFactory/SushiswapPair";
+import { SushiswapPair } from "../../generated/templates/SushiswapPair/SushiswapPair";
 import { getTokenPrice } from "../pricing";
 import { getUniswapEthPrice } from "../uniswap/pricing";
-import {
-  getUniswapV2GasTokenPrice
-} from "../uniswapv2/pricing";
+import { getUniswapV2GasTokenPrice } from "../uniswapv2/pricing";
 import { chainId, ZERO_BD } from "../utils/consts";
 import {
   PENDLE_ETH_SUSHISWAP,
@@ -13,10 +11,7 @@ import {
   TWO_BD,
   WETH_ADDRESS
 } from "../utils/consts";
-import {
-  convertTokenToDecimal,
-  getBalanceOf,
-} from "../utils/helpers";
+import { convertTokenToDecimal, getBalanceOf } from "../utils/helpers";
 import { loadToken } from "../utils/load-entity";
 
 export function getSushiLpPrice(lpAddress: Address): BigDecimal {

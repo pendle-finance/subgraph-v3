@@ -5,8 +5,6 @@ import {
   SushiswapPairHourData,
   LiquidityMining
 } from "../../generated/schema";
-import { PairCreated as SushiswapPairCreatedEvent } from "../../generated/SushiswapFactory/SushiswapFactory";
-import { Swap as SwapEvent } from "../../generated/SushiswapFactory/SushiswapPair";
 import {
   ADDRESS_ZERO,
   DAYS_PER_WEEK_BD,
@@ -24,11 +22,15 @@ import {
 } from "../utils/consts";
 import { convertTokenToDecimal, getBalanceOf } from "../utils/helpers";
 import { SushiswapPair as SushiswapPairTemplate } from "../../generated/templates";
-import { SushiswapPair as SushiswapPairContract } from "../../generated/templates/SushiswapPair/SushiswapPair";
+import {
+  SushiswapPair as SushiswapPairContract,
+  Swap as SwapEvent
+} from "../../generated/templates/SushiswapPair/SushiswapPair";
 import { LiquidityMiningV2 } from "../../generated/templates/SushiswapPair/LiquidityMiningV2";
 import { loadToken } from "../utils/load-entity";
 import { getTokenPrice } from "../pricing";
 import {} from "./pricing";
+import { PairCreated as SushiswapPairCreatedEvent } from "../../generated/QuickswapFactory/QuickswapFactory";
 
 export function isOwnershipToken(tokenAddress: Address): boolean {
   let token = Token.load(tokenAddress.toHexString());

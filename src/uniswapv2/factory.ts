@@ -8,12 +8,12 @@ import {
   OTPairHourData,
   LpTransferEvent
 } from "../../generated/schema";
-import { chainId } from "../utils/consts";
+import { chainId, MONE_BI } from "../utils/consts";
 import { SushiswapPair as SushiswapPairTemplate } from "../../generated/templates";
 import {
   convertTokenToDecimal,
   exponentToBigDecimal,
-  getBalanceOf,
+  getBalanceOf
 } from "../utils/helpers";
 import { getTokenPrice } from "../pricing";
 import {
@@ -32,9 +32,10 @@ import { loadToken, loadUserMarketData } from "../utils/load-entity";
 import { LiquidityMiningV2 } from "../../generated/templates/SushiswapPair/LiquidityMiningV2";
 import {
   SushiswapPair as SushiswapPairContract,
-  Transfer as TransferEvent
+  Transfer as TransferEvent,
+  Swap as SwapEvent
 } from "../../generated/templates/SushiswapPair/SushiswapPair";
-import { Swap as SwapEvent } from "../../generated/SushiswapFactory/SushiswapPair";
+
 import { getSushiLpPrice } from "../sushiswap/pricing";
 
 export function createUniswapV2Pair(
@@ -293,27 +294,15 @@ export function handleTransfer(event: TransferEvent): void {
 
   let from = event.params.from.toHexString();
   let to = event.params.to.toHexString();
-  let fromBalanceChange = event.params.value.times(BigInt.fromI32(-1));
+  let fromBalanceChange = event.params.value.times(MONE_BI);
   let toBalanceChange = event.params.value;
-
-  // if (fromBalanceChange.equals(ZERO_BI) && toBalanceChange.equals(ZERO_BI)) {
-  //   return;
-  // }
-
   let transferEvent = new LpTransferEvent(
     event.transaction.hash.toHexString() + "-" + from + "-" + to + "-" + pair.id
   );
 
-  let token0 = pair.otToken;
-
-  if (!pair.isOtToken0) {
-    token0 = pair.baseToken;
-  }
-
   let lpPrice = getSushiLpPrice(event.address).div(
     exponentToBigDecimal(loadToken(event.address).decimals)
   );
-
 
   transferEvent.from = from;
   transferEvent.to = to;
@@ -324,29 +313,20 @@ export function handleTransfer(event: TransferEvent): void {
   transferEvent.block = event.block.number;
   transferEvent.save();
 
-  updateUserMarketData(
-    event.params.from,
-    event.address,
-    fromBalanceChange,
-    lpPrice
-  );
-  updateUserMarketData(
-    event.params.to,
-    event.address,
-    toBalanceChange,
-    lpPrice
-  );
-
+  updateUserMarketDataOt(event.params.from, event.address, fromBalanceChange);
+  updateUserMarketDataOt(event.params.to, event.address, toBalanceChange);
   return;
 }
 
-function updateUserMarketData(
+export function updateUserMarketDataOt(
   user: Address,
   market: Address,
-  change: BigInt,
-  lpPrice: BigDecimal
+  change: BigInt
 ): void {
   let ins = loadUserMarketData(user, market);
+  let lpPrice = getSushiLpPrice(market).div(
+    exponentToBigDecimal(loadToken(market).decimals)
+  );
 
   ins.lpHolding = ins.lpHolding.plus(change);
   ins.recordedUSDValue = lpPrice.times(ins.lpHolding.toBigDecimal());

@@ -107,7 +107,7 @@ export function handleSwapInfo(
     pair as Pair,
     derivedAmountUSD,
     event.block.timestamp,
-    'swap'
+    "swap"
   );
 
   // CandleStick Chart
@@ -247,7 +247,7 @@ export function handleJoinInfo(
       pair as Pair,
       volumeUSD,
       event.block.timestamp,
-      'addSingle'
+      "addSingle"
     );
 
     addHourlyDailyVolume(
@@ -380,7 +380,7 @@ export function handleExitInfo(
       pair as Pair,
       volumeUSD,
       event.block.timestamp,
-      'removeSingle'
+      "removeSingle"
     );
 
     addHourlyDailyVolume(

@@ -1,27 +1,55 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { PendleData } from "../../generated/PendleData/PendleData";
 import { LiquidityMining, Token } from "../../generated/schema";
 import {
   RedeemLpInterests as RedeemLpInterestsEvent,
   Staked as StakeEvent,
   Withdrawn as WithdrawEvent,
   PendleLiquidityMiningV1 as LMv1Contract,
-  PendleRewardsSettled,
+  PendleRewardsSettled
 } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import { PendleLpHolder } from "../../generated/templates/PendleLiquidityMiningV1/PendleLpHolder";
 import { getTokenPrice } from "../pricing";
-import { PENDLE_TOKEN_ADDRESS } from "../utils/consts";
+import { MONE_BI, PENDLE_TOKEN_ADDRESS } from "../utils/consts";
 import { YTLiquidityMining } from "../utils/consts-modes/avalanche_consts";
 import { convertTokenToDecimal, printDebug } from "../utils/helpers";
 import {
   loadLiquidityMiningV1,
   loadToken,
-  loadUserMarketData,
+  loadUserMarketData
 } from "../utils/load-entity";
-import { redeemLpInterests } from "./market";
+import { redeemLpInterests, updateUserMarketData } from "./market";
 
-export function handleStake(event: StakeEvent): void {}
+function getLpHolder(lmAddr: Address, expiry: BigInt): Address {
+  let lm = LMv1Contract.bind(lmAddr);
+  let expiryData = lm.readExpiryData(expiry);
+  return expiryData.value3;
+}
 
-export function handleWithdrawn(event: WithdrawEvent): void {}
+function getMarketAddr(lmAddr: Address, expiry: BigInt): Address {
+  let lm = LMv1Contract.bind(lmAddr);
+  let data = PendleData.bind(lm.data());
+  let xyt = data.xytTokens(lm.forgeId(), lm.underlyingAsset(), expiry);
+  return data.getMarket(lm.marketFactoryId(), xyt, lm.baseToken());
+}
+
+export function handleStake(event: StakeEvent): void {
+  let lpHolder = getLpHolder(event.address, event.params.expiry);
+  let market = getMarketAddr(event.address, event.params.expiry);
+  updateUserMarketData(event.params.user, market, event.params.amount);
+  updateUserMarketData(lpHolder, market, event.params.amount.times(MONE_BI));
+}
+
+export function handleWithdrawn(event: WithdrawEvent): void {
+  let lpHolder = getLpHolder(event.address, event.params.expiry);
+  let market = getMarketAddr(event.address, event.params.expiry);
+  updateUserMarketData(
+    event.params.user,
+    market,
+    event.params.amount.times(MONE_BI)
+  );
+  updateUserMarketData(lpHolder, market, event.params.amount);
+}
 
 export function handleRedeemReward(event: PendleRewardsSettled): void {
   let rel = loadUserMarketData(

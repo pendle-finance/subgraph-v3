@@ -9,10 +9,7 @@ import {
   WMATIC_ADDRESS,
   USDC_WETH_POOL
 } from "../utils/consts";
-import {
-  getBalanceOf,
-  printDebug,
-} from "../utils/helpers";
+import { getBalanceOf, printDebug } from "../utils/helpers";
 import { loadToken } from "../utils/load-entity";
 import { getQuickswapPairAddress } from "./factory";
 

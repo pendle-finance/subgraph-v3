@@ -3,34 +3,36 @@ import {
   LiquidityMining,
   LpTransferEvent,
   Pair,
-  Token,
+  Token
 } from "../../generated/schema";
 import { PendleLiquidityMiningV1 as PendleLm1Contract } from "../../generated/templates/PendleLiquidityMiningV1/PendleLiquidityMiningV1";
 import {
   PendleMarket as PendleMarketContract,
   Sync as SyncEvent,
-  Transfer as TransferEvent,
+  Transfer as TransferEvent
 } from "../../generated/templates/PendleMarket/PendleMarket";
 import {
   ADDRESS_ZERO,
   DAYS_PER_WEEK_BD,
   DAYS_PER_YEAR_BD,
   LM_ALLOC_DENOM,
+  MONE_BI,
   ONE_BD,
   ONE_BI,
   PENDLE_TOKEN_ADDRESS,
   RONE,
   ZERO_BD,
-  ZERO_BI,
+  ZERO_BI
 } from "../utils/consts";
 import { LiquidityMiningV2 as LM2Contract } from "../../generated/Directory/LiquidityMiningV2";
 
 import {
   calcMarketWorthUSD,
   convertTokenToDecimal,
+  exponentToBigDecimal,
   getLpPrice,
   isMarketLiquidityMiningV2,
-  printDebug,
+  printDebug
 } from "../utils/helpers";
 import { loadToken, loadUser, loadUserMarketData } from "../utils/load-entity";
 import { getTokenPrice } from "../pricing";
@@ -42,23 +44,8 @@ export function handleTransfer(event: TransferEvent): void {
   updateMarketLiquidityMiningApr(event.block.timestamp, market as Pair);
   let from = event.params.from.toHexString();
   let to = event.params.to.toHexString();
-  let fromBalanceChange = ZERO_BI;
-  let toBalanceChange = ZERO_BI;
-  if (
-    from == market.yieldTokenHolderAddress ||
-    to == market.yieldTokenHolderAddress
-  ) {
-    // Stake & Withdraw
-    // Leave user's lp balance
-  } else {
-    // Normal Transfer
-    fromBalanceChange = event.params.value.times(BigInt.fromI32(-1));
-    toBalanceChange = event.params.value;
-  }
-  if (fromBalanceChange.equals(ZERO_BI) && toBalanceChange.equals(ZERO_BI)) {
-    return;
-  }
-
+  let fromBalanceChange = event.params.value.times(MONE_BI);
+  let toBalanceChange = event.params.value;
   let transferEvent = new LpTransferEvent(
     event.transaction.hash.toHexString() +
       "-" +
@@ -77,25 +64,14 @@ export function handleTransfer(event: TransferEvent): void {
   transferEvent.block = event.block.number;
   transferEvent.save();
 
-  updateUserMarketData(
-    event.params.from,
-    event.address,
-    fromBalanceChange,
-    event.block.timestamp.toI32()
-  );
-  updateUserMarketData(
-    event.params.to,
-    event.address,
-    toBalanceChange,
-    event.block.timestamp.toI32()
-  );
+  updateUserMarketDataYt(event.params.from, event.address, fromBalanceChange);
+  updateUserMarketDataYt(event.params.to, event.address, toBalanceChange);
 }
 
-function updateUserMarketData(
+export function updateUserMarketDataYt(
   user: Address,
   market: Address,
-  change: BigInt,
-  timestamp: number
+  change: BigInt
 ): void {
   let pair = Pair.load(market.toHexString()) as Pair;
   let ins = loadUserMarketData(user, market);
@@ -153,11 +129,9 @@ export function handleSync(event: SyncEvent): void {
       .times(xytWeight_BD)
       .div(tokenWeight_BD.times(xytBalance));
 
-    let multipledBy = BigInt.fromI32(10).pow(
-      xytDecimal.minus(baseDecimal).toI32() as u8
+    pair.token0Price = rawXytPrice.times(
+      exponentToBigDecimal(xytDecimal.minus(baseDecimal))
     );
-
-    pair.token0Price = rawXytPrice.times(multipledBy.toBigDecimal());
     pair.token1Price = ONE_BD;
   } else {
     pair.token0Price = ZERO_BD;

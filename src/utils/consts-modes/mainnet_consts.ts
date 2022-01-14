@@ -31,6 +31,14 @@ export let WMATIC_ADDRESS = Address.fromString(
   "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
 );
 
+export let WMEMO_ADDRESS = Address.fromString(
+  "0x0da67235dd5787d67955420c84ca1cecd4e5bb3b"
+);
+
+export let TIME_ADDRESS = Address.fromString(
+  "0xb54f16fb19478766a268f172c9480f8da1a7c9c3"
+);
+
 export let UNISWAP_Q192 = BigDecimal.fromString(
   BigInt.fromI32(2)
     .pow(192)

@@ -117,6 +117,20 @@ export function initializeQuickSwapPools(): void {
         Address.fromString("0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"),
         Address.fromString("0x6e84a6216ea6dacc71ee8e6b0a5b7322eebc0fdd")
       );
+
+      // ETH - MIM
+      createQuickswapPair(
+        Address.fromString("0x781655d802670bba3c89aebaaea59d3182fd755d"),
+        Address.fromString("0x130966628846bfd36ff31a822705796e8cb8c18d"),
+        Address.fromString("0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7")
+      );
+
+      // MIM - TIME
+      createQuickswapPair(
+        Address.fromString("0x113f413371fc4cc4c9d6416cf1de9dfd7bf747df"),
+        Address.fromString("0x130966628846bfd36ff31a822705796e8cb8c18d"),
+        Address.fromString("0xb54f16fb19478766a268f172c9480f8da1a7c9c3")
+      );
       break;
   }
 }
