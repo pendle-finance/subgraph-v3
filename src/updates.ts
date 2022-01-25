@@ -69,6 +69,22 @@ export function updatePairHourData(
     pairHourData.baseTokenPrice
   );
 
+    /**
+   * Token {
+   *  underlyingAsset
+   * }
+   * 
+   * OT and YT's underlyingAsset = yieldBearing
+   * yieldBearing (qiToken, aToken)'s underlying Asset = underlying (USDC, JOE)
+   * 
+   * 
+   * yieldBearingAssetPrice -> UnderlyingAssetPrice
+   *                                    ^
+   *                                    |
+   *                         calculate getTokenPrice(underlyingAsset address)
+   *                                                  loadToken(underlyingAsset address)
+   */
+
   let daysUntilExpiry = market.expiry
     .toBigDecimal()
     .minus(_timestamp.toBigDecimal())
