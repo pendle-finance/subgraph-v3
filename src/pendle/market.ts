@@ -39,8 +39,8 @@ import { getTokenPrice } from "../pricing";
 
 export function handleTransfer(event: TransferEvent): void {
   // To make sure that theres lp holder
-
   let market = Pair.load(event.address.toHexString()) as Pair;
+  if (event.block.timestamp > market.expiry) return;
   updateMarketLiquidityMiningApr(event.block.timestamp, market as Pair);
   let from = event.params.from.toHexString();
   let to = event.params.to.toHexString();
@@ -95,6 +95,7 @@ export function updateUserMarketDataYt(
 
 export function handleSync(event: SyncEvent): void {
   let pair = Pair.load(event.address.toHex());
+  if (event.block.timestamp > pair.expiry) return;
   let token0 = Token.load(pair.token0); // xyt
   let token1 = Token.load(pair.token1); // baseToken
   let marketContract = PendleMarketContract.bind(
@@ -183,6 +184,7 @@ export function updateMarketLiquidityMiningApr(
   timestamp: BigInt,
   pair: Pair
 ): void {
+  if (timestamp > pair.expiry) return;
   let marketAddress = Address.fromHexString(pair.id) as Address;
   if (!isMarketLiquidityMiningV2(marketAddress)) {
     /// LMV2 not found from directory contract

@@ -1,6 +1,6 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { PendleData } from "../../generated/PendleData/PendleData";
-import { LiquidityMining, Token } from "../../generated/schema";
+import { LiquidityMining, Pair, Token } from "../../generated/schema";
 import {
   RedeemLpInterests as RedeemLpInterestsEvent,
   Staked as StakeEvent,
@@ -18,7 +18,7 @@ import {
   loadToken,
   loadUserMarketData
 } from "../utils/load-entity";
-import { redeemLpInterests, updateUserMarketData } from "./market";
+import { redeemLpInterests, updateUserMarketDataYt } from "./market";
 
 function getLpHolder(lmAddr: Address, expiry: BigInt): Address {
   let lm = LMv1Contract.bind(lmAddr);
@@ -36,19 +36,24 @@ function getMarketAddr(lmAddr: Address, expiry: BigInt): Address {
 export function handleStake(event: StakeEvent): void {
   let lpHolder = getLpHolder(event.address, event.params.expiry);
   let market = getMarketAddr(event.address, event.params.expiry);
-  updateUserMarketData(event.params.user, market, event.params.amount);
-  updateUserMarketData(lpHolder, market, event.params.amount.times(MONE_BI));
+  let pair = Pair.load(market.toHexString());
+  if (event.block.timestamp > pair.expiry) return;
+  updateUserMarketDataYt(event.params.user, market, event.params.amount);
+  updateUserMarketDataYt(lpHolder, market, event.params.amount.times(MONE_BI));
 }
 
 export function handleWithdrawn(event: WithdrawEvent): void {
   let lpHolder = getLpHolder(event.address, event.params.expiry);
   let market = getMarketAddr(event.address, event.params.expiry);
-  updateUserMarketData(
+  let pair = Pair.load(market.toHexString());
+  if (event.block.timestamp > pair.expiry) return;
+
+  updateUserMarketDataYt(
     event.params.user,
     market,
     event.params.amount.times(MONE_BI)
   );
-  updateUserMarketData(lpHolder, market, event.params.amount);
+  updateUserMarketDataYt(lpHolder, market, event.params.amount);
 }
 
 export function handleRedeemReward(event: PendleRewardsSettled): void {
@@ -67,17 +72,8 @@ export function handleRedeemReward(event: PendleRewardsSettled): void {
 }
 
 export function handleRedeemLpInterests(event: RedeemLpInterestsEvent): void {
-  printDebug(
-    "lm address: " +
-      event.address.toHexString() +
-      " expiry: " +
-      event.params.expiry.toString() +
-      " market: " +
-      getExpiryMarket(event.address, event.params.expiry).toHexString() +
-      " interests: " +
-      event.params.interests.toString(),
-    "handleRedeemLpInterests"
-  );
+  return;
+  if (event.block.timestamp > event.params.expiry) return;
   redeemLpInterests(
     event.params.user,
     getExpiryMarket(event.address, event.params.expiry),

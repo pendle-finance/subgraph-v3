@@ -7,6 +7,7 @@ export let STABLE_USD_TOKENS: Address[] = [
 ];
 
 export let TWO_BD = BigDecimal.fromString("2");
+export let MONE_BI = BigInt.fromI32(-1);
 export let ZERO_BI = BigInt.fromI32(0);
 export let ONE_BI = BigInt.fromI32(1);
 export let ZERO_BD = BigDecimal.fromString("0");
@@ -43,6 +44,10 @@ export let UNISWAP_Q192 = BigDecimal.fromString(
   BigInt.fromI32(2)
     .pow(192)
     .toString()
+);
+
+export let PENDLE_WRAPPER: Address = Address.fromString(
+  "0x91b7c55301c6cc44ce01bce66dc0dfd176cf16bb"
 );
 
 export let DAYS_PER_YEAR_BD = BigDecimal.fromString("365");

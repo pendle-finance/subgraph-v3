@@ -325,6 +325,8 @@ templates:
           file: ./abis/ICToken.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
+        - name: PendleData
+          file: ./abis/PendleData.json
       eventHandlers:
         - event: Staked(uint256,address,uint256)
           handler: handleStake
@@ -364,6 +366,8 @@ templates:
           file: ./abis/sushiswap/pair.json
         - name: LiquidityMiningV2
           file: ./abis/PendleLiquidityMiningV2.json
+        - name: PendleData
+          file: ./abis/PendleData.json
       eventHandlers:
         - event: Staked(address,uint256)
           handler: handleStake

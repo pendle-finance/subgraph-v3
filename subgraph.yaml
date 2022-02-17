@@ -1,16 +1,16 @@
 specVersion: 0.0.2
-description: Pendle subgraph on avalanche
+description: Pendle subgraph on Mainnet
 repository: https://github.com/pendle-finance/subgraph-v3
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: PendleRouter
-    network: avalanche
+    network: mainnet
     source:
-      address: "0x771ad65bF2837C89A1CC0A0FC601d9De7f217b52"
+      address: "0x1b6d3E5Da9004668E14Ca39d1553E9a46Fe842B3"
       abi: PendleRouter
-      startBlock: 6725078
+      startBlock: 12638048
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -25,7 +25,6 @@ dataSources:
         - SushiswapPair
         - LiquidityMining
         - PairDailyData
-        - TradeMiningUser
       abis:
         - name: PendleRouter
           file: ./abis/PendleRouter.json
@@ -41,14 +40,10 @@ dataSources:
           file: ./abis/ERC20NameBytes.json
         - name: PendleMarket
           file: ./abis/PendleMarket.json
-        - name: QuickswapPair
-          file: ./abis/quickswap/pair.json
         - name: UniswapPool
           file: ./abis/uniswap/pool.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
-        - name: WMEMO
-          file: ./abis/WMEMO.json
       eventHandlers:
         - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
           handler: handleSwap
@@ -58,17 +53,17 @@ dataSources:
           handler: handleExitLiquidityPool
         - event: MarketCreated(bytes32,indexed address,indexed address,indexed address)
           handler: handleMarketCreated
-      # callHandlers:
-      #   - function: redeemLpInterests(address,address)
-      #     handler: handleRedeemLpInterests
+      callHandlers:
+        - function: redeemLpInterests(address,address)
+          handler: handleRedeemLpInterests
       file: ./src/pendle/router.ts
   - kind: ethereum/contract
     name: PendleData
-    network: avalanche
+    network: mainnet
     source:
-      address: "0x94D7E5c48Ca9627001FACb04D1820C54dFf3032c"
+      address: "0xE8A6916576832AA5504092C1cCCC46E3bB9491d6"
       abi: PendleData
-      startBlock: 6725074
+      startBlock: 12638042
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -94,74 +89,77 @@ dataSources:
         - event: MarketFeesSet(uint256,uint256)
           handler: handleMarketFeesSet
       file: ./src/pendle/data.ts
-  # - kind: ethereum/contract
-  #   name: UniswapFactory
-  #   network: avalanche
-  #   source:
-  #     address: "0x1F98431c8aD98523631AE4a59f267346ea31F984"
-  #     abi: UniswapFactory
-  #     # startBlock: 12369621
-  #     startBlock: 12638048
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - PricePool
-  #     abis:
-  #       - name: UniswapFactory
-  #         file: ./abis/UniswapFactory.json
-  #       - name: UniswapPool
-  #         file: ./abis/uniswap/pool.json
-  #       - name: ERC20
-  #         file: ./abis/ERC20.json
-  #       - name: ERC20SymbolBytes
-  #         file: ./abis/ERC20SymbolBytes.json
-  #       - name: ERC20NameBytes
-  #         file: ./abis/ERC20NameBytes.json
-  #     eventHandlers:
-  #       - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
-  #         handler: handleUniswapPoolCreated
-  #     file: ./src/uniswap/factory.ts
-  # - kind: ethereum/contract
-  #   name: QuickswapFactory
-  #   network: avalanche
-  #   source:
-  #     address: "0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10"
-  #     abi: QuickswapFactory
-  #     startBlock: 5841410
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - OTPair
-  #       - Token
-  #       - LiquidityMining
-  #     abis:
-  #       - name: ERC20
-  #         file: ./abis/ERC20.json
-  #       - name: ERC20SymbolBytes
-  #         file: ./abis/ERC20SymbolBytes.json
-  #       - name: ERC20NameBytes
-  #         file: ./abis/ERC20NameBytes.json
-  #       - name: QuickswapFactory
-  #         file: ./abis/quickswap/factory.json
-  #       - name: QuickswapPair
-  #         file: ./abis/quickswap/pair.json
-  #       - name: LiquidityMiningV2
-  #         file: ./abis/PendleLiquidityMiningV2.json
-  #     eventHandlers:
-  #       - event: PairCreated(indexed address,indexed address,address,uint256)
-  #         handler: handleNewUniswapV2Pair
-      # file: ./src/uniswapv2/factory.ts
+  - kind: ethereum/contract
+    name: UniswapFactory
+    network: mainnet
+    source:
+      address: "0x1F98431c8aD98523631AE4a59f267346ea31F984"
+      abi: UniswapFactory
+      # startBlock: 12369621
+      startBlock: 12638048
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PricePool
+      abis:
+        - name: UniswapFactory
+          file: ./abis/UniswapFactory.json
+        - name: UniswapPool
+          file: ./abis/uniswap/pool.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+      eventHandlers:
+        - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
+          handler: handleUniswapPoolCreated
+      file: ./src/uniswap/factory.ts
+  - kind: ethereum/contract
+    name: SushiswapFactory
+    network: mainnet
+    source:
+      address: "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac"
+      abi: SushiswapFactory
+      startBlock: 12638048
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - SushiswapPair
+        - Token
+        - DebugLog
+        - LiquidityMining
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: SushiswapFactory
+          file: ./abis/SushiswapFactory.json
+        - name: SushiswapPair
+          file: ./abis/sushiswap/pair.json
+        - name: UniswapPool
+          file: ./abis/uniswap/pool.json
+        - name: LiquidityMiningV2
+          file: ./abis/PendleLiquidityMiningV2.json
+      eventHandlers:
+        - event: PairCreated(indexed address,indexed address,address,uint256)
+          handler: handleNewSushiswapPair
+      file: ./src/sushiswap/factory.ts
   - kind: ethereum/contract
     name: Directory
-    network: avalanche
+    network: mainnet
     source:
-      address: "0x6E85FC67EF36a674f32c862579A4Dea8Ec95572a"
+      address: "0x702A893f712a59be72722e4078513A1FbA5CAf2D"
       abi: Directory
-      startBlock: 6773942
+      startBlock: 12983704
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -177,56 +175,11 @@ dataSources:
         - event: NewAddress(bytes32,address)
           handler: handleNewContractAddress
       file: ./src/pendle/directory.ts
-  - kind: ethereum/contract
-    name: PendleWrapper
-    network: avalanche
-    source:
-      address: "0x91b7c55301c6cc44ce01bce66dc0dfd176cf16bb"
-      abi: PendleWrapper
-      startBlock: 6807512
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - OTPair
-        - Token
-        - LiquidityMining
-      abis:
-        - name: ERC20
-          file: ./abis/ERC20.json
-        - name: ERC20SymbolBytes
-          file: ./abis/ERC20SymbolBytes.json
-        - name: ERC20NameBytes
-          file: ./abis/ERC20NameBytes.json
-        - name: QuickswapFactory
-          file: ./abis/quickswap/factory.json
-        - name: QuickswapPair
-          file: ./abis/quickswap/pair.json
-        - name: LiquidityMiningV2
-          file: ./abis/PendleLiquidityMiningV2.json
-        - name: PendleData
-          file: ./abis/PendleData.json
-        - name: PendleWrapper
-          file: ./abis/PendleWrapper.json
-        - name: PendleMarket
-          file: ./abis/PendleMarket.json
-        - name: SushiswapPair
-          file: ./abis/sushiswap/pair.json
-        - name: ICToken
-          file: ./abis/ICToken.json
-        - name: WMEMO
-          file: ./abis/WMEMO.json
-      eventHandlers:
-        - event: SwapEventYT(address,address,address,uint256,uint256)
-          handler: handleSwapEventYT
-        - event: AddLiquidityYT(indexed address,bytes32,address,address,uint256,uint256,uint256)
-          handler: handleAddLiquidityYT
-      file: ./src/pendle/wrapper.ts
+
 templates:
   - kind: ethereum/contract
     name: IPendleForge
-    network: avalanche
+    network: mainnet
     source:
       abi: IPendleForge
     mapping:
@@ -252,14 +205,10 @@ templates:
           file: ./abis/ERC20NameBytes.json
         - name: ICToken
           file: ./abis/ICToken.json
-        - name: QuickswapPair
-          file: ./abis/quickswap/pair.json
         - name: UniswapPool
           file: ./abis/uniswap/pool.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
-        - name: WMEMO
-          file: ./abis/WMEMO.json
       eventHandlers:
         - event: NewYieldContracts(bytes32,indexed address,indexed uint256,address,address,address)
           handler: handleNewYieldContracts
@@ -269,7 +218,7 @@ templates:
           handler: handleRedeemYieldContracts
   - kind: ethereum/contract
     name: PendleMarket
-    network: avalanche
+    network: mainnet
     source:
       abi: PendleMarket
     mapping:
@@ -294,20 +243,12 @@ templates:
           file: ./abis/PendleMarket.json
         - name: ERC20
           file: ./abis/ERC20.json
-        - name: ERC20SymbolBytes
-          file: ./abis/ERC20SymbolBytes.json
-        - name: ERC20NameBytes
-          file: ./abis/ERC20NameBytes.json
-        - name: QuickswapPair
-          file: ./abis/quickswap/pair.json
         - name: UniswapPool
           file: ./abis/uniswap/pool.json
         - name: ICToken
           file: ./abis/ICToken.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
-        - name: WMEMO
-          file: ./abis/WMEMO.json
       eventHandlers:
         - event: Sync(uint256,uint256,uint256)
           handler: handleSync
@@ -317,14 +258,14 @@ templates:
         #   handler: handleMint
   - kind: ethereum/contract
     name: SushiswapPair
-    network: avalanche
+    network: mainnet
     source:
       abi: SushiswapPair
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/uniswapv2/factory.ts
+      file: ./src/sushiswap/factory.ts
       entities:
         - SushiswapPair
         - Token
@@ -342,14 +283,10 @@ templates:
           file: ./abis/ERC20NameBytes.json
         - name: ICToken
           file: ./abis/ICToken.json
-        - name: QuickswapPair
-          file: ./abis/quickswap/pair.json
         - name: UniswapPool
           file: ./abis/uniswap/pool.json
         - name: LiquidityMiningV2
           file: ./abis/PendleLiquidityMiningV2.json
-        - name: WMEMO
-          file: ./abis/WMEMO.json
       eventHandlers:
         - event: Swap(indexed address,uint256,uint256,uint256,uint256,indexed address)
           handler: handleSwapSushiswap
@@ -357,11 +294,9 @@ templates:
           handler: handleUpdateSushiswap
         - event: Burn(indexed address,uint256,uint256,indexed address)
           handler: handleUpdateSushiswap
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
   - kind: ethereum/contract
     name: PendleLiquidityMiningV1
-    network: avalanche
+    network: mainnet
     source:
       abi: PendleLiquidityMiningV1
     mapping:
@@ -384,16 +319,12 @@ templates:
           file: ./abis/PendleLiquidityMiningV1.json
         - name: PendleLpHolder
           file: ./abis/PendleLpHolder.json
-        - name: QuickswapPair
-          file: ./abis/quickswap/pair.json
         - name: UniswapPool
           file: ./abis/uniswap/pool.json
         - name: ICToken
           file: ./abis/ICToken.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
-        - name: WMEMO
-          file: ./abis/WMEMO.json
         - name: PendleData
           file: ./abis/PendleData.json
       eventHandlers:
@@ -403,14 +334,12 @@ templates:
           handler: handleWithdrawn
         - event: PendleRewardsSettled(uint256,address,uint256)
           handler: handleRedeemReward
-        - event: RedeemLpInterests(uint256,address,uint256)
+      callHandlers:
+        - function: redeemLpInterests(uint256,address)
           handler: handleRedeemLpInterests
-      # callHandlers:
-      #   - function: redeemLpInterests(uint256,address)
-      #     handler: handleRedeemLpInterests
   - kind: ethereum/contract
     name: PendleLiquidityMiningV2
-    network: avalanche
+    network: mainnet
     source:
       abi: PendleLiquidityMiningV2
     mapping:
@@ -433,14 +362,12 @@ templates:
           file: ./abis/ERC20.json
         - name: PendleLiquidityMiningV2
           file: ./abis/PendleLiquidityMiningV2.json
-        - name: QuickswapPair
-          file: ./abis/quickswap/pair.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
         - name: LiquidityMiningV2
           file: ./abis/PendleLiquidityMiningV2.json
-        - name: WMEMO
-          file: ./abis/WMEMO.json
+        - name: PendleData
+          file: ./abis/PendleData.json
       eventHandlers:
         - event: Staked(address,uint256)
           handler: handleStake

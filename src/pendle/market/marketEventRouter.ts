@@ -24,6 +24,7 @@ export function handleSwapInfo(
   event: ethereum.Event
 ): void {
   let pair = Pair.load(marketAddress.toHexString());
+  if (event.block.timestamp > pair.expiry) return;
   let inToken = Token.load(inTokenAddress.toHexString());
   let outToken = Token.load(outTokenAddress.toHexString());
   let amountIn = convertTokenToDecimal(exactIn, inToken.decimals);
@@ -140,6 +141,8 @@ export function handleJoinInfo(
   event: ethereum.Event
 ): void {
   let pair = Pair.load(marketAddress.toHexString());
+  if (event.block.timestamp > pair.expiry) return;
+
   let inToken0 = Token.load(pair.token0);
   let inToken1 = Token.load(pair.token1);
   let inAmount0 = convertTokenToDecimal(token0Amount, inToken0.decimals);
@@ -269,6 +272,7 @@ export function handleExitInfo(
   event: ethereum.Event
 ): void {
   let pair = Pair.load(marketAddress.toHexString());
+  if (event.block.timestamp > pair.expiry) return;
   let outToken0 = Token.load(pair.token0);
   let outToken1 = Token.load(pair.token1);
   let outAmount0 = convertTokenToDecimal(token0Amount, outToken0.decimals);
