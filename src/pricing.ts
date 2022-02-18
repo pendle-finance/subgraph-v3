@@ -3,6 +3,7 @@ import { Token } from "../generated/schema";
 import { ICToken as ICTokenContract } from "../generated/templates/IPendleForge/ICToken";
 import { ERC20 as ERC20Contract } from "../generated/templates/PendleMarket/ERC20";
 import { WMEMO } from "../generated/PendleRouter/WMEMO";
+import { IWXBTRFLY } from "../generated/PendleRouter/IWXBTRFLY";
 import { getQuickSwapTokenPrice } from "./quickswap/pricing";
 import { getPendlePrice, getSushiLpPrice } from "./sushiswap/pricing";
 import { getUniswapTokenPrice } from "./uniswap/pricing";
@@ -13,7 +14,8 @@ import {
   ONE_BD,
   PENDLE_TOKEN_ADDRESS,
   WMEMO_ADDRESS,
-  ZERO_BD
+  WXBTRFLY_ADDRESS,
+  ZERO_BD,
 } from "./utils/consts";
 import { exponentToBigDecimal } from "./utils/helpers";
 import { loadToken } from "./utils/load-entity";
@@ -76,6 +78,16 @@ function calcSpecialForgePrice(
         .div(exponentToBigDecimal(BigInt.fromI32(18)))
     );
   }
+
+  if (token.forgeId.startsWith("Butterfly")) {
+    let WXBTRFLYContract = IWXBTRFLY.bind(WXBTRFLY_ADDRESS);
+    return tokenPrice.div(
+      WXBTRFLYContract.xBTRFLYValue(BigInt.fromI32(10).pow(9))
+        .toBigDecimal()
+        .div(exponentToBigDecimal(BigInt.fromI32(18)))
+    );
+  }
+
   return tokenPrice;
 }
 
@@ -114,6 +126,13 @@ export function getTokenPrice(token: Token): BigDecimal {
     // underlying is always TIME
     underlyingAsset = Address.fromString(
       "0xb54f16fb19478766a268f172c9480f8da1a7c9c3"
+    );
+  }
+
+  if (token.forgeId.startsWith("Butterfly")) {
+    // underlying asset is BTRFLY
+    underlyingAsset = Address.fromString(
+      "0xc0d4ceb216b3ba9c3701b291766fdcba977cec3a"
     );
   }
 
