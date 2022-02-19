@@ -3,7 +3,7 @@ import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 export let STABLE_USD_TOKENS: Address[] = [
   Address.fromString("0x6b175474e89094c44da98b954eedeac495271d0f"), // DAI
   Address.fromString("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"), // USDC
-  Address.fromString("0xdac17f958d2ee523a2206206994597c13d831ec7") // USDT
+  Address.fromString("0xdac17f958d2ee523a2206206994597c13d831ec7"), // USDT
 ];
 
 export let TWO_BD = BigDecimal.fromString("2");
@@ -38,6 +38,14 @@ export let WMEMO_ADDRESS = Address.fromString(
 
 export let TIME_ADDRESS = Address.fromString(
   "0xb54f16fb19478766a268f172c9480f8da1a7c9c3"
+);
+
+export let BTRFLY_ADDRESS = Address.fromString(
+  "0xc0d4ceb216b3ba9c3701b291766fdcba977cec3a"
+);
+
+export let WXBTRFLY_ADDRESS = Address.fromString(
+  "0x4b16d95ddf1ae4fe8227ed7b7e80cf13275e61c9"
 );
 
 export let UNISWAP_Q192 = BigDecimal.fromString(
