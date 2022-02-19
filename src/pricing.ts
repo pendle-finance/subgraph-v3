@@ -79,7 +79,7 @@ function calcSpecialForgePrice(
     );
   }
 
-  if (token.forgeId.startsWith("Butterfly")) {
+  if (token.forgeId.startsWith("Redacted")) {
     let WXBTRFLYContract = IWXBTRFLY.bind(WXBTRFLY_ADDRESS);
     return tokenPrice.div(
       WXBTRFLYContract.xBTRFLYValue(BigInt.fromI32(10).pow(9))
