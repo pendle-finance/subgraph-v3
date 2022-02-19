@@ -44,6 +44,8 @@ dataSources:
           file: ./abis/uniswap/pool.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
+        - name: IWXBTRFLY
+          file: ./abis/IWXBTRFLY.json
       eventHandlers:
         - event: SwapEvent(indexed address,address,address,uint256,uint256,address)
           handler: handleSwap
@@ -81,6 +83,8 @@ dataSources:
           file: ./abis/sushiswap/pair.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: IWXBTRFLY
+          file: ./abis/IWXBTRFLY.json
       eventHandlers:
         - event: ForgeAdded(indexed bytes32,indexed address)
           handler: handleNewForge
@@ -114,6 +118,8 @@ dataSources:
           file: ./abis/ERC20SymbolBytes.json
         - name: ERC20NameBytes
           file: ./abis/ERC20NameBytes.json
+        - name: IWXBTRFLY
+          file: ./abis/IWXBTRFLY.json
       eventHandlers:
         - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
           handler: handleUniswapPoolCreated
@@ -149,6 +155,8 @@ dataSources:
           file: ./abis/uniswap/pool.json
         - name: LiquidityMiningV2
           file: ./abis/PendleLiquidityMiningV2.json
+        - name: IWXBTRFLY
+          file: ./abis/IWXBTRFLY.json
       eventHandlers:
         - event: PairCreated(indexed address,indexed address,address,uint256)
           handler: handleNewSushiswapPair
@@ -171,6 +179,8 @@ dataSources:
           file: ./abis/Directory.json
         - name: LiquidityMiningV2
           file: ./abis/PendleLiquidityMiningV2.json
+        - name: IWXBTRFLY
+          file: ./abis/IWXBTRFLY.json
       eventHandlers:
         - event: NewAddress(bytes32,address)
           handler: handleNewContractAddress
@@ -209,6 +219,8 @@ templates:
           file: ./abis/uniswap/pool.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
+        - name: IWXBTRFLY
+          file: ./abis/IWXBTRFLY.json
       eventHandlers:
         - event: NewYieldContracts(bytes32,indexed address,indexed uint256,address,address,address)
           handler: handleNewYieldContracts
@@ -249,6 +261,8 @@ templates:
           file: ./abis/ICToken.json
         - name: SushiswapPair
           file: ./abis/sushiswap/pair.json
+        - name: IWXBTRFLY
+          file: ./abis/IWXBTRFLY.json
       eventHandlers:
         - event: Sync(uint256,uint256,uint256)
           handler: handleSync
@@ -287,6 +301,8 @@ templates:
           file: ./abis/uniswap/pool.json
         - name: LiquidityMiningV2
           file: ./abis/PendleLiquidityMiningV2.json
+        - name: IWXBTRFLY
+          file: ./abis/IWXBTRFLY.json
       eventHandlers:
         - event: Swap(indexed address,uint256,uint256,uint256,uint256,indexed address)
           handler: handleSwapSushiswap
@@ -327,6 +343,8 @@ templates:
           file: ./abis/sushiswap/pair.json
         - name: PendleData
           file: ./abis/PendleData.json
+        - name: IWXBTRFLY
+          file: ./abis/IWXBTRFLY.json
       eventHandlers:
         - event: Staked(uint256,address,uint256)
           handler: handleStake
@@ -368,6 +386,8 @@ templates:
           file: ./abis/PendleLiquidityMiningV2.json
         - name: PendleData
           file: ./abis/PendleData.json
+        - name: IWXBTRFLY
+          file: ./abis/IWXBTRFLY.json
       eventHandlers:
         - event: Staked(address,uint256)
           handler: handleStake

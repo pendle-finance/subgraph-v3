@@ -79,6 +79,7 @@ function calcSpecialForgePrice(
     );
   }
 
+  // TODO double check the decimals
   if (token.forgeId.startsWith("Butterfly")) {
     let WXBTRFLYContract = IWXBTRFLY.bind(WXBTRFLY_ADDRESS);
     return tokenPrice.div(
@@ -129,6 +130,7 @@ export function getTokenPrice(token: Token): BigDecimal {
     );
   }
 
+  // TODO obtain the correct forgeid from the contract team
   if (token.forgeId.startsWith("Butterfly")) {
     // underlying asset is BTRFLY
     underlyingAsset = Address.fromString(

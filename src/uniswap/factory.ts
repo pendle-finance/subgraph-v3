@@ -39,6 +39,12 @@ export function initializeUniswapPools(): void {
     Address.fromString("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
     Address.fromString("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2")
   );
+  // BTRFLY
+  createUniswapPool(
+    Address.fromString("0xdF9aB3C649005EbFDf682d2302ca1f673e0d37a2"),
+    Address.fromString("0xc0d4ceb216b3ba9c3701b291766fdcba977cec3a"),
+    Address.fromString("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2")
+  );
 }
 
 export function getUniswapPoolAddress(
