@@ -73,6 +73,7 @@ export function handleNewUniswapV2Pair(event: QuickswapPairCreatedEvent): void {
 
   let id = "";
   let baseToken = "";
+  baseToken = "";
   if (isOwnershipToken(event.params.token0)) {
     id = event.params.token0.toHexString();
     baseToken = event.params.token1.toHexString();
@@ -256,7 +257,7 @@ export function handleSwapSushiswap(event: SwapEvent): void {
     );
   }
 
-  tradingValue = tradingValue.times(getTokenPrice(baseToken));
+  tradingValue = tradingValue.times(getTokenPrice(baseToken))
 
   let timestamp = event.block.timestamp.toI32();
   let hourID = timestamp / ONE_HOUR;
