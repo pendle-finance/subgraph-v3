@@ -82,7 +82,7 @@ function calcSpecialForgePrice(
   if (token.forgeId.startsWith("Redacted")) {
     let WXBTRFLYContract = IWXBTRFLY.bind(WXBTRFLY_ADDRESS);
     return tokenPrice.div(
-      WXBTRFLYContract.xBTRFLYValue(BigInt.fromI32(10).pow(9))
+      WXBTRFLYContract.wBTRFLYValue(BigInt.fromI32(10).pow(9))
         .toBigDecimal()
         .div(exponentToBigDecimal(BigInt.fromI32(18)))
     );
